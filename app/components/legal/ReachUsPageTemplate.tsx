@@ -75,7 +75,7 @@ export default function ReachUsPageTemplate({
           <article>
             <h2 className="text-[clamp(1.45rem,2.8vw,2.35rem)] leading-none font-coolvetica">COMPANY NAME</h2>
             <p className="mt-3 text-[clamp(1.45rem,2.3vw,3rem)] leading-[1.2] font-coolvetica">
-              sourboo snacks LLP
+              Sourboo Snacks LLP
             </p>
           </article>
 
