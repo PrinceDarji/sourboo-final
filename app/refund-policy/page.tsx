@@ -18,19 +18,31 @@ const refundSections = [
     ],
   },
   {
-    title: 'REVIEW AND RESOLUTION',
+    title: 'EXCHANGE / REPLACEMENT POLICY',
     paragraphs: [
-      'After reviewing the request, we will determine whether a replacement or refund is appropriate. Approved refunds will be processed to the original method of payment.',
+      'If your claim is for an exchange or replacement, please note the following:',
+      '- Request Window: Requests must be made within 48 hours of delivery.',
+      '- Dispatch Time: Once approved, the replacement product will be dispatched within 2-3 business days after the original item is received and inspected.',
+      '- Delivery Timeline: Typically, replacements reach you within 3-7 business days of dispatch. Total turnaround time is generally 7-10 business days, depending on your location.',
+    ],
+  },
+  {
+    title: 'REFUND PROCESS',
+    paragraphs: [
+      'If a refund is determined to be the appropriate resolution:',
+      '- Approval: Once your request is approved, we will process the refund within 3-5 business days.',
+      '- Credit Timeline: After processing, the refund will be credited to your original mode of payment within 7-10 business days, depending on your bank or payment provider.',
     ],
   },
   {
     title: 'CONTACT',
     paragraphs: [
-      'If you have any general questions regarding your order, please contact us at sourboosnacks@gmail.com',
+      'For any general questions regarding your order or these policies, please reach out to us at:',
+      'Email: sourboosnacks@gmail.com',
     ],
   },
 ];
 
 export default function RefundPolicyPage() {
-  return <LegalPageTemplate title="Refund Policy" sections={refundSections} />;
+  return <LegalPageTemplate title="Refund & Exchange Policy" sections={refundSections} />;
 }
