@@ -2,6 +2,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
+import { sanityClient } from '@/src/lib/sanity/client';
+
+type StyleVariant = 'primary' | 'secondary';
+
+type SanityHomeProduct = {
+  slug?: string;
+  styleVariant?: StyleVariant;
+};
 
 type HomeBand = {
   id: string;
@@ -10,12 +18,17 @@ type HomeBand = {
   packageAspectRatio: number;
   priceLabel: string;
   ctaLabel: string;
-  href: string;
+  fallbackHref: string;
+  styleVariant: StyleVariant;
   ctaClassName: string;
   ctaAlignClass: string;
   ctaOffsetClass: string;
   showTopWave?: boolean;
   showBottomWave?: boolean;
+};
+
+type ProductBandProps = Omit<HomeBand, 'fallbackHref' | 'styleVariant'> & {
+  href: string;
 };
 
 const homeBands: HomeBand[] = [
@@ -26,7 +39,8 @@ const homeBands: HomeBand[] = [
     packageAspectRatio: 1210 / 274,
     priceLabel: '₹399',
     ctaLabel: 'side eye sour →',
-    href: '/product/side-eye-sour',
+    fallbackHref: '/product/side-eye-sour',
+    styleVariant: 'primary',
     ctaClassName: 'bg-[#F1F07F] text-[#2F4918] hover:bg-[#F7F7A2]',
     ctaAlignClass: 'justify-center',
     ctaOffsetClass: '-mt-40 sm:mt-2 md:-mt-110',
@@ -40,7 +54,8 @@ const homeBands: HomeBand[] = [
     packageAspectRatio: 2314 / 408,
     priceLabel: '₹399',
     ctaLabel: 'tamarind tease →',
-    href: '/product/tamarin-tease',
+    fallbackHref: '/product/tamarin-tease',
+    styleVariant: 'secondary',
     ctaClassName: 'bg-[#C96E0B] text-[#26140A] hover:bg-[#D77913]',
     ctaAlignClass: 'justify-start pl-10 sm:pl-20 md:pl-28 lg:pl-36',
     ctaOffsetClass: 'mt-4 sm:mt-5 md:mt-6',
@@ -79,6 +94,39 @@ const collageImages = [
       'right-[3%] top-[46%] w-[54%] -rotate-[8deg] sm:right-[6%] sm:top-[44%] sm:w-[45%] md:right-[12%] md:top-[47%] md:w-[28%]',
   },
 ];
+
+const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
+  "slug": slug.current,
+  styleVariant
+}`;
+
+function asNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+async function getHomeCtaHrefByVariant(): Promise<Partial<Record<StyleVariant, string>>> {
+  try {
+    const docs = await sanityClient
+      .withConfig({ useCdn: false })
+      .fetch<SanityHomeProduct[]>(HOME_CTA_PRODUCTS_QUERY, {}, { cache: 'no-store' });
+
+    if (!Array.isArray(docs) || docs.length === 0) return {};
+
+    const hrefByVariant: Partial<Record<StyleVariant, string>> = {};
+    for (const doc of docs) {
+      const variant: StyleVariant = doc.styleVariant === 'secondary' ? 'secondary' : 'primary';
+      if (hrefByVariant[variant]) continue;
+      const slug = asNonEmptyString(doc.slug);
+      if (!slug) continue;
+      hrefByVariant[variant] = `/product/${slug}`;
+    }
+    return hrefByVariant;
+  } catch {
+    return {};
+  }
+}
 
 function TopWave() {
   return (
@@ -124,7 +172,7 @@ function ProductBand({
   ctaOffsetClass,
   showTopWave,
   showBottomWave,
-}: HomeBand) {
+}: ProductBandProps) {
   return (
     <article className="relative w-full overflow-hidden">
       <div className="relative h-[560px] w-full sm:h-[620px] md:h-[760px] lg:h-[840px]">
@@ -188,7 +236,9 @@ function CrybabyVisual({
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const hrefByVariant = await getHomeCtaHrefByVariant();
+
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
       <Navbar />
@@ -224,9 +274,10 @@ export default function HomePage() {
 
       <section className="w-full pb-10 pt-4 md:pb-20 md:pt-8">
         <div className="w-full">
-          {homeBands.map((band) => (
-            <ProductBand key={band.id} {...band} />
-          ))}
+          {homeBands.map((band) => {
+            const href = hrefByVariant[band.styleVariant] ?? band.fallbackHref;
+            return <ProductBand key={band.id} {...band} href={href} />;
+          })}
         </div>
       </section>
 
