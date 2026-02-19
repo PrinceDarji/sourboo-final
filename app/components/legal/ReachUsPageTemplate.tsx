@@ -73,6 +73,13 @@ export default function ReachUsPageTemplate({
 
         <div className="mt-10 space-y-10 md:mt-12 md:space-y-12">
           <article>
+            <h2 className="text-[clamp(1.45rem,2.8vw,2.35rem)] leading-none font-coolvetica">COMPANY NAME</h2>
+            <p className="mt-3 text-[clamp(1.45rem,2.3vw,3rem)] leading-[1.2] font-coolvetica">
+              sourboo snacks LLP
+            </p>
+          </article>
+
+          <article>
             <h2 className="text-[clamp(1.45rem,2.8vw,2.35rem)] leading-none font-coolvetica">MAIL</h2>
             <Link
               href={`mailto:${email}`}
