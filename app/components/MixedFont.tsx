@@ -1,4 +1,4 @@
-import cn from "classnames";
+import { clsx } from "clsx";
 import { Fragment } from "react";
 
 type Run = {
@@ -15,11 +15,11 @@ export function MixedFontHeading({
   className?: string;
 }) {
   return (
-    <h1 className={cn("leading-[0.92] tracking-tight", className)}>
+    <h1 className={clsx("leading-[0.92] tracking-tight", className)}>
       {runs.map((r, i) => (
         <span
           key={i}
-          className={cn(
+          className={clsx(
             r.font === "rascal" && "font-rascal",
             r.font === "coolvetica" && "font-coolvetica",
             r.font === "schoolbell" && "font-schoolbell",
@@ -34,20 +34,42 @@ export function MixedFontHeading({
 }
 
 type FontName = "rascal" | "coolvetica" | "schoolbell";
-type MixMode = "alternate" | "random" | "none";
+type TextTag = "h1" | "h2" | "h3" | "p" | "span";
 
-type MixedFontTextProps = {
+type BaseMixedFontTextProps = {
   text: string;
   className?: string;
-  as?: "h1" | "h2" | "h3" | "p" | "span";
+  as?: TextTag;
   baseFont?: FontName;
   accentFont?: FontName;
-  mode?: MixMode;
-  accentEvery?: number;
-  accentProbability?: number;
-  accentIndices?: number[];
-  forceBaseIndices?: number[];
+  baseClassName?: string;
+  accentClassName?: string;
 };
+
+type DefaultPattern = {
+  pattern?: undefined;
+  startWith?: "base" | "accent";
+};
+
+type AlternatePattern = {
+  pattern: "alternate";
+  startWith?: "base" | "accent";
+};
+
+type EveryThirdPattern = {
+  pattern: "everyThird";
+  offset?: number;
+};
+
+type CustomPattern = {
+  pattern: "custom";
+  accentIndices: number[];
+};
+
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+export type MixedFontTextProps = BaseMixedFontTextProps & (DefaultPattern | AlternatePattern | EveryThirdPattern | CustomPattern);
+export type CoolRascalTextProps = DistributiveOmit<MixedFontTextProps, "baseFont" | "accentFont">;
 
 function fontClass(font: FontName) {
   if (font === "rascal") return "font-rascal";
@@ -55,13 +77,22 @@ function fontClass(font: FontName) {
   return "font-coolvetica";
 }
 
-function hashUnit(seed: string) {
-  let h = 2166136261;
-  for (let i = 0; i < seed.length; i += 1) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+function shouldUseAccent(
+  glyphIndex: number,
+  props: DefaultPattern | AlternatePattern | EveryThirdPattern | CustomPattern,
+  customAccentSet: Set<number>
+) {
+  if (props.pattern === "custom") {
+    return customAccentSet.has(glyphIndex);
   }
-  return ((h >>> 0) % 1000) / 1000;
+
+  if (props.pattern === "everyThird") {
+    const offset = ((props.offset ?? 2) % 3 + 3) % 3;
+    return glyphIndex % 3 === offset;
+  }
+
+  const startWith = props.startWith ?? "base";
+  return startWith === "accent" ? glyphIndex % 2 === 0 : glyphIndex % 2 === 1;
 }
 
 export function MixedFontText({
@@ -70,38 +101,37 @@ export function MixedFontText({
   as = "span",
   baseFont = "coolvetica",
   accentFont = "rascal",
-  mode = "alternate",
-  accentEvery = 3,
-  accentProbability = 0.34,
-  accentIndices = [],
-  forceBaseIndices = [],
+  baseClassName,
+  accentClassName,
+  ...patternProps
 }: MixedFontTextProps) {
   const Component = as;
-  const forcedAccent = new Set(accentIndices);
-  const forcedBase = new Set(forceBaseIndices);
+  let glyphIndex = -1;
+  const customAccentSet = new Set(patternProps.pattern === "custom" ? patternProps.accentIndices : []);
 
   return (
     <Component className={className}>
       {Array.from(text).map((char, i) => {
         if (char === " ") return <Fragment key={`${i}-space`}> </Fragment>;
-
-        let useAccent = false;
-        if (forcedAccent.has(i)) {
-          useAccent = true;
-        } else if (forcedBase.has(i)) {
-          useAccent = false;
-        } else if (mode === "alternate") {
-          useAccent = i % Math.max(accentEvery, 1) === 0;
-        } else if (mode === "random") {
-          useAccent = hashUnit(`${text}-${i}`) < accentProbability;
-        }
+        glyphIndex += 1;
+        const useAccent = shouldUseAccent(glyphIndex, patternProps, customAccentSet);
 
         return (
-          <span key={`${i}-${char}`} className={useAccent ? fontClass(accentFont) : fontClass(baseFont)}>
+          <span
+            key={`${i}-${char}`}
+            className={clsx(
+              useAccent ? fontClass(accentFont) : fontClass(baseFont),
+              useAccent ? accentClassName : baseClassName
+            )}
+          >
             {char}
           </span>
         );
       })}
     </Component>
   );
+}
+
+export function CoolRascalText(props: CoolRascalTextProps) {
+  return <MixedFontText {...props} baseFont="coolvetica" accentFont="rascal" />;
 }

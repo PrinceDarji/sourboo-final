@@ -59,7 +59,7 @@ export default function ReachUsPageTemplate({
   intro,
 }: ReachUsPageTemplateProps) {
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#D7261F] text-[#F08A97]">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#FFFF88] text-[#E61E6E]">
       <Navbar />
 
       <section className="mx-auto w-full max-w-[1800px] px-6 pb-20 pt-32 sm:px-10 sm:pt-36 md:px-14 md:pb-28 md:pt-44 lg:px-16">

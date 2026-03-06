@@ -20,6 +20,51 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## PhonePe + Supabase Setup
+
+Add these env vars in `.env.local` before trying checkout:
+
+```bash
+# site
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# phonepe
+PHONEPE_ENV=UAT
+PHONEPE_CLIENT_ID=
+PHONEPE_CLIENT_SECRET=
+PHONEPE_CLIENT_VERSION=1
+PHONEPE_WEBHOOK_USERNAME=
+PHONEPE_WEBHOOK_PASSWORD=
+
+# optional overrides (usually keep default)
+# PHONEPE_AUTH_URL=
+# PHONEPE_CREATE_PAYMENT_URL=
+# PHONEPE_ORDER_STATUS_BASE_URL=
+# PHONEPE_REFUND_CREATE_URL=
+# PHONEPE_REFUND_STATUS_BASE_URL=
+# PHONEPE_REDIRECT_BASE_URL=
+
+# optional UAT-only checkout override, amount in paise (100 = ₹1)
+# PHONEPE_TEST_AMOUNT_PAISE=
+
+# supabase
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+Run this SQL in Supabase SQL editor:
+
+- `supabase/migrations/20260228170000_phonepe_orders.sql`
+- `supabase/migrations/20260228193000_phonepe_refunds.sql`
+
+Implemented endpoints:
+
+- `POST /api/payments/phonepe/create`
+- `GET /api/payments/phonepe/status?merchantOrderId=...`
+- `POST /api/payments/phonepe/webhook`
+- `POST /api/payments/phonepe/refund`
+- `GET /api/payments/phonepe/refund-status?merchantRefundId=...`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

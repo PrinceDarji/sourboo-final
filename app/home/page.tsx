@@ -2,7 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
+import HomeHorizontalImageScroll from '../components/home/HomeHorizontalImageScroll';
+import CrybabyVisual from '../components/home/CrybabyVisual';
+import HomePosterPinboard from '../components/home/HomePosterPinboard';
 import { sanityClient } from '@/src/lib/sanity/client';
+import { CoolRascalText } from '../components/MixedFont';
+import { urlFor } from '@/src/lib/sanity/image';
 
 type StyleVariant = 'primary' | 'secondary';
 
@@ -10,6 +15,11 @@ type SanityHomeProduct = {
   slug?: string;
   styleVariant?: StyleVariant;
 };
+
+type HomeHeroQueryResult = {
+  heroImage?: unknown;
+  heroImageAlt?: string;
+} | null;
 
 type HomeBand = {
   id: string;
@@ -20,6 +30,7 @@ type HomeBand = {
   ctaLabel: string;
   fallbackHref: string;
   styleVariant: StyleVariant;
+  ctaBackgroundImage: string;
   ctaClassName: string;
   ctaAlignClass: string;
   ctaOffsetClass: string;
@@ -41,9 +52,10 @@ const homeBands: HomeBand[] = [
     ctaLabel: 'side eye sour →',
     fallbackHref: '/product/side-eye-sour',
     styleVariant: 'primary',
-    ctaClassName: 'bg-[#F1F07F] text-[#2F4918] hover:bg-[#F7F7A2]',
+    ctaBackgroundImage: '/home/ctabg.svg',
+    ctaClassName: 'text-[#2F4918] hover:brightness-105',
     ctaAlignClass: 'justify-center',
-    ctaOffsetClass: '-mt-40 sm:mt-2 md:-mt-110',
+    ctaOffsetClass: 'mt-4 sm:mt-5 md:mt-6',
     showBottomWave: true,
     showTopWave: true,
   },
@@ -56,42 +68,12 @@ const homeBands: HomeBand[] = [
     ctaLabel: 'tamarind tease →',
     fallbackHref: '/product/tamarin-tease',
     styleVariant: 'secondary',
-    ctaClassName: 'bg-[#C96E0B] text-[#26140A] hover:bg-[#D77913]',
+    ctaBackgroundImage: '/home/ctabg2.svg',
+    ctaClassName: 'text-[#26140A] hover:brightness-105',
     ctaAlignClass: 'justify-start pl-10 sm:pl-20 md:pl-28 lg:pl-36',
-    ctaOffsetClass: 'mt-4 sm:mt-5 md:mt-6',
+    ctaOffsetClass: 'mt-5 sm:mt-6 md:mt-7',
     showTopWave: true,
     showBottomWave: true,
-  },
-];
-
-const collageImages = [
-  {
-    id: 'post-cry-snack',
-    src: '/home/postcrysnack.svg',
-    alt: 'Post cry snack poster',
-    className:
-      'left-[1%] top-1 w-[57%] -rotate-[10deg] sm:left-[4%] sm:top-3 sm:w-[48%] md:left-[12%] md:-top-20 md:w-[36%]',
-  },
-  {
-    id: 'late-night-munchies',
-    src: '/home/latenightmunchies.svg',
-    alt: 'Late night munchies poster',
-    className:
-      'right-[1%] top-0 w-[57%] rotate-[11deg] sm:right-[4%] sm:w-[48%] md:right-[8%] md:-top-36 md:w-[36%]',
-  },
-  {
-    id: 'girl-dinner',
-    src: '/home/girldinner.svg',
-    alt: 'Girl dinner but sour poster',
-    className:
-      'left-[0%] top-[43%] w-[55%]  sm:left-[3%] sm:top-[41%] sm:w-[46%] md:left-[18%] md:top-[45%] md:w-[34%]',
-  },
-  {
-    id: 'hangover-detox',
-    src: '/home/deskcravings.svg',
-    alt: 'Hangover detox poster',
-    className:
-      'right-[3%] top-[46%] w-[54%] -rotate-[8deg] sm:right-[6%] sm:top-[44%] sm:w-[45%] md:right-[12%] md:top-[47%] md:w-[28%]',
   },
 ];
 
@@ -100,10 +82,27 @@ const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _c
   styleVariant
 }`;
 
+const HOME_HERO_QUERY = `coalesce(
+  *[_id == "drafts.homePage"][0],
+  *[_id == "homePage"][0],
+  *[_type == "homePage"] | order(_updatedAt desc)[0]
+){
+  heroImage,
+  heroImageAlt
+}`;
+
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function imageSrc(source: unknown, fallback: string) {
+  try {
+    return source ? urlFor(source).width(2200).quality(90).url() : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 async function getHomeCtaHrefByVariant(): Promise<Partial<Record<StyleVariant, string>>> {
@@ -125,6 +124,24 @@ async function getHomeCtaHrefByVariant(): Promise<Partial<Record<StyleVariant, s
     return hrefByVariant;
   } catch {
     return {};
+  }
+}
+
+async function getHomeHeroContent(): Promise<{ src: string; alt: string }> {
+  const fallbackSrc = '/home/hero-placeholder.JPEG';
+  const fallbackAlt = 'hero placeholder';
+
+  try {
+    const data = await sanityClient
+      .withConfig({ useCdn: false })
+      .fetch<HomeHeroQueryResult>(HOME_HERO_QUERY, {}, { cache: 'no-store' });
+
+    return {
+      src: imageSrc(data?.heroImage, fallbackSrc),
+      alt: asNonEmptyString(data?.heroImageAlt) || fallbackAlt,
+    };
+  } catch {
+    return { src: fallbackSrc, alt: fallbackAlt };
   }
 }
 
@@ -167,6 +184,7 @@ function ProductBand({
   priceLabel,
   ctaLabel,
   href,
+  ctaBackgroundImage,
   ctaClassName,
   ctaAlignClass,
   ctaOffsetClass,
@@ -180,15 +198,21 @@ function ProductBand({
 
         {showTopWave ? <TopWave /> : null}
 
-        <div className="absolute inset-x-0 top-[44%] z-10 sm:top-[46%] md:top-[47%]">
-          <div className="relative w-full" style={{ aspectRatio: packageAspectRatio }}>
+        <div className="absolute inset-x-0 top-1/2 z-10 -translate-y-1/2">
+          <div
+            className="relative mx-auto w-[min(88vw,1120px)] md:w-[min(78vw,1160px)] lg:w-[min(72vw,1220px)]"
+            style={{ aspectRatio: packageAspectRatio }}
+          >
             <Image src={packageImage} alt="product packaging strip" fill className="object-contain object-center" />
           </div>
 
-          <div className={`${ctaOffsetClass} flex ${ctaAlignClass} px-4`}>
+          <div
+            className={`mx-auto flex w-[min(88vw,1120px)] md:w-[min(78vw,1160px)] lg:w-[min(72vw,1220px)] ${ctaOffsetClass} ${ctaAlignClass}`}
+          >
             <Link
               href={href}
-              className={`inline-flex min-h-[54px] items-center rounded-full px-8 py-3 text-[clamp(1.7rem,3.1vw,2.9rem)] leading-[1] font-schoolbell transition md:min-h-[70px] md:px-12 ${ctaClassName}`}
+              className={`inline-flex min-h-[54px] items-center rounded-full bg-cover bg-center bg-no-repeat px-8 py-3 text-[clamp(1.7rem,3.1vw,2.9rem)] leading-[1] font-schoolbell transition md:min-h-[70px] md:px-12 ${ctaClassName}`}
+              style={{ backgroundImage: `url(${ctaBackgroundImage})` }}
             >
               <span>{ctaLabel}</span>
               <span className="ml-2 text-[0.6em] leading-none opacity-90">{priceLabel}</span>
@@ -202,77 +226,54 @@ function ProductBand({
   );
 }
 
-function CrybabyVisual({
-  mirrored = false,
-  rotateClass,
-  fluidPositionClass,
-}: {
-  mirrored?: boolean;
-  rotateClass: string;
-  fluidPositionClass: string;
-}) {
-  return (
-    <div className={`relative w-[min(90vw,560px)] aspect-[4/5] ${rotateClass}`}>
-      <div
-        className={`relative h-full w-full overflow-hidden rounded-[10px]  ${mirrored ? '-scale-x-100' : ''}`}
-      >
-        <Image
-          src="/home/readmyrant.svg"
-          alt="crybaby challenge visual placeholder"
-          fill
-          className="object-cover"
-        />
-        <p
-          className={`absolute z-20 text-[clamp(0.95rem,1.8vw,1.4rem)] leading-none tracking-[0.22em] text-[#F2E84A] font-coolvetica ${fluidPositionClass}`}
-        >
-          the sour baby
-        </p>
-     
-        <span className="absolute bottom-[31%] left-1/2 z-30 -translate-x-1/2 text-[clamp(3.2rem,8vw,7rem)] leading-none text-[#EA2A2A] blur-[0.5px]">
-          ✹
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default async function HomePage() {
-  const hrefByVariant = await getHomeCtaHrefByVariant();
+  const [hrefByVariant, hero] = await Promise.all([getHomeCtaHrefByVariant(), getHomeHeroContent()]);
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
       <Navbar />
 
       <section className="relative mx-auto w-full max-w-[1600px]">
-        <div className="relative h-[64vh] min-h-[460px] w-full overflow-hidden md:h-[78vh] md:min-h-[660px]">
-          <Image
-            src="/home/hero-placeholder.JPEG"
-            alt="hero placeholder"
-            fill
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/5 via-transparent to-black/25" />
-          <h1 className="absolute bottom-10 left-1/2 z-20 w-full max-w-[1260px] -translate-x-1/2 px-4 text-left leading-[0.86] sm:bottom-12 sm:px-6 md:bottom-16 md:px-10">
-            <span className="block text-[clamp(2rem,5vw,4.8rem)]">
-              <span className="text-[#4C8B1D] font-coolvetica">the </span>
-              <span className="text-[#EA1970] font-coolvetica">sourboo </span>
-              <span className="text-[#4C8B1D] font-coolvetica">way,</span>
-            </span>
-            <span className="block text-[clamp(2.2rem,6vw,5.6rem)]">
-              <span className="text-[#4C8B1D] font-coolvetica">cr</span>
-              <span className="text-[#4C8B1D] font-rascal">a</span>
-              <span className="text-[#4C8B1D] font-coolvetica">vings </span>
-              <span className="text-[#EA1970] font-coolvetica">comes </span>
-              <span className="text-[#4C8B1D] font-coolvetica">fir</span>
-              <span className="text-[#EA1970] font-rascal">s</span>
-              <span className="text-[#4C8B1D] font-coolvetica">t</span>
-            </span>
-          </h1>
+        <div className="relative h-[64vh] min-h-[460px] w-full md:h-[78vh] md:min-h-[660px]">
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src={hero.src}
+              alt={hero.alt}
+              fill
+              priority
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/5 via-transparent to-black/25" />
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 z-20 translate-y-1/2">
+            <div className="mx-auto w-full max-w-[1260px] px-4 text-left sm:px-6 md:px-10">
+              <h1 className="leading-[0.9]">
+                <CoolRascalText
+                  as="span"
+                  text="the sourboo way,"
+                  className="block text-[clamp(2rem,5vw,4.8rem)]"
+                  pattern="alternate"
+                  startWith="base"
+                  baseClassName="text-[#4C8B1D]"
+                  accentClassName="text-[#EA1970]"
+                />
+                <CoolRascalText
+                  as="span"
+                  text="cravings comes first"
+                  className="block text-[clamp(2.2rem,6vw,5.6rem)]"
+                  pattern="everyThird"
+                  offset={1}
+                  baseClassName="text-[#4C8B1D]"
+                  accentClassName="text-[#EA1970]"
+                />
+              </h1>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="w-full pb-10 pt-4 md:pb-20 md:pt-8">
+      <section className="w-full pb-10 pt-14 md:pb-20 md:pt-20">
         <div className="w-full">
           {homeBands.map((band) => {
             const href = hrefByVariant[band.styleVariant] ?? band.fallbackHref;
@@ -282,11 +283,26 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto w-full max-w-[1500px] px-4 pb-20 pt-2 md:px-10 md:pb-28 md:pt-12">
-        <p className="max-w-[820px] text-left text-[clamp(2rem,3.6vw,4.6rem)] leading-[1.06] text-[#191919] font-schoolbell">
-          sourboo made for people who eat
-          <br />
-          with intent
-        </p>
+        <div className="max-w-[820px] text-left text-[clamp(2rem,3.6vw,4.6rem)] leading-[1.06]">
+          <CoolRascalText
+            as="span"
+            text="sourboo made for people who eat"
+            className="block"
+            pattern="alternate"
+            startWith="base"
+            baseClassName="text-[#191919]"
+            accentClassName="text-[#191919]"
+          />
+          <CoolRascalText
+            as="span"
+            text="with intent"
+            className="block"
+            pattern="alternate"
+            startWith="accent"
+            baseClassName="text-[#191919]"
+            accentClassName="text-[#191919]"
+          />
+        </div>
 
         <div className="mt-8 md:mt-12">
           <div className="flex flex-col items-center gap-7 md:flex-row md:items-center md:justify-start md:gap-12 lg:gap-16">
@@ -303,7 +319,7 @@ export default async function HomePage() {
 
               <Link
                 href="/about"
-                className="inline-flex min-h-[62px] items-center justify-center rounded-[42%_58%_55%_45%/58%_44%_56%_42%] bg-[#E61E7A] px-11 py-3 text-center text-[clamp(2rem,3vw,3.4rem)] leading-none text-[#FFF8F8] font-schoolbell transition hover:bg-[#EB3187] md:min-h-[78px] md:px-16"
+                className="inline-flex w-[min(92vw,540px)] aspect-[256/67] items-center justify-center bg-[url('/home/readmyrantcta.svg')] bg-contain bg-center bg-no-repeat px-8 text-center text-[clamp(1.8rem,3vw,3.3rem)] leading-none text-[#FFF8F8] font-schoolbell transition duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E61E7A]"
               >
                 read my rant →
               </Link>
@@ -312,21 +328,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1500px] px-2 pb-20 md:px-8 md:pb-28">
-        <div className="relative mx-auto h-[640px] w-full sm:h-[760px] md:h-[900px] lg:h-[980px]">
-          {collageImages.map((item) => (
-            <div key={item.id} className={`absolute ${item.className}`}>
-              <Image
-                src={item.src}
-                alt={item.alt}
-                width={700}
-                height={980}
-                className="h-auto w-full object-contain"
-              />
-            </div>
-          ))}
+      <section className="mx-auto w-full max-w-[1500px] px-2 pb-6 md:px-8 md:pb-10">
+        <HomePosterPinboard />
+      </section>
+
+      <section className="w-full pb-8 md:pb-12">
+        <div className="relative mx-auto h-[220px] w-full max-w-[1240px] sm:h-[260px] md:h-[320px] lg:h-[390px]">
+          <Image
+            src="/home/freshingredients.svg"
+            alt="Fresh ingredients visual"
+            fill
+            className="object-cover object-[center_46%]"
+          />
         </div>
       </section>
+
+      <HomeHorizontalImageScroll />
 
       <SiteFooter />
     </main>

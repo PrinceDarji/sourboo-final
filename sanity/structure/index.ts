@@ -5,6 +5,17 @@ export const structure: StructureResolver = (S) =>
     .title("Content")
     .items([
       S.listItem()
+        .title("Home Page")
+        .id("homePageSingleton")
+        .icon(() => "🏠")
+        .child(
+          S.document()
+            .schemaType("homePage")
+            .documentId("homePage")
+            .title("Home Page")
+        ),
+
+      S.listItem()
         .title("About Page")
         .id("aboutPageSingleton")
         .icon(() => "ℹ️")
@@ -30,6 +41,6 @@ export const structure: StructureResolver = (S) =>
       // If you want a clean CMS later, remove this block.
       S.divider(),
       ...S.documentTypeListItems().filter(
-        (item) => !["aboutPage", "product"].includes(item.getId() as string)
+        (item) => !["homePage", "aboutPage", "product"].includes(item.getId() as string)
       ),
     ]);

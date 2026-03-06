@@ -32,7 +32,7 @@ function CartItemRow({
           🗑
         </button>
         
-        <div className="relative h-16 w-16 overflow-hidden rounded border border-[#D7D7C8] bg-[#6B55D8] md:h-20 md:w-20">
+        <div className="relative h-16 w-16 overflow-hidden rounded border border-[#D7D7C8] bg-[#FFFF88] md:h-20 md:w-20">
           <Image src={image} alt={name} fill unoptimized className="object-contain" />
         </div>
 
@@ -88,11 +88,11 @@ export default function CartDrawer() {
       />
 
       <aside
-        className={`absolute right-0 top-0 h-full w-full max-w-none overflow-hidden bg-[#7566E5] px-5 pb-9 pt-6 text-[#E9E8D8] transition-transform duration-300 sm:max-w-[92%] md:max-w-[62%] md:px-8 md:pt-7 lg:max-w-[54%] ${
+        className={`absolute right-0 top-0 h-full w-full max-w-none overflow-hidden bg-[#E61E6E] px-5 pb-9 pt-6 text-[#E9E8D8] transition-transform duration-300 sm:max-w-[92%] md:max-w-[62%] md:px-8 md:pt-7 lg:max-w-[54%] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="pointer-events-none absolute left-0 top-0 hidden h-full w-14 bg-[#7566E5] md:block md:-skew-x-[9deg]" />
+        <div className="pointer-events-none absolute left-0 top-0 hidden h-full w-14 bg-[#E61E6E] md:block md:-skew-x-[9deg]" />
 
         <div className="relative z-10 flex h-full flex-col">
           <div className="flex items-start justify-between">
@@ -103,13 +103,18 @@ export default function CartDrawer() {
             >
               X
             </button>
-            <p className="pr-2 text-[clamp(2.15rem,3.4vw,4.2rem)] leading-none text-[#1C948A] font-coolvetica">
-              sourboo
-            </p>
+            <div className="relative mr-1 -top-[30%] h-[48px] w-[170px] md:h-[164px] md:w-[220px]">
+              <Image
+                src="/cart/cartlogo.svg"
+                alt="Sourboo logo"
+                fill
+                className="object-contain object-right"
+              />
+            </div>
           </div>
 
           <div className="mt-6 border-b border-[#D7D7C8]/80 pb-3 md:mt-8 md:pb-4">
-            <p className="text-[clamp(1.95rem,3vw,3rem)] leading-none font-coolvetica">Cart ({totalItems})</p>
+            <p className="text-[clamp(1.95rem,3vw,3rem)] leading-none font-schoolbell">Cart ({totalItems})</p>
           </div>
 
           <div className="mt-1 max-h-[40vh] overflow-y-auto pr-1 md:max-h-[44vh]">
@@ -135,22 +140,23 @@ export default function CartDrawer() {
 
           <div className="mt-4 border-t border-[#D7D7C8]/80 pt-4 md:mt-5 md:pt-5">
             <div className="flex items-center justify-between">
-              <p className="text-[clamp(2rem,2.8vw,3rem)] leading-none font-coolvetica">Subtotal</p>
-              <p className="text-[clamp(2rem,2.8vw,3rem)] leading-none font-coolvetica">{formatInr(subtotal)}</p>
+              <p className="text-[clamp(2rem,2.8vw,3rem)] leading-none font-schoolbell">Subtotal</p>
+              <p className="text-[clamp(2rem,2.8vw,3rem)] leading-none font-schoolbell">{formatInr(subtotal)}</p>
             </div>
           </div>
 
           <div className="mt-8 flex justify-end md:mt-10">
             <Link
               href="/checkout"
-              className="inline-flex items-center rounded-full border-[8px] border-[#DF78B6] px-6 py-2 text-[clamp(1.9rem,2.6vw,2.8rem)] leading-none font-coolvetica transition hover:opacity-85"
+              onClick={closeCart}
+              className="inline-flex w-[min(100%,330px)] aspect-[286/74] items-center justify-center bg-[url('/cart/cartcta.svg')] bg-contain bg-center bg-no-repeat px-5 text-[clamp(1.6rem,2.4vw,2.5rem)] leading-none text-[#4A4743] font-coolvetica transition duration-200 hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFFF88]"
             >
               Checkout →
             </Link>
           </div>
 
           <p className="mt-auto pt-8 text-[clamp(1.45rem,1.9vw,2.1rem)] leading-none text-[#D7D7C8] font-coolvetica">
-            Taxes and shipping calculated at checkout
+            Taxes and shipping calculated at checkout*
           </p>
        
         </div>

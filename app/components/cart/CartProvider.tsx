@@ -24,7 +24,7 @@ type CartContextValue = {
   clearCart: () => void;
 };
 
-const STORAGE_KEY = 'sourboo_cart_v1';
+const STORAGE_KEY = 'sourboo_cart_v2';
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -83,11 +83,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existing) {
         return prev.map((cartItem) =>
           cartItem.slug === item.slug
-            ? { ...cartItem, quantity: cartItem.quantity + Math.max(1, quantity) }
+            ? {
+                ...cartItem,
+                name: item.name,
+                image: item.image,
+                price: Math.max(0, Number(item.price) || 0),
+                quantity: cartItem.quantity + Math.max(1, quantity),
+              }
             : cartItem,
         );
       }
-      return [...prev, { ...item, quantity: Math.max(1, quantity) }];
+      return [
+        ...prev,
+        {
+          ...item,
+          price: Math.max(0, Number(item.price) || 0),
+          quantity: Math.max(1, quantity),
+        },
+      ];
     });
   }, []);
 

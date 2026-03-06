@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import InstagramPostsStrip from './InstagramPostsStrip';
 
 const primaryLinks = [
   { label: 'HOME', href: '/' },
@@ -22,10 +23,12 @@ const policyLinks = [
 export default function SiteFooter() {
   return (
     <footer className="w-full overflow-x-hidden">
+      <InstagramPostsStrip />
+
       <div className="w-full">
         <div className="relative h-[clamp(440px,64vw,860px)] w-full">
           <Image
-            src="/footer/footerbase.svg"
+            src="/footerbod.svg"
             alt=""
             fill
             aria-hidden
@@ -34,10 +37,10 @@ export default function SiteFooter() {
 
           <div className="absolute inset-x-[2.5%] bottom-[3%] top-[22%] flex flex-col">
             <div className="absolute left-1/2 top-[-12%] w-[180px] -translate-x-1/2 rounded-[14px] bg-[#FCE7F3] px-2 py-3 text-center sm:w-[220px] md:w-[265px]">
-              <p className="text-[clamp(0.95rem,1.2vw,1.35rem)] leading-[1.05] text-[#232222] font-schoolbell">
+              <p className="text-[clamp(1.08rem,1.3vw,1.58rem)] leading-[1.05] text-[#232222] font-schoolbell">
                 DO YOU EVEN REMEMBER HOW IT STARTED
               </p>
-              <p className="mt-3 text-[clamp(1.05rem,1.5vw,1.8rem)] leading-none text-[#E61E7A] font-rascal">
+              <p className="mt-3 text-[clamp(1.16rem,1.65vw,2rem)] leading-none text-[#E61E7A] font-rascal">
                 stay sour
               </p>
             </div>
@@ -69,7 +72,7 @@ export default function SiteFooter() {
             </div>
 
             <div className="relative mt-auto pb-[0.8%]">
-              <div className="relative px-[6%] pb-[4.4%] pt-[2.6%]">
+              <div className="relative -translate-y-[10%] px-[6%] pb-[4.4%] pt-[2.6%] sm:-translate-y-[9%] md:-translate-y-[80%]">
                 <div
                   className="pointer-events-none absolute left-1/2 top-[34%] h-[42%] w-[45%] -translate-x-1/2 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#CDD58D]/85"
                   aria-hidden
@@ -84,20 +87,20 @@ export default function SiteFooter() {
                   />
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="mx-[6.5%] overflow-hidden border-t-2 border-[#A8CF3D] bg-white/95 sm:mx-[6%] md:mx-[5.5%]">
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2 px-4 py-3 sm:grid-cols-5 sm:px-6 md:px-10 md:py-4">
-                  {policyLinks.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className="text-center text-[clamp(0.72rem,1.1vw,1.15rem)] leading-none text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+          <div className="absolute inset-x-[6.5%] bottom-[10.1%] top-[81.5%] sm:inset-x-[6%] md:inset-x-[5.5%]">
+            <div className="grid h-full grid-cols-5 items-center gap-x-2 px-1 sm:gap-x-3 sm:px-2 md:px-4">
+              {policyLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-center text-[clamp(0.62rem,0.95vw,1.05rem)] leading-[0.95] text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
