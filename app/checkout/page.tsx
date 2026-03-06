@@ -6,6 +6,7 @@ import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
 import { useCart } from '../components/cart/CartProvider';
 import { formatInr } from '@/src/lib/cart/price';
+import { SHIPPING_CHARGE_INR } from '@/src/lib/checkout/totals';
 
 type CheckoutFormState = {
   fullName: string;
@@ -57,6 +58,7 @@ export default function CheckoutPage() {
     () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items],
   );
+  const totalPayable = useMemo(() => subtotal + SHIPPING_CHARGE_INR, [subtotal]);
 
   const canSubmit = items.length > 0 && !isSubmitting;
 
@@ -280,8 +282,20 @@ export default function CheckoutPage() {
                       {formatInr(subtotal)}
                     </p>
                   </div>
-                  <p className="mt-2 text-[0.95rem] leading-[1.2] text-[#365A17] font-schoolbell">
-                    Final amount is recalculated on server from Sanity price before payment.
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">Shipping</p>
+                    <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">
+                      {formatInr(SHIPPING_CHARGE_INR)}
+                    </p>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-[#9FCF41] pt-3">
+                    <p className="text-[1.35rem] leading-none text-[#2D5A0D] font-coolvetica">Total payable</p>
+                    <p className="text-[1.35rem] leading-none text-[#2D5A0D] font-coolvetica">
+                      {formatInr(totalPayable)}
+                    </p>
+                  </div>
+                  <p className="mt-3 text-[0.95rem] leading-[1.2] text-[#365A17] font-schoolbell">
+                    Final amount is recalculated on server from Sanity price + shipping before payment.
                   </p>
                 </div>
               </>

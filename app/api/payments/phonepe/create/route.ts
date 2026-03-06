@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
+import { SHIPPING_CHARGE_PAISE, calculatePayableTotalPaise } from '@/src/lib/checkout/totals';
 import {
   createOrderWithItems,
   tryInsertPaymentEvent,
@@ -133,7 +134,8 @@ export async function POST(request: Request) {
 
     const { items, customer, shippingAddress } = parsed.data;
     const pricedCart = await priceCheckoutItems(items);
-    const gatewayAmount = resolveGatewayAmountPaise(pricedCart.subtotalPaise);
+    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise);
+    const gatewayAmount = resolveGatewayAmountPaise(payableTotalPaise);
 
     if (pricedCart.subtotalPaise <= 0) {
       return NextResponse.json(
@@ -160,6 +162,8 @@ export async function POST(request: Request) {
         customer,
         shippingAddress,
         catalogSubtotalPaise: pricedCart.subtotalPaise,
+        shippingPaise: SHIPPING_CHARGE_PAISE,
+        payableTotalPaise,
         gatewayAmountPaise: gatewayAmount.amountPaise,
         testAmountOverrideApplied: gatewayAmount.isTestOverride,
       },
@@ -219,6 +223,8 @@ export async function POST(request: Request) {
       checkoutUrl,
       amountPaise: gatewayAmount.amountPaise,
       catalogSubtotalPaise: pricedCart.subtotalPaise,
+      shippingPaise: SHIPPING_CHARGE_PAISE,
+      payableTotalPaise,
       testAmountOverrideApplied: gatewayAmount.isTestOverride,
       state: phonePeStateRaw,
     });

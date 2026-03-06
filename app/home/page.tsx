@@ -14,6 +14,7 @@ type StyleVariant = 'primary' | 'secondary';
 type SanityHomeProduct = {
   slug?: string;
   styleVariant?: StyleVariant;
+  price?: string;
 };
 
 type HomeHeroQueryResult = {
@@ -79,7 +80,8 @@ const homeBands: HomeBand[] = [
 
 const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
   "slug": slug.current,
-  styleVariant
+  styleVariant,
+  price
 }`;
 
 const HOME_HERO_QUERY = `coalesce(
@@ -105,25 +107,38 @@ function imageSrc(source: unknown, fallback: string) {
   }
 }
 
-async function getHomeCtaHrefByVariant(): Promise<Partial<Record<StyleVariant, string>>> {
+async function getHomeCtaByVariant(): Promise<{
+  hrefByVariant: Partial<Record<StyleVariant, string>>;
+  priceByVariant: Partial<Record<StyleVariant, string>>;
+}> {
   try {
     const docs = await sanityClient
       .withConfig({ useCdn: false })
       .fetch<SanityHomeProduct[]>(HOME_CTA_PRODUCTS_QUERY, {}, { cache: 'no-store' });
 
-    if (!Array.isArray(docs) || docs.length === 0) return {};
+    if (!Array.isArray(docs) || docs.length === 0) {
+      return { hrefByVariant: {}, priceByVariant: {} };
+    }
 
     const hrefByVariant: Partial<Record<StyleVariant, string>> = {};
+    const priceByVariant: Partial<Record<StyleVariant, string>> = {};
     for (const doc of docs) {
       const variant: StyleVariant = doc.styleVariant === 'secondary' ? 'secondary' : 'primary';
+      if (!priceByVariant[variant]) {
+        const priceLabel = asNonEmptyString(doc.price);
+        if (priceLabel) {
+          priceByVariant[variant] = priceLabel;
+        }
+      }
+
       if (hrefByVariant[variant]) continue;
       const slug = asNonEmptyString(doc.slug);
       if (!slug) continue;
       hrefByVariant[variant] = `/product/${slug}`;
     }
-    return hrefByVariant;
+    return { hrefByVariant, priceByVariant };
   } catch {
-    return {};
+    return { hrefByVariant: {}, priceByVariant: {} };
   }
 }
 
@@ -227,7 +242,10 @@ function ProductBand({
 }
 
 export default async function HomePage() {
-  const [hrefByVariant, hero] = await Promise.all([getHomeCtaHrefByVariant(), getHomeHeroContent()]);
+  const [{ hrefByVariant, priceByVariant }, hero] = await Promise.all([
+    getHomeCtaByVariant(),
+    getHomeHeroContent(),
+  ]);
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
@@ -277,7 +295,8 @@ export default async function HomePage() {
         <div className="w-full">
           {homeBands.map((band) => {
             const href = hrefByVariant[band.styleVariant] ?? band.fallbackHref;
-            return <ProductBand key={band.id} {...band} href={href} />;
+            const priceLabel = priceByVariant[band.styleVariant] ?? band.priceLabel;
+            return <ProductBand key={band.id} {...band} href={href} priceLabel={priceLabel} />;
           })}
         </div>
       </section>

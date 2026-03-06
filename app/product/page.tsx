@@ -124,7 +124,7 @@ function toProductCard(doc: SanityProduct, index: number): ProductCard {
     title: asNonEmptyString(doc.titleWord) || (isSecondary ? "tamarin'" : 'side'),
     accent: asNonEmptyString(doc.accentWord) || (isSecondary ? 'tease' : 'eye'),
     suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : 'sour'),
-    price: '₹399',
+    price: asNonEmptyString(doc.price) || '₹399',
     hoverLabel: asNonEmptyString(doc.hoverLabel) || (isSecondary ? 'imli' : 'lemon and\nchaat masala'),
     alwaysShowLabel: Boolean(doc.alwaysShowLabel),
     styleVariant,

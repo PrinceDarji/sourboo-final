@@ -139,7 +139,7 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
     title: asNonEmptyString(doc.titleWord) || (isSecondary ? "tamarin'" : 'side'),
     accent: asNonEmptyString(doc.accentWord) || (isSecondary ? 'tease' : 'eye'),
     suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : 'sour'),
-    price: '₹399',
+    price: asNonEmptyString(doc.price) || '₹399',
     jarImage,
     carouselImages,
     titleColor: asNonEmptyString(doc.titleColor) || (isSecondary ? '#3E6A18' : '#E61E6E'),

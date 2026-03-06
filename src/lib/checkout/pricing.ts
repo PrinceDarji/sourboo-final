@@ -1,4 +1,5 @@
 import { sanityClient } from '@/src/lib/sanity/client';
+import { parsePriceLabel } from '@/src/lib/cart/price';
 
 export type CheckoutItemInput = {
   slug: string;
@@ -23,16 +24,16 @@ type ProductPricingDoc = {
   titleWord?: string;
   accentWord?: string;
   suffixWord?: string;
+  price?: string;
 };
 
 const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] {
   "slug": slug.current,
   titleWord,
   accentWord,
-  suffixWord
+  suffixWord,
+  price
 }`;
-
-const FIXED_PRODUCT_PRICE_PAISE = 40000;
 
 function toCleanSlug(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -54,6 +55,21 @@ function toProductName(doc: ProductPricingDoc): string {
   const suffix = typeof doc.suffixWord === 'string' ? doc.suffixWord.trim() : '';
   const name = [title, accent, suffix].filter(Boolean).join(' ').trim();
   return name || doc.slug || 'Product';
+}
+
+function toUnitPricePaise(doc: ProductPricingDoc, slug: string): number {
+  const priceLabel = typeof doc.price === 'string' ? doc.price.trim() : '';
+  if (!priceLabel) {
+    throw new Error(`Missing price for slug: ${slug}`);
+  }
+
+  const rupees = parsePriceLabel(priceLabel);
+  const paise = Math.round(rupees * 100);
+  if (!Number.isFinite(paise) || paise <= 0) {
+    throw new Error(`Invalid price for slug: ${slug}`);
+  }
+
+  return paise;
 }
 
 function normalizeItems(items: CheckoutItemInput[]): CheckoutItemInput[] {
@@ -98,7 +114,7 @@ export async function priceCheckoutItems(items: CheckoutItemInput[]): Promise<Pr
       throw new Error(`Product not found for slug: ${item.slug}`);
     }
 
-    const unitPricePaise = FIXED_PRODUCT_PRICE_PAISE;
+    const unitPricePaise = toUnitPricePaise(productDoc, item.slug);
     const lineTotalPaise = unitPricePaise * item.quantity;
 
     return {
