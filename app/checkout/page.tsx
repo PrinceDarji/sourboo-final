@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
@@ -22,6 +22,14 @@ type CheckoutFormState = {
 type CreatePaymentResponse = {
   ok: boolean;
   checkoutUrl?: string;
+  error?: string;
+};
+
+type QuoteResponse = {
+  ok: boolean;
+  subtotalPaise?: number;
+  shippingPaise?: number;
+  payableTotalPaise?: number;
   error?: string;
 };
 
@@ -53,14 +61,87 @@ export default function CheckoutPage() {
   const [formState, setFormState] = useState<CheckoutFormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [serverSubtotal, setServerSubtotal] = useState<number | null>(null);
+  const [serverShipping, setServerShipping] = useState<number | null>(null);
+  const [serverTotal, setServerTotal] = useState<number | null>(null);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
 
   const itemCount = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items],
   );
-  const totalPayable = useMemo(() => subtotal + SHIPPING_CHARGE_INR, [subtotal]);
+  const totalPayable = useMemo(
+    () => (typeof serverTotal === 'number' ? serverTotal : subtotal + SHIPPING_CHARGE_INR),
+    [serverTotal, subtotal],
+  );
+  const subtotalForDisplay = useMemo(
+    () => (typeof serverSubtotal === 'number' ? serverSubtotal : subtotal),
+    [serverSubtotal, subtotal],
+  );
+  const shippingForDisplay = useMemo(
+    () => (typeof serverShipping === 'number' ? serverShipping : SHIPPING_CHARGE_INR),
+    [serverShipping],
+  );
 
   const canSubmit = items.length > 0 && !isSubmitting;
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setServerSubtotal(null);
+      setServerShipping(null);
+      setServerTotal(null);
+      setQuoteError(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadQuote() {
+      try {
+        const response = await fetch('/api/checkout/quote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              slug: item.slug,
+              quantity: item.quantity,
+            })),
+          }),
+        });
+
+        const result = await parseJsonSafely<QuoteResponse>(response);
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || 'Unable to calculate payable total.');
+        }
+
+        if (cancelled) return;
+
+        const subtotalRupees =
+          typeof result.subtotalPaise === 'number' ? result.subtotalPaise / 100 : null;
+        const shippingRupees =
+          typeof result.shippingPaise === 'number' ? result.shippingPaise / 100 : null;
+        const totalRupees =
+          typeof result.payableTotalPaise === 'number' ? result.payableTotalPaise / 100 : null;
+
+        setServerSubtotal(subtotalRupees);
+        setServerShipping(shippingRupees);
+        setServerTotal(totalRupees);
+        setQuoteError(null);
+      } catch (error) {
+        if (cancelled) return;
+        setQuoteError(error instanceof Error ? error.message : 'Unable to calculate payable total.');
+      }
+    }
+
+    void loadQuote();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -279,13 +360,13 @@ export default function CheckoutPage() {
                       Items ({itemCount})
                     </p>
                     <p className="text-[1.25rem] leading-none text-[#2D5A0D] font-coolvetica">
-                      {formatInr(subtotal)}
+                      {formatInr(subtotalForDisplay)}
                     </p>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">Shipping</p>
                     <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">
-                      {formatInr(SHIPPING_CHARGE_INR)}
+                      {formatInr(shippingForDisplay)}
                     </p>
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-[#9FCF41] pt-3">
@@ -297,6 +378,11 @@ export default function CheckoutPage() {
                   <p className="mt-3 text-[0.95rem] leading-[1.2] text-[#365A17] font-schoolbell">
                     Final amount is recalculated on server from Sanity price + shipping before payment.
                   </p>
+                  {quoteError ? (
+                    <p className="mt-2 text-[0.95rem] leading-[1.2] text-[#9F1C74] font-schoolbell">
+                      {quoteError}
+                    </p>
+                  ) : null}
                 </div>
               </>
             )}
