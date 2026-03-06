@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/app/components/about/AboutNavbar';
@@ -67,7 +67,29 @@ function statusDescription(status: OrderStatus | null): string {
   }
 }
 
-export default function CheckoutReturnPage() {
+function CheckoutReturnFallback() {
+  return (
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
+      <Navbar />
+
+      <section className="mx-auto w-full max-w-[900px] px-6 pb-28 pt-36 md:px-10 md:pt-44">
+        <div className="rounded-3xl border-2 border-[#DF78B6] bg-[#F8FBEF] p-6 md:p-9">
+          <h1 className="text-center text-[clamp(2.6rem,5vw,4.8rem)] leading-[0.92] text-[#E61E6E] font-coolvetica">
+            Checking payment status
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-[680px] text-center text-[clamp(1.25rem,2.4vw,1.95rem)] leading-[1.1] text-[#2E2A2A] font-schoolbell">
+            Loading payment details...
+          </p>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </main>
+  );
+}
+
+function CheckoutReturnPageContent() {
   const searchParams = useSearchParams();
   const { clearCart } = useCart();
 
@@ -232,5 +254,13 @@ export default function CheckoutReturnPage() {
 
       <SiteFooter />
     </main>
+  );
+}
+
+export default function CheckoutReturnPage() {
+  return (
+    <Suspense fallback={<CheckoutReturnFallback />}>
+      <CheckoutReturnPageContent />
+    </Suspense>
   );
 }
