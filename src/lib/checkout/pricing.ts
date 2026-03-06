@@ -27,7 +27,7 @@ type ProductPricingDoc = {
   price?: string;
 };
 
-const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] {
+const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] | order(sortOrder asc, _createdAt asc) {
   "slug": slug.current,
   titleWord,
   accentWord,
@@ -105,6 +105,7 @@ export async function priceCheckoutItems(items: CheckoutItemInput[]): Promise<Pr
   for (const doc of docs || []) {
     const slug = toCleanSlug(doc.slug);
     if (!slug) continue;
+    if (bySlug.has(slug)) continue;
     bySlug.set(slug, doc);
   }
 

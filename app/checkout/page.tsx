@@ -27,6 +27,10 @@ type CreatePaymentResponse = {
 
 type QuoteResponse = {
   ok: boolean;
+  items?: Array<{
+    slug: string;
+    lineTotalPaise: number;
+  }>;
   subtotalPaise?: number;
   shippingPaise?: number;
   payableTotalPaise?: number;
@@ -64,6 +68,7 @@ export default function CheckoutPage() {
   const [serverSubtotal, setServerSubtotal] = useState<number | null>(null);
   const [serverShipping, setServerShipping] = useState<number | null>(null);
   const [serverTotal, setServerTotal] = useState<number | null>(null);
+  const [serverLineTotalsBySlug, setServerLineTotalsBySlug] = useState<Record<string, number>>({});
   const [quoteError, setQuoteError] = useState<string | null>(null);
 
   const itemCount = useMemo(
@@ -90,6 +95,7 @@ export default function CheckoutPage() {
       setServerSubtotal(null);
       setServerShipping(null);
       setServerTotal(null);
+      setServerLineTotalsBySlug({});
       setQuoteError(null);
       return;
     }
@@ -125,13 +131,23 @@ export default function CheckoutPage() {
           typeof result.shippingPaise === 'number' ? result.shippingPaise / 100 : null;
         const totalRupees =
           typeof result.payableTotalPaise === 'number' ? result.payableTotalPaise / 100 : null;
+        const lineTotalsBySlug = Array.isArray(result.items)
+          ? result.items.reduce<Record<string, number>>((acc, item) => {
+              if (!item || typeof item.slug !== 'string') return acc;
+              if (typeof item.lineTotalPaise !== 'number') return acc;
+              acc[item.slug] = item.lineTotalPaise / 100;
+              return acc;
+            }, {})
+          : {};
 
         setServerSubtotal(subtotalRupees);
         setServerShipping(shippingRupees);
         setServerTotal(totalRupees);
+        setServerLineTotalsBySlug(lineTotalsBySlug);
         setQuoteError(null);
       } catch (error) {
         if (cancelled) return;
+        setServerLineTotalsBySlug({});
         setQuoteError(error instanceof Error ? error.message : 'Unable to calculate payable total.');
       }
     }
@@ -348,7 +364,7 @@ export default function CheckoutPage() {
                         {item.name} x {item.quantity}
                       </p>
                       <p className="text-[1.05rem] leading-[1.2] text-[#2E2A2A]">
-                        {formatInr(item.price * item.quantity)}
+                        {formatInr(serverLineTotalsBySlug[item.slug] ?? item.price * item.quantity)}
                       </p>
                     </div>
                   ))}
