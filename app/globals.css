@@ -96,6 +96,49 @@ body {
   will-change: auto;
 }
 
+.home-review-bubble {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0) scale(0.88) rotate(var(--review-rotation, 0deg));
+  background: var(--review-bg, #ece5f0);
+}
+
+.home-review-bubble-tail {
+  background: var(--review-bg, #ece5f0);
+}
+
+.home-review-visible .home-review-bubble {
+  animation: home-review-bubble-pop 760ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--review-delay, 0ms);
+}
+
+@keyframes home-review-bubble-pop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.88) rotate(var(--review-rotation, 0deg));
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -4px, 0) scale(1.03) rotate(var(--review-rotation, 0deg));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(var(--review-rotation, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-review-bubble {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(var(--review-rotation, 0deg));
+  }
+
+  .home-review-visible .home-review-bubble {
+    animation: none;
+  }
+}
+
 .about-top-strip {
   position: relative;
   display: grid;

@@ -1,5 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type { MouseEvent, ReactNode } from 'react';
 import InstagramPostsStrip from './InstagramPostsStrip';
 
 const primaryLinks = [
@@ -19,6 +23,47 @@ const policyLinks = [
   { label: 'SHIPPING POLICY', href: '/shipping-policy' },
   { label: 'CONTACT', href: '/contact' },
 ];
+
+function normalizePath(path: string) {
+  if (path === '/') return '/';
+  return path.replace(/\/+$/, '');
+}
+
+type FooterLinkProps = {
+  href: string;
+  className: string;
+  children: ReactNode;
+};
+
+function FooterLink({ href, className, children }: FooterLinkProps) {
+  const pathname = usePathname();
+  const currentPath = normalizePath(pathname || '/');
+  const targetPath = normalizePath(href);
+  const isCurrentPage = currentPath === targetPath;
+
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (!isCurrentPage) return;
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }
+
+  return (
+    <Link href={href} className={className} onClick={handleClick}>
+      {children}
+    </Link>
+  );
+}
 
 export default function SiteFooter() {
   return (
@@ -48,25 +93,25 @@ export default function SiteFooter() {
             <div className="grid grid-cols-2 items-start px-[8.5%] pt-[18%] sm:px-[9.5%] sm:pt-[15%] md:px-[10.5%] md:pt-[13%]">
               <div className="flex flex-col items-start gap-[clamp(0.8rem,1.8vw,2.2rem)]">
                 {primaryLinks.map((item) => (
-                  <Link
+                  <FooterLink
                     key={item.label}
                     href={item.href}
                     className="text-[clamp(1.1rem,2vw,2.2rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
                   >
                     {item.label}
-                  </Link>
+                  </FooterLink>
                 ))}
               </div>
 
               <div className="flex flex-col items-end gap-[clamp(0.8rem,1.8vw,2.2rem)]">
                 {secondaryLinks.map((item) => (
-                  <Link
+                  <FooterLink
                     key={item.label}
                     href={item.href}
                     className="text-[clamp(1.1rem,2vw,2.2rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
                   >
                     {item.label}
-                  </Link>
+                  </FooterLink>
                 ))}
               </div>
             </div>
@@ -93,13 +138,13 @@ export default function SiteFooter() {
           <div className="absolute inset-x-[6.5%] bottom-[10.1%] top-[81.5%] sm:inset-x-[6%] md:inset-x-[5.5%]">
             <div className="grid h-full grid-cols-5 items-center gap-x-2 px-1 sm:gap-x-3 sm:px-2 md:px-4">
               {policyLinks.map((item) => (
-                <Link
+                <FooterLink
                   key={item.label}
                   href={item.href}
                   className="text-center text-[clamp(0.62rem,0.95vw,1.05rem)] leading-[0.95] text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
                 >
                   {item.label}
-                </Link>
+                </FooterLink>
               ))}
             </div>
           </div>

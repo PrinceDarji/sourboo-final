@@ -5,6 +5,7 @@ import SiteFooter from '../components/SiteFooter';
 import HomeHorizontalImageScroll from '../components/home/HomeHorizontalImageScroll';
 import CrybabyVisual from '../components/home/CrybabyVisual';
 import HomePosterPinboard from '../components/home/HomePosterPinboard';
+import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
 import { urlFor } from '@/src/lib/sanity/image';
@@ -363,6 +364,7 @@ export default async function HomePage() {
       </section>
 
       <HomeHorizontalImageScroll />
+      <HomeReviewPhoneSection />
 
       <SiteFooter />
     </main>

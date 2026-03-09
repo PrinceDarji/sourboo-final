@@ -61,12 +61,9 @@ export default function SectionScrollReveal() {
       (entries) => {
         entries.forEach((entry) => {
           const section = entry.target as HTMLElement;
-          if (entry.intersectionRatio >= REVEAL_INTERSECTION_RATIO) {
-            markVisible(section);
-            return;
-          }
-
-          section.classList.remove(VISIBLE_CLASS);
+          if (entry.intersectionRatio < REVEAL_INTERSECTION_RATIO) return;
+          markVisible(section);
+          observer.unobserve(section);
         });
       },
       {

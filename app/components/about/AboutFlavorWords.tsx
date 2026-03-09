@@ -96,7 +96,7 @@ export default function AboutFlavorWords() {
       <FlavorWord
         wrapperClassName="absolute left-1/2 top-[42%] w-[220px] aspect-[303/153] -translate-x-1/2 sm:w-[252px] md:w-[336px]"
         itemClassName="about-flavor-word-2"
-        textClassName="text-[58px] leading-none text-[#4e7805] font-rascal md:text-[82px]"
+        textClassName="text-[58px] leading-none text-[#E61E6E] font-rascal md:text-[82px]"
         label="spicy"
         bgSrc="/about/spicybg.svg"
       />

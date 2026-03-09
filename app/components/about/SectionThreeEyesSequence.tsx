@@ -10,8 +10,8 @@ const EYES_SEQUENCE = [
   '/about/section-three-eyes.svg',
 ] as const;
 
-const STEP_DELAY_MS = 2000;
-const LOOP_PAUSE_MS = 2000;
+const STEP_DELAY_MS = 1000;
+const LOOP_PAUSE_MS = 1000;
 const REVEAL_THRESHOLD = 0.2;
 
 export default function SectionThreeEyesSequence() {
@@ -89,14 +89,14 @@ export default function SectionThreeEyesSequence() {
   return (
     <div
       ref={containerRef}
-      className="absolute left-1/2 -top-20 h-[240px] w-[138%] -translate-x-1/2 md:-top-36 md:h-[700px] md:w-[220%]"
+      className="absolute left-1/2 -top-20 h-[240px] w-[138%] -translate-x-1/2 md:-top-56 md:h-[820px] md:w-[320%]"
     >
       <Image
         src={EYES_SEQUENCE[currentEyeIndex]}
         alt="Eyes illustration"
         fill
         className={`object-contain transition-transform duration-300 ${
-          shouldRenderSmallerEyes ? 'scale-45' : 'scale-80'
+          shouldRenderSmallerEyes ? 'scale-64' : 'scale-80'
         }`}
       />
     </div>

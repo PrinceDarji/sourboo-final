@@ -8,6 +8,7 @@ import { sanityClient } from '@/src/lib/sanity/client';
 import { urlFor } from '@/src/lib/sanity/image';
 import AnimatedFlavorMeters, { type FlavorMeter } from '../components/product/AnimatedFlavorMeters';
 import ProductWordByWordReveal from '../components/product/ProductWordByWordReveal';
+import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -123,7 +124,7 @@ function toProductCard(doc: SanityProduct, index: number): ProductCard {
     slug: asNonEmptyString(doc.slug) || `product-${index + 1}`,
     title: asNonEmptyString(doc.titleWord) || (isSecondary ? "tamarin'" : 'side'),
     accent: asNonEmptyString(doc.accentWord) || (isSecondary ? 'tease' : 'eye'),
-    suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : 'sour'),
+    suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : ''),
     price: asNonEmptyString(doc.price) || '₹399',
     hoverLabel: asNonEmptyString(doc.hoverLabel) || (isSecondary ? 'imli' : 'lemon and\nchaat masala'),
     alwaysShowLabel: Boolean(doc.alwaysShowLabel),
@@ -359,7 +360,7 @@ export default async function ProductPage() {
           />
 
           <div className="relative mx-auto mt-6 h-[110px] w-[150px] md:mt-8 md:h-[150px] md:w-[200px]">
-            <Image src="/product/match-path-top.svg" alt="green path illustration" fill className="object-contain" />
+            <Image src="/product/productpath1.svg" alt="green path illustration" fill className="object-contain" />
           </div>
 
           <p className="product-word-reveal mx-auto mt-2 max-w-[390px] text-center text-[clamp(2rem,4.9vw,4.9rem)] leading-[1.03] text-[#A46BC4] font-schoolbell md:mt-4 md:max-w-[860px]">
@@ -388,7 +389,7 @@ export default async function ProductPage() {
         <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
           <div className="relative mx-auto h-[112px] w-[152px] md:h-[146px] md:w-[210px]">
             <Image
-              src="/product/match-path-bottom.svg"
+              src="/product/productpath.svg"
               alt="green path illustration"
               fill
               className="object-contain"
@@ -457,7 +458,7 @@ export default async function ProductPage() {
       <section className="w-full pb-28 pt-2 md:pb-36 md:pt-4">
         <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
           <div className="relative mx-auto h-[120px] w-[170px] md:h-[170px] md:w-[230px]">
-            <Image src="/product/match-path-bottom.svg" alt="green path illustration" fill className="object-contain" />
+            <Image src="/product/productpath.svg" alt="green path illustration" fill className="object-contain" />
           </div>
 
           <div className="relative mx-auto mt-4 w-full max-w-[430px] md:mt-6 md:max-w-[520px] lg:max-w-[600px]">
@@ -548,6 +549,8 @@ export default async function ProductPage() {
           </div>
         </div>
       </section>
+
+      <HomeReviewPhoneSection />
 
       <SiteFooter />
     </main>

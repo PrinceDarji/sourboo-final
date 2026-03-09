@@ -74,7 +74,7 @@ export default function Navbar() {
             <Link href="/" className="block">
               <div className="relative h-[54px] w-[188px] sm:h-[62px] sm:w-[216px] md:h-[74px] md:w-[258px]">
                 <Image
-                  src="/navlogo.svg"
+                  src="/logo.svg"
                   alt="Sourboo logo"
                   fill
                   priority

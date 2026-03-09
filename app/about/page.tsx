@@ -217,7 +217,7 @@ export default async function Home() {
         <div className="relative mx-auto h-[620px] w-full overflow-hidden md:h-[1280px]">
           <SectionThreeEyesSequence />
 
-          <div className="about-tongue-position absolute left-1/2 h-[780px] w-[138%] -translate-x-1/2 md:h-[900px] md:w-[72%]">
+          <div className="about-tongue-position absolute left-1/2 h-[780px] w-[138%] -translate-x-1/2 md:h-[900px] md:w-[68%]">
             <Image
               src="/about/section-three-tongue.svg"
               alt="Tongue illustration"
@@ -228,13 +228,24 @@ export default async function Home() {
           </div>
         
         </div>
-          <p className="-mt-24 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-36 md:text-[48px]">
+          <p className="-mt-20 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-64 md:text-[48px]">
             Nothing worked for a desi palate that loves
           </p>
       </section>
 
       {/* Section 4 */}
-      <section className="-mt-12 w-full bg-[#D9F99D] pb-20 pt-6 md:mt-0 md:pb-28 md:pt-10">
+      <section className="relative -mt-12 w-full bg-[#F6AE5A] pb-20 pt-6 md:mt-0 md:pb-28 md:pt-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 -top-10 h-12 md:-top-14 md:h-16"
+        >
+          <svg className="h-full w-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path
+              fill="#F6AE5A"
+              d="M0 78C85 28 172 18 262 48C351 79 431 106 525 90C616 74 678 24 772 32C867 40 931 94 1024 96C1118 98 1228 41 1322 34C1374 30 1413 36 1440 44V120H0V78Z"
+            />
+          </svg>
+        </div>
         <div className="mx-auto w-full max-w-[430px] md:max-w-[1100px] md:px-10">
          
           <AboutFlavorWords />
@@ -264,7 +275,7 @@ export default async function Home() {
                 strokeLinecap="round"
               />
             </svg>
-            <p className="relative z-10 text-center text-[72px] leading-none text-[#F2EE72] font-coolvetica md:text-[128px]">
+            <p className="relative z-10 text-center text-[72px] leading-none text-[#15803D] font-coolvetica md:text-[128px]">
               MY BIGGEST ISSUE?
             </p>
         
@@ -402,7 +413,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="relative mx-auto mt-2 h-[640px] w-[92%] md:mt-4 md:h-[720px] md:w-[82%]">
+          <div className="relative mx-auto mt-2 h-[600px] w-[88%] md:mt-4 md:h-[680px] md:w-[76%]">
             <Image
               src="/about/section-six-envelope.svg"
               alt="Envelope card"
@@ -417,13 +428,19 @@ export default async function Home() {
             />
           </div>
 
-          <div className="mx-auto -mt-20 w-[92%] pb-2 md:-mt-28 md:w-[82%]">
-            <p className="w-fit text-left text-[36px] leading-[0.92] text-[#4f4956] font-coolvetica md:text-[64px]">
-              of
-              <br />
-              sourboo
-            </p>
-          </div>
+
+        </div>
+
+        <div
+          aria-hidden="true"
+          className="pointer-events-none relative left-1/2 mt-2 h-12 w-screen -translate-x-1/2 -mb-20 md:mt-6 md:h-16 md:-mb-28"
+        >
+          <svg className="h-full w-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path
+              fill="#F7FEE7"
+              d="M0 78C85 28 172 18 262 48C351 79 431 106 525 90C616 74 678 24 772 32C867 40 931 94 1024 96C1118 98 1228 41 1322 34C1374 30 1413 36 1440 44V120H0V78Z"
+            />
+          </svg>
         </div>
       </section>
 

@@ -10,8 +10,7 @@ type RevealItem = {
   block: HTMLElement;
   words: HTMLSpanElement[];
   revealedCount: number;
-  inView: boolean;
-  entryTop: number | null;
+  maxProgress: number;
 };
 
 function shouldSkipElement(element: HTMLElement): boolean {
@@ -76,54 +75,43 @@ function revealAll(items: RevealItem[]) {
   items.forEach((item) => {
     item.words.forEach((word) => word.classList.add(VISIBLE_CLASS));
     item.revealedCount = item.words.length;
+    item.maxProgress = 1;
   });
-}
-
-function resetItem(item: RevealItem) {
-  item.words.forEach((word) => word.classList.remove(VISIBLE_CLASS));
-  item.revealedCount = 0;
 }
 
 function revealByScroll(items: RevealItem[]) {
   const viewportHeight = window.innerHeight || 1;
+  const revealStart = viewportHeight * 0.94;
+  const revealEnd = viewportHeight * 0.28;
+  const revealRange = Math.max(1, revealStart - revealEnd);
+  let canRevealNext = true;
 
   items.forEach((item) => {
     if (item.words.length === 0) return;
+    if (!canRevealNext) return;
 
     const rect = item.block.getBoundingClientRect();
-    const activeTop = viewportHeight * 0.92;
-    const activeBottom = viewportHeight * 0.08;
-    const isInActiveWindow = rect.top < activeTop && rect.bottom > activeBottom;
+    let progress = (revealStart - rect.top) / revealRange;
+    if (rect.bottom <= revealEnd) {
+      progress = 1;
+    }
+    progress = Math.max(0, Math.min(1, progress));
 
-    if (!isInActiveWindow) {
-      if (item.inView) {
-        resetItem(item);
-      }
-      item.inView = false;
-      item.entryTop = null;
-      return;
+    if (progress > item.maxProgress) {
+      item.maxProgress = progress;
     }
 
-    if (!item.inView) {
-      item.inView = true;
-      item.entryTop = rect.top;
-      resetItem(item);
-    }
-
-    if (item.entryTop === null) {
-      item.entryTop = rect.top;
-    }
-
-    const traveled = Math.abs(rect.top - item.entryTop);
-    const revealDistance = Math.max(120, viewportHeight * 0.45 + rect.height * 0.25);
-    const progress = Math.max(0, Math.min(1, traveled / revealDistance));
-    const nextVisible = Math.min(item.words.length, Math.floor(progress * item.words.length));
+    const nextVisible = Math.min(item.words.length, Math.ceil(item.maxProgress * item.words.length));
 
     if (nextVisible > item.revealedCount) {
       for (let index = item.revealedCount; index < nextVisible; index += 1) {
         item.words[index]?.classList.add(VISIBLE_CLASS);
       }
       item.revealedCount = nextVisible;
+    }
+
+    if (item.revealedCount < item.words.length) {
+      canRevealNext = false;
     }
   });
 }
@@ -135,13 +123,16 @@ export default function AboutWordByWordReveal() {
     );
 
     const items: RevealItem[] = targets
-      .map((element) => ({
-        block: element,
-        words: wrapWords(element),
-        revealedCount: 0,
-        inView: false,
-        entryTop: null,
-      }))
+      .map((element) => {
+        const words = wrapWords(element);
+        words.forEach((word) => word.classList.remove(VISIBLE_CLASS));
+        return {
+          block: element,
+          words,
+          revealedCount: 0,
+          maxProgress: 0,
+        };
+      })
       .filter((item) => item.words.length > 0);
 
     if (items.length === 0) return;
