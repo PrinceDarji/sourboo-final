@@ -103,7 +103,7 @@ export default function CartDrawer() {
             >
               X
             </button>
-            <div className="relative mr-1 -top-[30%] h-[48px] w-[170px] md:h-[164px] md:w-[220px]">
+            <div className="relative mr-1 -top-[30%] h-[126px] w-[190px] md:h-[164px] md:w-[220px]">
               <Image
                 src="/cart/cartlogo.svg"
                 alt="Sourboo logo"

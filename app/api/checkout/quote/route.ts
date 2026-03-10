@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
-import { SHIPPING_CHARGE_PAISE, calculatePayableTotalPaise } from '@/src/lib/checkout/totals';
+import { calculatePayableTotalPaise, calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 const quoteRequestSchema = z.object({
   items: z
@@ -33,20 +34,21 @@ export async function POST(request: Request) {
     }
 
     const pricedCart = await priceCheckoutItems(parsed.data.items);
-    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise);
+    const shippingPaise = calculateShippingPaiseForItems(pricedCart.items);
+    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise, shippingPaise);
 
     return NextResponse.json({
       ok: true,
       items: pricedCart.items,
       subtotalPaise: pricedCart.subtotalPaise,
-      shippingPaise: SHIPPING_CHARGE_PAISE,
+      shippingPaise,
       payableTotalPaise,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Unable to calculate cart total.',
+        error: GENERIC_BACKEND_ERROR,
       },
       { status: 500 },
     );

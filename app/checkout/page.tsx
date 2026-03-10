@@ -6,7 +6,7 @@ import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
 import { useCart } from '../components/cart/CartProvider';
 import { formatInr } from '@/src/lib/cart/price';
-import { SHIPPING_CHARGE_INR } from '@/src/lib/checkout/totals';
+import { calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 
 type CheckoutFormState = {
   fullName: string;
@@ -60,6 +60,8 @@ const initialFormState: CheckoutFormState = {
   postalCode: '',
 };
 
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
+
 export default function CheckoutPage() {
   const { items, subtotal } = useCart();
   const [formState, setFormState] = useState<CheckoutFormState>(initialFormState);
@@ -75,17 +77,21 @@ export default function CheckoutPage() {
     () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items],
   );
+  const fallbackShipping = useMemo(
+    () => calculateShippingPaiseForItems(items) / 100,
+    [items],
+  );
   const totalPayable = useMemo(
-    () => (typeof serverTotal === 'number' ? serverTotal : subtotal + SHIPPING_CHARGE_INR),
-    [serverTotal, subtotal],
+    () => (typeof serverTotal === 'number' ? serverTotal : subtotal + fallbackShipping),
+    [fallbackShipping, serverTotal, subtotal],
   );
   const subtotalForDisplay = useMemo(
     () => (typeof serverSubtotal === 'number' ? serverSubtotal : subtotal),
     [serverSubtotal, subtotal],
   );
   const shippingForDisplay = useMemo(
-    () => (typeof serverShipping === 'number' ? serverShipping : SHIPPING_CHARGE_INR),
-    [serverShipping],
+    () => (typeof serverShipping === 'number' ? serverShipping : fallbackShipping),
+    [fallbackShipping, serverShipping],
   );
 
   const canSubmit = items.length > 0 && !isSubmitting;
@@ -145,10 +151,10 @@ export default function CheckoutPage() {
         setServerTotal(totalRupees);
         setServerLineTotalsBySlug(lineTotalsBySlug);
         setQuoteError(null);
-      } catch (error) {
+      } catch {
         if (cancelled) return;
         setServerLineTotalsBySlug({});
-        setQuoteError(error instanceof Error ? error.message : 'Unable to calculate payable total.');
+        setQuoteError(GENERIC_BACKEND_ERROR);
       }
     }
 
@@ -198,8 +204,8 @@ export default function CheckoutPage() {
       }
 
       window.location.assign(result.checkoutUrl);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Unable to start payment.');
+    } catch {
+      setErrorMessage(GENERIC_BACKEND_ERROR);
       setIsSubmitting(false);
     }
   }
@@ -214,13 +220,13 @@ export default function CheckoutPage() {
         </h1>
 
         <p className="mx-auto mt-3 max-w-[920px] text-center text-[clamp(1.4rem,2.6vw,2.2rem)] leading-[1.08] text-[#2E2A2A] font-schoolbell">
-          Pay securely with PhonePe
+          please fill your details carefully
         </p>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border-2 border-[#DF78B6] bg-[#F8FBEF] p-5 md:p-7"
+            className="rounded-3xl bg-[#FCF4FD] p-5 md:p-7"
           >
             <p className="text-[clamp(1.8rem,2.4vw,2.6rem)] leading-none text-[#E61E6E] font-coolvetica">
               Delivery details
@@ -332,9 +338,11 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="mt-6 inline-flex min-h-[46px] items-center rounded-full border-[5px] border-[#DF78B6] bg-[#FDF2F8] px-6 py-2 text-[clamp(1.3rem,2vw,2rem)] leading-none text-[#9F1C74] font-coolvetica disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 inline-flex w-[min(100%,360px)] aspect-[256/67] items-center justify-center bg-[url('/home/readmyrantcta.svg')] bg-contain bg-center bg-no-repeat px-8 text-center text-[clamp(1.2rem,2.1vw,2rem)] leading-none text-[#FFF8F8] font-schoolbell transition duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E61E7A] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? 'Redirecting to PhonePe...' : 'Pay With PhonePe'}
+              <span className="relative -translate-y-[6px]">
+                {isSubmitting ? 'redirecting to phonepe...' : 'pay with phonepe →'}
+              </span>
             </button>
           </form>
 
@@ -391,9 +399,6 @@ export default function CheckoutPage() {
                       {formatInr(totalPayable)}
                     </p>
                   </div>
-                  <p className="mt-3 text-[0.95rem] leading-[1.2] text-[#365A17] font-schoolbell">
-                    Final amount is recalculated on server from Sanity price + shipping before payment.
-                  </p>
                   {quoteError ? (
                     <p className="mt-2 text-[0.95rem] leading-[1.2] text-[#9F1C74] font-schoolbell">
                       {quoteError}

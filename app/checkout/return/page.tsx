@@ -34,6 +34,7 @@ async function parseJsonSafely<T>(response: Response): Promise<T> {
 
 const MAX_POLL_ATTEMPTS = 20;
 const POLL_INTERVAL_MS = 2500;
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 function statusTitle(status: OrderStatus | null): string {
   switch (status) {
@@ -115,7 +116,7 @@ function CheckoutReturnPageContent() {
     async (markLoading: boolean) => {
       if (!merchantOrderId) {
         setLoading(false);
-        setErrorMessage('Missing merchantOrderId in return URL.');
+        setErrorMessage('We could not verify this payment. Please try checkout again.');
         return;
       }
 
@@ -138,8 +139,8 @@ function CheckoutReturnPageContent() {
         setPhonePeState(result.phonePeState || null);
         setAmountPaise(typeof result.amountPaise === 'number' ? result.amountPaise : null);
         setErrorMessage(null);
-      } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : 'Unable to fetch payment status.');
+      } catch {
+        setErrorMessage(GENERIC_BACKEND_ERROR);
       } finally {
         setLoading(false);
       }

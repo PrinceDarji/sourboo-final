@@ -44,7 +44,7 @@ const reviewBubbles: ReviewBubble[] = [
     text: 'perfect spicy',
     background: '#E61E6E',
     textColor: '#141414',
-    positionClassName: 'left-[2%] top-[74%] md:left-[6%] md:top-[57%]',
+    positionClassName: 'left-[2%] top-[80%] md:left-[6%] md:top-[57%]',
     sizeClassName: 'w-[min(38vw,242px)] md:w-[300px] lg:w-[355px]',
     tailClassName: 'top-[-12px] right-[12%] rotate-[138deg]',
     delayMs: 840,

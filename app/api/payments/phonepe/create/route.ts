@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
-import { SHIPPING_CHARGE_PAISE, calculatePayableTotalPaise } from '@/src/lib/checkout/totals';
+import { calculatePayableTotalPaise, calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 import {
   createOrderWithItems,
   tryInsertPaymentEvent,
@@ -14,6 +14,7 @@ import { getPhonePeConfig } from '@/src/lib/payments/phonepe/config';
 import { mapPhonePeStateToOrderStatus } from '@/src/lib/payments/phonepe/types';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 const checkoutRequestSchema = z.object({
   items: z
@@ -134,7 +135,8 @@ export async function POST(request: Request) {
 
     const { items, customer, shippingAddress } = parsed.data;
     const pricedCart = await priceCheckoutItems(items);
-    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise);
+    const shippingPaise = calculateShippingPaiseForItems(pricedCart.items);
+    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise, shippingPaise);
     const gatewayAmount = resolveGatewayAmountPaise(payableTotalPaise);
 
     if (pricedCart.subtotalPaise <= 0) {
@@ -162,7 +164,7 @@ export async function POST(request: Request) {
         customer,
         shippingAddress,
         catalogSubtotalPaise: pricedCart.subtotalPaise,
-        shippingPaise: SHIPPING_CHARGE_PAISE,
+        shippingPaise,
         payableTotalPaise,
         gatewayAmountPaise: gatewayAmount.amountPaise,
         testAmountOverrideApplied: gatewayAmount.isTestOverride,
@@ -223,7 +225,7 @@ export async function POST(request: Request) {
       checkoutUrl,
       amountPaise: gatewayAmount.amountPaise,
       catalogSubtotalPaise: pricedCart.subtotalPaise,
-      shippingPaise: SHIPPING_CHARGE_PAISE,
+      shippingPaise,
       payableTotalPaise,
       testAmountOverrideApplied: gatewayAmount.isTestOverride,
       state: phonePeStateRaw,
@@ -248,7 +250,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Unable to initiate payment.',
+        error: GENERIC_BACKEND_ERROR,
       },
       { status: 500 },
     );

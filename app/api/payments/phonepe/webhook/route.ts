@@ -12,6 +12,7 @@ import {
 import { mapPhonePeStateToOrderStatus } from '@/src/lib/payments/phonepe/types';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 export async function POST(request: Request) {
   try {
@@ -83,11 +84,11 @@ export async function POST(request: Request) {
       merchantOrderId,
       status,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to process webhook.',
+        error: GENERIC_BACKEND_ERROR,
       },
       { status: 500 },
     );

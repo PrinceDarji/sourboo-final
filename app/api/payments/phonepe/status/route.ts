@@ -12,6 +12,7 @@ import {
 } from '@/src/lib/payments/phonepe/types';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 function extractStringByKey(input: unknown, key: string): string | undefined {
   if (!input || typeof input !== 'object') {
@@ -110,11 +111,11 @@ export async function GET(request: Request) {
           : existingOrder.amount_paise,
       phonePeOrderId: phonePeOrderId || existingOrder.phonepe_order_id,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch payment status.',
+        error: GENERIC_BACKEND_ERROR,
       },
       { status: 500 },
     );

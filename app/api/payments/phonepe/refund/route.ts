@@ -14,6 +14,7 @@ import {
 } from '@/src/lib/payments/refunds';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 const createRefundSchema = z.object({
   merchantOrderId: z.string().trim().min(3).max(80),
@@ -153,11 +154,11 @@ export async function POST(request: Request) {
       amountPaise,
       refundableBalanceAfterPaise: refundableBalancePaise - amountPaise,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Unable to initiate refund.',
+        error: GENERIC_BACKEND_ERROR,
         merchantRefundId: generatedMerchantRefundId,
       },
       { status: 500 },

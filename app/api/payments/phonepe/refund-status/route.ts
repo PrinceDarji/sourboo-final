@@ -7,6 +7,7 @@ import {
 import { getRefundByMerchantRefundId, updateRefundRecord } from '@/src/lib/payments/refunds';
 
 export const runtime = 'nodejs';
+const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 function extractStringByKey(input: unknown, key: string): string | undefined {
   if (!input || typeof input !== 'object') {
@@ -89,11 +90,11 @@ export async function GET(request: Request) {
           : existingRefund.amount_paise,
       isTerminal: isTerminalRefundStatus(refundStatus),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch refund status.',
+        error: GENERIC_BACKEND_ERROR,
       },
       { status: 500 },
     );
