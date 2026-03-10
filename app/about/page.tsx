@@ -127,7 +127,7 @@ export default async function Home() {
             />
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 z-10 translate-y-1/2">
+          <div className="absolute inset-x-0 bottom-0 z-10 translate-y-[48%] md:translate-y-1/2">
             <div className="mx-auto w-full max-w-[1220px] px-6 md:px-12">
               <CoolRascalText
                 as="h1"
@@ -141,7 +141,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-[1220px] px-6 pb-12 pt-14 md:px-12 md:pb-16 md:pt-20">
+        <div className="mx-auto w-full max-w-[1220px] px-6 pb-12 pt-6 md:px-12 md:pb-16 md:pt-20">
           <CoolRascalText
             as="h2"
             text="and i am really glad you are here"
@@ -161,15 +161,15 @@ export default async function Home() {
 
       {/* Section 2 */}
       <section className="mx-auto w-full max-w-[420px] pb-16 md:max-w-[1100px] md:pb-24">
-        <p className="mx-auto max-w-[350px] text-center text-[52px] leading-[1.02] text-[#E61E6E] font-coolvetica md:max-w-[1040px] md:text-[78px]">
+        <p className="mx-auto max-w-[350px] text-center text-[32px] leading-[1.02] text-[#E61E6E] font-coolvetica md:max-w-[1040px] md:text-[78px]">
           I&apos;ve always been (annoyingly) obsessed with flavours.
         </p>
 
         <div className="relative mx-auto mt-8 h-[530px] w-full md:mt-14 md:h-[760px]">
-          <p className="absolute right-0 top-0 z-20 rotate-[16deg] text-[46px] text-[#1E1E1E] font-schoolbell md: -right-[4%] md:text-[52px]">
+          <p className="absolute right-0 top-12 z-20 rotate-[16deg] text-[24px] text-[#1E1E1E] font-schoolbell md: -right-[4%] md:text-[52px]">
             Mixing things
           </p>
-          <div className="absolute right-2 top-14 h-[210px] w-[62%] overflow-hidden md:top-20 md:h-[340px] md:w-[44%]">
+          <div className="absolute right-2 top-14 h-[210px] w-[90%] overflow-hidden md:top-20 md:h-[340px] md:w-[44%]">
             <Image
               src="/about/section-two-1.svg"
               alt="Mixing drinks"
@@ -178,10 +178,10 @@ export default async function Home() {
             />
           </div>
 
-          <p className="absolute left-[-6px] top-[40%] z-20 -rotate-[14deg] text-[48px] text-[#A8AC1A] font-schoolbell md: -left-[32%] md:top-[44%] md:text-[52px]">
+          <p className="absolute left-[6px] top-[50%] z-20 -rotate-[14deg] text-[24px] text-[#A8AC1A] font-schoolbell md: -left-[32%] md:top-[44%] md:text-[52px]">
             Tasting everything
           </p>
-          <div className="absolute left-0 top-[48%] h-[210px] w-[73%] overflow-hidden md:left-[2%] md:top-[52%] md:h-[380px] md:w-[54%]">
+          <div className="absolute mt-8 left-0 top-[48%] h-[210px] w-[98%] overflow-hidden md:left-[2%] md:top-[52%] md:h-[380px] md:w-[54%]">
             <Image
               src="/about/section-two-2.svg"
               alt="Tasting everything"
@@ -190,7 +190,7 @@ export default async function Home() {
             />
           </div>
 
-          <div className="absolute bottom-0 right-0 h-[200px] w-[34%] overflow-hidden md:h-[360px] md:w-[25%]">
+          <div className="absolute top-[92%] bottom-0 right-0 h-[200px] w-[52%] overflow-hidden md:h-[360px] md:w-[25%]">
             <Image
               src="/about/section-two-3.svg"
               alt="Third collage visual"
@@ -200,24 +200,24 @@ export default async function Home() {
           </div>
         </div>
 
-        <p className="mt-10 text-center text-[64px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
+        <p className="mt-48 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
           spent 5 years
         </p>
-        <p className="mx-auto mt-4 max-w-[360px] text-center text-[46px] leading-[1.03] text-[#E61E6E] font-schoolbell md:max-w-[920px] md:text-[52px]">
+        <p className="mx-auto mt-4 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:max-w-[920px] md:text-[52px]">
           around food and drinks from london bar shifts to a 9-5 desk job in India
         </p>
       </section>
 
       {/* Section 3 */}
       <section className="mx-auto w-full max-w-[520px] px-4 pb-2 md:max-w-[1320px] md:px-10 md:pb-28">
-        <p className="text-center text-[52px] leading-[1.02] text-[#E61E6E] font-schoolbell md:text-[76px]">
+        <p className="text-center text-[26px] leading-[1.02] text-[#E61E6E] font-schoolbell md:text-[76px]">
           different lives, same cravings
         </p>
 
-        <div className="relative mx-auto h-[620px] w-full overflow-hidden md:h-[1280px]">
+        <div className="relative mx-auto h-[720px] w-full overflow-hidden md:h-[1280px]">
           <SectionThreeEyesSequence />
 
-          <div className="about-tongue-position absolute left-1/2 h-[780px] w-[138%] -translate-x-1/2 md:h-[900px] md:w-[68%]">
+          <div className="about-tongue-position absolute left-1/2 h-[380px] w-[108%] -translate-x-1/2 md:h-[900px] md:w-[68%]">
             <Image
               src="/about/section-three-tongue.svg"
               alt="Tongue illustration"
@@ -228,13 +228,13 @@ export default async function Home() {
           </div>
         
         </div>
-          <p className="-mt-20 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-64 md:text-[48px]">
+          <p className="-mt-90 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-64 md:text-[48px]">
             Nothing worked for a desi palate that loves
           </p>
       </section>
 
       {/* Section 4 */}
-      <section className="relative -mt-12 w-full bg-[#F6AE5A] pb-20 pt-6 md:mt-0 md:pb-28 md:pt-10">
+      <section className="relative mt-12 w-full bg-[#F6AE5A] pb-20 pt-6 md:mt-0 md:pb-28 md:pt-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 -top-10 h-12 md:-top-14 md:h-16"
@@ -250,8 +250,8 @@ export default async function Home() {
          
           <AboutFlavorWords />
 
-          <p className="mx-auto mt-7 max-w-[390px] text-center text-[48px] leading-[1.03] text-[#E61E6E] font-schoolbell md:mt-12 md:max-w-[740px] md:text-[62px]">
-            but doesn&apos;t want to feel weighed down after snacking.
+          <p className="mx-auto mt-7 max-w-[390px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:mt-12 md:max-w-[740px] md:text-[62px]">
+            but doesn&apos;t want to feel weighed down after snacking
           </p>
 
           <div className="relative mx-auto mt-16 w-fit md:mt-8">
@@ -275,18 +275,18 @@ export default async function Home() {
                 strokeLinecap="round"
               />
             </svg>
-            <p className="relative z-10 text-center text-[72px] leading-none text-[#15803D] font-coolvetica md:text-[128px]">
+            <p className="relative z-10 text-center text-[32px] leading-none text-[#15803D] font-coolvetica md:text-[128px]">
               MY BIGGEST ISSUE?
             </p>
         
           </div>
 
-          <p className="mx-auto mt-16 max-w-[390px] text-center text-[48px] leading-[1.02] text-[#E61E6E] font-schoolbell md:mt-16 md:max-w-[760px] md:text-[64px]">
+          <p className="mx-auto mt-16 max-w-[390px] text-center text-[32px] leading-[1.02] text-[#E61E6E] font-schoolbell md:mt-16 md:max-w-[760px] md:text-[64px]">
             Sour was always treated like a side.
           </p>
 
           <div className="relative mt-16 md:mt-16">
-            <div className="pointer-events-none absolute left-0 top-6 z-0 h-[200px] w-[250px] -translate-x-[40%] -translate-y-1/2 md:top-8 md:h-[260px] md:w-[300px] md:-translate-x-[38%] md:-translate-y-1/2">
+            <div className="pointer-events-none absolute left-6 top-6 z-0 h-[120px] w-[250px] -translate-x-[40%] -translate-y-1/2 md:top-8 md:h-[260px] md:w-[300px] md:-translate-x-[38%] md:-translate-y-1/2">
               <Image
                 src="/about/lemonsqueze.gif"
                 alt="Lemon drop illustration"
@@ -294,12 +294,12 @@ export default async function Home() {
                 className="object-contain"
               />
             </div>
-            <p className="relative z-10 pl-10 text-left text-[32px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pl-16 md:text-[36px]">
+            <p className="relative z-10 pl-22 text-left text-[24px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pl-16 md:text-[36px]">
               A squeeze here.
             </p>
           </div>
           <div className="relative mt-16 md:mt-12">
-            <div className="pointer-events-none absolute right-0 top-[48%] z-0 h-[200px] w-[250px] translate-x-[40%] -translate-y-1/2 md:top-[48%] md:h-[260px] md:w-[300px] md:translate-x-[38%]">
+            <div className="pointer-events-none absolute right-8 top-[48%] z-0 h-[120px] w-[250px] translate-x-[40%] -translate-y-1/2 md:top-[48%] md:h-[260px] md:w-[300px] md:translate-x-[38%]">
               <Image
                 src="/about/spoonofpickle.gif"
                 alt="Spoon of pickle illustration"
@@ -307,7 +307,7 @@ export default async function Home() {
                 className="object-contain rotate-[8deg]"
               />
             </div>
-            <p className="relative z-10 pr-10 text-right text-[32px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pr-16 md:text-[36px]">
+            <p className="relative z-10 pr-24 text-right text-[24px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pr-16 md:text-[36px]">
               A spoon of pickle there.
             </p>
           </div>
@@ -336,7 +336,7 @@ export default async function Home() {
             Introducing
           </p>
 
-          <div className="relative mx-auto h-[72px] w-[250px] md:h-[116px] md:w-[360px]">
+          <div className="relative mx-auto h-[62px] w-[250px] md:h-[116px] md:w-[360px]">
             <Image
               src="/logo.svg"
               alt="Sourboo logo"
@@ -345,7 +345,7 @@ export default async function Home() {
             />
           </div>
 
-          <div className="relative mx-auto -mt-1 h-[190px] w-[520px] max-w-full md:-mt-2 md:h-[250px] md:w-[900px]">
+          <div className="relative mx-auto -mt-1 h-[120px] w-[420px] max-w-full md:-mt-2 md:h-[250px] md:w-[900px]">
             <Image
               src="/tagline.svg"
               alt="Tagline illustration"
@@ -355,33 +355,33 @@ export default async function Home() {
           </div>
 
           <div className="mx-auto mt-1 flex max-w-[390px] flex-col gap-16 text-center md:mt-2 md:max-w-[740px] md:gap-14">
-            <p className="text-[52px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[52px]">
+            <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[52px]">
               sour first snack, made for people who don&apos;t eat quietly.
             </p>
 
-            <p className="text-[52px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[48px]">
+            <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[48px]">
               for women who love{" "}
               <span className="text-[#A8CF3D]">loud flavours, strong opinions, and fully indulging.</span>
             </p>
 
             <div className="flex flex-col gap-6 md:gap-4">
-              <p className="text-[52px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
+              <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
                 The kind who make faces when they eat.
               </p>
 
-              <p className="text-[52px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
+              <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
                 The kind who ask for extra nimbu.
               </p>
             </div>
 
-            <p className="text-[50px] leading-[1.02] text-[#F18BB7] font-rascal md:text-[62px]">
+            <p className="text-[32px] leading-[1.04] text-[#F18BB7] font-rascal md:text-[62px]">
               A new way of snacking.
             </p>
           </div>
         </div>
 
         <div
-          className="relative mt-10 h-[88px] w-full md:mt-14 md:h-[130px]"
+          className="relative mt-10 h-[104px] w-full md:mt-14 md:h-[130px]"
           style={{
             background:
               'linear-gradient(to bottom, #F7FEE7 0%, #F7FEE7 54%, #e8e0eb 54%, #F6AE5A 100%)',
@@ -397,23 +397,23 @@ export default async function Home() {
       </section>
 
       {/* Section 6 */}
-      <section data-scroll-reveal="off" className="w-full bg-[#F6AE5A] pb-20 md:pb-28">
+      <section data-scroll-reveal="off" className="w-full bg-[#F6AE5A] pb-0 md:pb-28">
         <AboutTopStrip />
 
         <div className="mx-auto w-full max-w-[430px] md:max-w-[1100px]">
-          <p className="mx-auto mt-8 max-w-[360px] text-center text-[44px] leading-[1.03] text-[#E61E6E] font-coolvetica md:mt-10 md:max-w-[620px] md:text-[62px]">
+          <p className="mx-auto mt-8 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-coolvetica md:mt-10 md:max-w-[620px] md:text-[62px]">
             That&apos;s Sourboo to me.
             <br />
             And I hope you love it as much as I do
           </p>
 
           <div className="mx-auto mt-14 w-[92%] md:mt-20 md:w-[82%]">
-            <p className="ml-auto w-fit translate-y-3 text-right text-[36px] leading-none text-[#4f4956] font-coolvetica md:translate-y-12 md:text-[64px]">
+            <p className="ml-auto w-fit translate-y-1 text-right text-[32px] leading-none text-[#4f4956] font-coolvetica md:translate-y-12 md:text-[64px]">
               join more
             </p>
           </div>
 
-          <div className="relative mx-auto mt-2 h-[600px] w-[88%] md:mt-4 md:h-[680px] md:w-[76%]">
+          <div className="relative mx-auto mt-2 h-[300px] w-[88%] md:mt-4 md:h-[680px] md:w-[76%]">
             <Image
               src="/about/section-six-envelope.svg"
               alt="Envelope card"
@@ -433,7 +433,7 @@ export default async function Home() {
 
         <div
           aria-hidden="true"
-          className="pointer-events-none relative left-1/2 mt-2 h-12 w-screen -translate-x-1/2 -mb-20 md:mt-6 md:h-16 md:-mb-28"
+          className="pointer-events-none relative left-1/2 mt-2 h-12 w-screen -translate-x-1/2 md:mt-6 md:h-16 md:-mb-28"
         >
           <svg className="h-full w-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
             <path

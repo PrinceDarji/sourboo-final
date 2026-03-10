@@ -53,7 +53,7 @@ export default function AboutTopStrip() {
   }, []);
 
   return (
-    <div ref={containerRef} className="about-top-strip left-1/2 w-screen -translate-x-1/2">
+    <div ref={containerRef} className="about-top-strip relative -mt-10 left-1/2 w-screen -translate-x-1/2 md:mt-0">
       {TOP_STRIP_IMAGES.map((image, index) => (
         <div
           key={image.src}

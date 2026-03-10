@@ -89,14 +89,14 @@ export default function SectionThreeEyesSequence() {
   return (
     <div
       ref={containerRef}
-      className="absolute left-1/2 -top-20 h-[240px] w-[138%] -translate-x-1/2 md:-top-56 md:h-[820px] md:w-[320%]"
+      className="absolute left-1/2 -top-20 h-[240px] w-[158%] -translate-x-1/2 md:-top-56 md:h-[820px] md:w-[320%]"
     >
       <Image
         src={EYES_SEQUENCE[currentEyeIndex]}
         alt="Eyes illustration"
         fill
         className={`object-contain transition-transform duration-300 ${
-          shouldRenderSmallerEyes ? 'scale-64' : 'scale-80'
+          shouldRenderSmallerEyes ? 'scale-64' : 'scale-94'
         }`}
       />
     </div>

@@ -399,7 +399,7 @@ export default async function ProductPage() {
           <p className="mt-3 text-center text-[1.95rem] leading-[1.02] text-[#E61E6E] font-schoolbell md:mt-6 md:text-[clamp(2.3rem,4.8vw,5.2rem)]">
             selection locked:
           </p>
-          <div className="relative mx-auto w-full max-w-[390px] md:max-w-[500px] lg:max-w-[580px]">
+          <div className="relative mx-auto w-full max-w-[250px] md:max-w-[500px] lg:max-w-[580px]">
             <div className="pointer-events-none absolute -left-[21%] top-[52%] z-20 h-[178px] w-[136px] -translate-y-1/2 -rotate-[20deg] md:-left-[19%] md:h-[280px] md:w-[210px] lg:-left-[18%] lg:h-[320px] lg:w-[240px]">
               <Image src="/product/side-eye-jar.svg" alt="" fill aria-hidden className="object-contain" />
             </div>
@@ -412,7 +412,7 @@ export default async function ProductPage() {
               <div className="relative w-full aspect-[363/229]">
                 <Image src="/product/sideeyectabg.svg" alt="" fill aria-hidden className="object-contain" />
                 <div className="relative z-10 flex h-full items-center justify-center px-6 py-8 text-center md:px-12 md:py-10">
-                  <p className="whitespace-pre-line text-[1.95rem] leading-[1.02] text-[#E61E6E] font-rascal md:text-[clamp(2.3rem,4.8vw,5.6rem)]">
+                  <p className="whitespace-pre-line text-[1.75rem] leading-[1.02] text-[#E61E6E] font-rascal md:text-[clamp(2.3rem,4.8vw,5.6rem)]">
                     get side eye sour
                     {'\n'}
                     ¬‿¬
@@ -427,7 +427,7 @@ export default async function ProductPage() {
       <section className="w-full pb-6 pt-10 md:pb-10 md:pt-16">
         <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
           <div className="relative mx-auto w-full max-w-[920px]">
-            <div className="pointer-events-none absolute left-18 -top-48 h-[84px] w-[92px] -rotate-[190deg] md:h-[230px] md:w-[232px]">
+            <div className="pointer-events-none absolute left-18 -top-32 h-[74px] w-[108px] -rotate-[190deg] md:h-[230px] md:w-[232px]">
               <Image src="/product/productpath.svg" alt="green path illustration" fill className="object-contain" />
             </div>
 
@@ -461,7 +461,7 @@ export default async function ProductPage() {
             <Image src="/product/productpath.svg" alt="green path illustration" fill className="object-contain" />
           </div>
 
-          <div className="relative mx-auto mt-4 w-full max-w-[430px] md:mt-6 md:max-w-[520px] lg:max-w-[600px]">
+          <div className="relative mx-auto mt-4 w-full max-w-[290px] md:mt-6 md:max-w-[520px] lg:max-w-[600px]">
             <div className="pointer-events-none absolute -right-[20%] top-[66%] z-20 h-[188px] w-[142px] -translate-y-1/2 rotate-[18deg] md:-right-[20%] md:h-[280px] md:w-[212px] lg:-right-[19%] lg:h-[320px] lg:w-[244px]">
               <Image src="/product/tamarin-jar.svg" alt="" fill aria-hidden className="object-contain" />
             </div>
@@ -487,9 +487,9 @@ export default async function ProductPage() {
         </div>
       </section>
 
-      <section className="w-full pb-28 pt-10 md:pb-40 md:pt-20">
+      <section className="w-full pb-28 -pt-8 md:pb-40 md:pt-20">
         <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1280px] md:px-10">
-          <h2 className="mx-auto max-w-[390px] text-center text-[clamp(2.8rem,5.4vw,5.5rem)] leading-[0.95] md:max-w-[920px]">
+          <h2 className="mx-auto max-w-[290px] text-center text-[clamp(1.9rem,5.4vw,5.5rem)] leading-[0.95] md:max-w-[920px]">
             <CoolRascalText
               as="span"
               text="get your"
@@ -531,7 +531,7 @@ export default async function ProductPage() {
                 <summary
                   className="mx-auto w-full max-w-[430px] cursor-pointer list-none bg-[url('/product/faqquestionbg.svg')] bg-center bg-no-repeat bg-[length:100%_100%] px-7 py-6 text-center md:w-[min(96vw,1280px)] md:max-w-none md:px-20 md:py-12 md:min-h-[180px] [&::-webkit-details-marker]:hidden"
                 >
-                  <p className="text-[clamp(2.1rem,3.9vw,4rem)] leading-[1.02] text-[#151515] font-schoolbell">
+                  <p className="text-[clamp(1.1rem,3.9vw,4rem)] leading-[1.02] text-[#151515] font-schoolbell">
                     {item.question}
                   </p>
                 </summary>
@@ -539,7 +539,7 @@ export default async function ProductPage() {
                 <div className="mx-auto mt-4 w-full max-w-[420px] px-3 md:mt-6 md:max-w-[940px] md:px-10">
                   <p
                     className="mx-auto max-w-[88%] break-words text-center text-[#1F1F1F] font-schoolbell"
-                    style={{ fontSize: 'clamp(1.55rem, 2.45vw, 3.1rem)', lineHeight: 1.12 }}
+                    style={{ fontSize: 'clamp(1.1rem, 2.45vw, 3.1rem)', lineHeight: 1.12 }}
                   >
                     {item.answer}
                   </p>
