@@ -97,7 +97,7 @@ export default function HomePosterPinboard() {
   }, [visiblePosterCount]);
 
   return (
-    <div ref={rootRef} className="relative mx-auto h-[640px] w-full sm:h-[760px] md:h-[900px] lg:h-[980px]">
+    <div ref={rootRef} className="relative mx-auto h-[520px] w-full sm:h-[760px] md:h-[900px] lg:h-[980px]">
       {posterItems.map((item, index) => {
         const isVisible = index < visiblePosterCount;
 

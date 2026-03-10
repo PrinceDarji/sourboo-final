@@ -71,7 +71,83 @@ export default function SiteFooter() {
       <InstagramPostsStrip />
 
       <div className="w-full">
-        <div className="relative h-[clamp(440px,64vw,860px)] w-full">
+        <div className="relative aspect-[1932/1324] w-full md:hidden">
+          <Image
+            src="/footerbod.svg"
+            alt=""
+            fill
+            aria-hidden
+            className="object-fill"
+          />
+
+          <div className="absolute inset-x-[2.8%] bottom-[2.8%] top-[2.4%]">
+            <div className="absolute left-1/2 top-[3%] w-[clamp(40px,30vw,150px)] -translate-x-1/2 rounded-[14px] px-2 py-2 text-center">
+              <p className="text-[clamp(0.46rem,2.8vw,1.06rem)] leading-[1.05] text-[#232222] font-schoolbell">
+                DO YOU EVEN REMEMBER HOW IT STARTED
+              </p>
+              <p className="mt-2 text-[clamp(1.06rem,4.8vw,1.5rem)] leading-none text-[#E61E7A] font-rascal">
+                stay sour
+              </p>
+            </div>
+
+            <div className="absolute inset-x-[10%] top-[35%] grid grid-cols-2">
+              <div className="flex flex-col items-start gap-8">
+                {primaryLinks.map((item) => (
+                  <FooterLink
+                    key={item.label}
+                    href={item.href}
+                    className="text-[clamp(0.75rem,3.7vw,1.12rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                  >
+                    {item.label}
+                  </FooterLink>
+                ))}
+              </div>
+
+              <div className="flex flex-col items-end gap-8">
+                {secondaryLinks.map((item) => (
+                  <FooterLink
+                    key={item.label}
+                    href={item.href}
+                    className="text-[clamp(0.75rem,3.7vw,1.12rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                  >
+                    {item.label}
+                  </FooterLink>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute left-1/2 top-[53%] -translate-x-1/2 -translate-y-1/2">
+              <div
+                className="pointer-events-none absolute left-1/2 top-[58%] h-[24px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#CDD58D]/85"
+                aria-hidden
+              />
+              <div className="relative h-[32px] w-[156px]">
+                <Image
+                  src="/logo.svg"
+                  alt="Sourboo logo"
+                  fill
+                  className="object-contain object-center"
+                />
+              </div>
+            </div>
+
+            <div className="absolute inset-x-[7%] bottom-[8.5%] top-[82%]">
+              <div className="grid h-full grid-cols-5 items-center gap-x-1.5">
+                {policyLinks.map((item) => (
+                  <FooterLink
+                    key={item.label}
+                    href={item.href}
+                    className="text-center text-[clamp(0.52rem,1.9vw,0.7rem)] leading-[0.9] text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
+                  >
+                    {item.label}
+                  </FooterLink>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative hidden h-[clamp(440px,64vw,860px)] w-full md:block">
           <Image
             src="/footerbod.svg"
             alt=""

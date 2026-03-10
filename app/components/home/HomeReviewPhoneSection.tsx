@@ -20,10 +20,10 @@ const reviewBubbles: ReviewBubble[] = [
   {
     id: 'addictive',
     text: 'addictive',
-    background: '#E6E8BD',
+    background: '#BFEA5A',
     textColor: '#141414',
-    positionClassName: 'left-[1%] top-[4%] md:left-[2%] md:top-[10%]',
-    sizeClassName: 'w-[min(46vw,300px)] md:w-[320px] lg:w-[370px]',
+    positionClassName: 'left-[0%] -top-[2%] md:left-[2%] md:top-[10%]',
+    sizeClassName: 'w-[min(40vw,255px)] md:w-[320px] lg:w-[370px]',
     tailClassName: 'bottom-[-12px] right-[16%] rotate-[18deg]',
     delayMs: 120,
     rotationDeg: -4,
@@ -31,10 +31,10 @@ const reviewBubbles: ReviewBubble[] = [
   {
     id: 'super-punchy',
     text: 'super punchy\n& sour',
-    background: '#ECE5F0',
+    background: '#E61E6E',
     textColor: '#121212',
-    positionClassName: 'right-[0%] top-[16%] md:right-[2%] md:top-[20%]',
-    sizeClassName: 'w-[min(44vw,290px)] md:w-[300px] lg:w-[360px]',
+    positionClassName: 'right-[0%] -top-[12%] md:right-[2%] md:top-[20%]',
+    sizeClassName: 'w-[min(39vw,248px)] md:w-[300px] lg:w-[360px]',
     tailClassName: 'bottom-[-12px] left-[18%] rotate-[-22deg]',
     delayMs: 480,
     rotationDeg: 3,
@@ -42,10 +42,10 @@ const reviewBubbles: ReviewBubble[] = [
   {
     id: 'perfect-spicy',
     text: 'perfect spicy',
-    background: '#EDE6F0',
+    background: '#E61E6E',
     textColor: '#141414',
-    positionClassName: 'left-[2%] top-[58%] md:left-[6%] md:top-[57%]',
-    sizeClassName: 'w-[min(43vw,280px)] md:w-[300px] lg:w-[355px]',
+    positionClassName: 'left-[2%] top-[74%] md:left-[6%] md:top-[57%]',
+    sizeClassName: 'w-[min(38vw,242px)] md:w-[300px] lg:w-[355px]',
     tailClassName: 'top-[-12px] right-[12%] rotate-[138deg]',
     delayMs: 840,
     rotationDeg: -3,
@@ -53,10 +53,10 @@ const reviewBubbles: ReviewBubble[] = [
   {
     id: 'instant-fav',
     text: 'instant fav',
-    background: '#E6E8BD',
+    background: '#BFEA5A',
     textColor: '#141414',
-    positionClassName: 'right-[1%] top-[66%] md:right-[4%] md:top-[63%]',
-    sizeClassName: 'w-[min(42vw,270px)] md:w-[280px] lg:w-[340px]',
+    positionClassName: 'right-[1%] top-[64%] md:right-[4%] md:top-[63%]',
+    sizeClassName: 'w-[min(37vw,236px)] md:w-[280px] lg:w-[340px]',
     tailClassName: 'top-[-12px] left-[14%] rotate-[-138deg]',
     delayMs: 1180,
     rotationDeg: 4,
@@ -131,10 +131,10 @@ export default function HomeReviewPhoneSection() {
     <section
       ref={sectionRef}
       data-scroll-reveal="off"
-      className={`home-review-bubbles w-full px-4 pb-18 pt-8 md:px-10 md:pb-10 md:pt-12 ${hasEnteredView ? 'home-review-visible' : ''}`}
+      className={`home-review-bubbles w-full px-4  pt-3 md:px-10 md:pb-10 md:pt-12 ${hasEnteredView ? 'home-review-visible' : ''}`}
     >
       <div className="mx-auto w-full max-w-[1500px]">
-        <div className="relative mx-auto min-h-[820px] w-full max-w-[1240px] md:min-h-[700px]">
+        <div className="relative mx-auto min-h-[480px] w-full max-w-[1240px] md:min-h-[700px]">
           <div className="absolute inset-0">
             {reviewBubbles.map((bubble) => {
               const style = {
@@ -146,17 +146,17 @@ export default function HomeReviewPhoneSection() {
               return (
                 <article
                   key={bubble.id}
-                  className={`home-review-bubble absolute rounded-[44%_56%_51%_49%/49%_45%_55%_51%] px-5 py-4 shadow-[0_14px_24px_rgba(44,22,10,0.14)] md:px-7 md:py-5 ${bubble.positionClassName} ${bubble.sizeClassName}`}
+                  className={`home-review-bubble absolute rounded-[44%_56%_51%_49%/49%_45%_55%_51%] px-4 py-3 shadow-[0_14px_24px_rgba(44,22,10,0.14)] md:px-7 md:py-5 ${bubble.positionClassName} ${bubble.sizeClassName}`}
                   style={style}
                 >
                   <p
-                    className="whitespace-pre-line text-center text-[clamp(2rem,2.4vw,3rem)] leading-[0.96] font-schoolbell"
+                    className="whitespace-pre-line text-center text-[clamp(1.55rem,5.2vw,2.2rem)] leading-[0.94] font-schoolbell md:text-[clamp(2rem,2.4vw,3rem)] md:leading-[0.96]"
                     style={{ color: bubble.textColor }}
                   >
                     {bubble.text}
                   </p>
                   <span
-                    className={`home-review-bubble-tail absolute h-7 w-7 rounded-[25%_70%_20%_85%] ${bubble.tailClassName}`}
+                    className={`home-review-bubble-tail absolute h-6 w-6 rounded-[25%_70%_20%_85%] md:h-7 md:w-7 ${bubble.tailClassName}`}
                     aria-hidden
                   />
                 </article>

@@ -60,7 +60,7 @@ export default function InstagramPostsStrip() {
   const hasPosts = posts.length > 0;
 
   return (
-    <section className="w-full pb-14 pt-12 md:pb-18 md:pt-14">
+    <section className="w-full pb-14 md:pb-18 md:pt-14">
       <div className="mx-auto w-full max-w-[1500px] px-4 md:px-8">
         <p className="mx-auto max-w-[900px] text-center text-[clamp(2.1rem,4.5vw,5.1rem)] leading-[0.96] text-[#E61E6E] font-coolvetica">
           get to know

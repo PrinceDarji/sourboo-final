@@ -130,7 +130,7 @@ export default function HomeHorizontalImageScroll() {
       className="relative w-full py-2 md:py-4"
       aria-label="Horizontal image gallery"
     >
-      <div className="mx-auto h-screen w-full max-w-[1500px] px-4 md:px-10">
+      <div className="mx-auto h-[80vh] w-full max-w-[1500px] px-4 md:h-screen md:px-10">
         <div
           ref={viewportRef}
           className="flex h-full items-start gap-4 overflow-x-auto overflow-y-hidden pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-6 md:pt-8"

@@ -71,8 +71,8 @@ const homeBands: HomeBand[] = [
     fallbackHref: '/product/tamarin-tease',
     styleVariant: 'secondary',
     ctaBackgroundImage: '/home/ctabg2.svg',
-    ctaClassName: 'text-[#26140A] hover:brightness-105',
-    ctaAlignClass: 'justify-start pl-10 sm:pl-20 md:pl-28 lg:pl-36',
+    ctaClassName: 'text-[#26140A] whitespace-nowrap hover:brightness-105',
+    ctaAlignClass: 'justify-start pl-4 sm:pl-20 md:pl-28 lg:pl-36',
     ctaOffsetClass: 'mt-5 sm:mt-6 md:mt-7',
     showTopWave: true,
     showBottomWave: true,
@@ -230,7 +230,7 @@ function ProductBand({
               className={`inline-flex min-h-[54px] items-center rounded-full bg-cover bg-center bg-no-repeat px-8 py-3 text-[clamp(1.7rem,3.1vw,2.9rem)] leading-[1] font-schoolbell transition md:min-h-[70px] md:px-12 ${ctaClassName}`}
               style={{ backgroundImage: `url(${ctaBackgroundImage})` }}
             >
-              <span>{ctaLabel}</span>
+              <span className="text-[0.88em] sm:text-[0.92em] md:text-[0.95em] lg:text-[1em]">{ctaLabel}</span>
               <span className="ml-2 text-[0.6em] leading-none opacity-90">{priceLabel}</span>
             </Link>
           </div>
@@ -339,20 +339,20 @@ export default async function HomePage() {
 
               <Link
                 href="/about"
-                className="inline-flex w-[min(92vw,540px)] aspect-[256/67] items-center justify-center bg-[url('/home/readmyrantcta.svg')] bg-contain bg-center bg-no-repeat px-8 text-center text-[clamp(1.8rem,3vw,3.3rem)] leading-none text-[#FFF8F8] font-schoolbell transition duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E61E7A]"
+                className="inline-flex w-[min(92vw,540px)] aspect-[256/67] items-center justify-center bg-[url('/home/readmyrantcta.svg')] bg-contain bg-center bg-no-repeat px-8 text-center text-[clamp(1.65rem,2.8vw,2.9rem)] leading-none text-[#FFF8F8] font-schoolbell transition duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E61E7A] md:text-[clamp(1.8rem,3vw,3.3rem)]"
               >
-                read my rant →
+                <span className="relative -translate-y-[4px] md:-translate-y-px">read my rant →</span>
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1500px] px-2 pb-6 md:px-8 md:pb-10">
+      <section className="mx-auto w-full max-w-[1500px] px-2 pb-0 md:px-8 md:pb-10">
         <HomePosterPinboard />
       </section>
 
-      <section className="w-full pb-8 md:pb-12">
+      <section className="w-full  md:pb-12">
         <div className="relative mx-auto h-[220px] w-full max-w-[1240px] sm:h-[260px] md:h-[320px] lg:h-[390px]">
           <Image
             src="/home/freshingredients.svg"
