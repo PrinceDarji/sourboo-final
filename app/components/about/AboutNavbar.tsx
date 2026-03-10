@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/app/components/cart/CartProvider';
 
 const leftLinks = [
@@ -15,11 +16,30 @@ const rightLinks = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const { openCart, totalItems } = useCart();
   const navItemClass =
     'group relative inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-1 text-[clamp(0.72rem,1.1vw,1.22rem)] leading-none text-[#E9E6B8] transition-colors duration-200 hover:bg-[#E9E6B8]/16 hover:text-[#FFFBD8] focus-visible:bg-[#E9E6B8]/22 focus-visible:text-[#FFFBD8] focus-visible:outline-none font-schoolbell';
+  const navItemActiveClass = 'bg-[#E9E6B8]/16 text-[#FFFBD8]';
   const navItemBlobClass =
     'pointer-events-none absolute inset-x-[-0.4rem] inset-y-[-0.3rem] -z-10 scale-75 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#E9E6B8]/24 opacity-0 blur-[0.6px] transition-all duration-250 ease-out group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100';
+  const navItemBlobActiveClass = 'scale-100 opacity-100';
+
+  const normalizedPathname = pathname?.replace(/\/+$/, '') || '/';
+
+  function isActivePath(href: string) {
+    const normalizedHref = href.replace(/\/+$/, '') || '/';
+
+    if (normalizedHref === '/') {
+      return normalizedPathname === '/' || normalizedPathname === '/home';
+    }
+
+    if (normalizedHref === '/product') {
+      return normalizedPathname === '/product' || normalizedPathname.startsWith('/product/');
+    }
+
+    return normalizedPathname === normalizedHref;
+  }
 
   return (
     <nav className="pointer-events-none fixed left-0 right-0 -top-10 z-50 w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10">
@@ -36,8 +56,15 @@ export default function Navbar() {
             <div className="absolute inset-x-[8%] top-[50%] z-20 flex items-center justify-between">
               <div className="pointer-events-auto flex items-center gap-5 xl:gap-8">
                 {leftLinks.map((item) => (
-                  <Link key={item.label} href={item.href} className={navItemClass}>
-                    <span aria-hidden className={navItemBlobClass} />
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`${navItemClass} ${isActivePath(item.href) ? navItemActiveClass : ''}`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`${navItemBlobClass} ${isActivePath(item.href) ? navItemBlobActiveClass : ''}`}
+                    />
                     <span className="relative z-10">{item.label}</span>
                   </Link>
                 ))}
@@ -45,8 +72,15 @@ export default function Navbar() {
 
               <div className="pointer-events-auto flex items-center gap-5 xl:gap-8">
                 {rightLinks.map((item) => (
-                  <Link key={item.label} href={item.href} className={navItemClass}>
-                    <span aria-hidden className={navItemBlobClass} />
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`${navItemClass} ${isActivePath(item.href) ? navItemActiveClass : ''}`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`${navItemBlobClass} ${isActivePath(item.href) ? navItemBlobActiveClass : ''}`}
+                    />
                     <span className="relative z-10">{item.label}</span>
                   </Link>
                 ))}
@@ -90,9 +124,12 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={navItemClass}
+                  className={`${navItemClass} ${isActivePath(item.href) ? navItemActiveClass : ''}`}
                 >
-                  <span aria-hidden className={navItemBlobClass} />
+                  <span
+                    aria-hidden
+                    className={`${navItemBlobClass} ${isActivePath(item.href) ? navItemBlobActiveClass : ''}`}
+                  />
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               ))}
@@ -103,9 +140,12 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={navItemClass}
+                  className={`${navItemClass} ${isActivePath(item.href) ? navItemActiveClass : ''}`}
                 >
-                  <span aria-hidden className={navItemBlobClass} />
+                  <span
+                    aria-hidden
+                    className={`${navItemBlobClass} ${isActivePath(item.href) ? navItemBlobActiveClass : ''}`}
+                  />
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               ))}

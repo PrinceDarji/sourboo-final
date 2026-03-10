@@ -131,10 +131,10 @@ export default function HomeReviewPhoneSection() {
     <section
       ref={sectionRef}
       data-scroll-reveal="off"
-      className={`home-review-bubbles w-full px-4 pb-18 pt-8 md:px-10 md:pb-24 md:pt-12 ${hasEnteredView ? 'home-review-visible' : ''}`}
+      className={`home-review-bubbles w-full px-4 pb-18 pt-8 md:px-10 md:pb-10 md:pt-12 ${hasEnteredView ? 'home-review-visible' : ''}`}
     >
       <div className="mx-auto w-full max-w-[1500px]">
-        <div className="relative mx-auto min-h-[820px] w-full max-w-[1240px] md:min-h-[940px]">
+        <div className="relative mx-auto min-h-[820px] w-full max-w-[1240px] md:min-h-[700px]">
           <div className="absolute inset-0">
             {reviewBubbles.map((bubble) => {
               const style = {
@@ -164,14 +164,14 @@ export default function HomeReviewPhoneSection() {
             })}
           </div>
 
-          <div className="relative z-20 mx-auto w-[min(58vw,330px)] pt-12 md:w-[min(28vw,390px)] md:pt-0">
+          <div className="relative z-20 mx-auto w-[min(40vw,290px)] pt-12 md:w-[min(22vw,300px)] md:pt-0">
             <Image
               src="/review-phone.svg"
               alt="Phone showing what people say about Sourboo"
               width={3663}
               height={8227}
               className="h-auto w-full object-contain drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)]"
-              sizes="(max-width: 768px) 58vw, 390px"
+              sizes="(max-width: 768px) 40vw, (max-width: 1364px) 22vw, 300px"
             />
           </div>
         </div>

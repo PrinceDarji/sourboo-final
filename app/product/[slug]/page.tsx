@@ -5,6 +5,7 @@ import Navbar from '../../components/about/AboutNavbar';
 import SiteFooter from '../../components/SiteFooter';
 import ProductDetailCartActions from '@/app/components/cart/ProductDetailCartActions';
 import ProductImageCarousel from '@/app/components/product/ProductImageCarousel';
+import ProductDetailSections from '@/app/components/product/ProductDetailSections';
 import ProductShareButton from '@/app/components/product/ProductShareButton';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { urlFor } from '@/src/lib/sanity/image';
@@ -197,96 +198,6 @@ function ProductName({ product }: { product: ProductDetail }) {
   );
 }
 
-type HandDrawnSide = 'left' | 'right';
-
-type BrushSegment = {
-  top: number;
-  height: number;
-  offset: number;
-  tilt: number;
-  thickness: number;
-  opacity: number;
-};
-
-const BRUSH_SEGMENTS: BrushSegment[] = [
-  { top: 2, height: 14, offset: 8, tilt: -18, thickness: 9, opacity: 0.96 },
-  { top: 11, height: 13, offset: 3, tilt: 12, thickness: 8, opacity: 0.92 },
-  { top: 19, height: 16, offset: 9, tilt: -9, thickness: 10, opacity: 0.95 },
-  { top: 31, height: 13, offset: 2, tilt: 8, thickness: 8, opacity: 0.88 },
-  { top: 41, height: 16, offset: 8, tilt: -11, thickness: 10, opacity: 0.98 },
-  { top: 53, height: 14, offset: 3, tilt: 7, thickness: 8, opacity: 0.9 },
-  { top: 63, height: 16, offset: 9, tilt: -10, thickness: 10, opacity: 0.95 },
-  { top: 76, height: 12, offset: 4, tilt: 6, thickness: 8, opacity: 0.9 },
-  { top: 84, height: 13, offset: 7, tilt: -8, thickness: 9, opacity: 0.92 },
-];
-
-const BRUSH_DABS = [
-  { top: 6, offset: 1, size: 7, opacity: 0.75 },
-  { top: 24, offset: 10, size: 6, opacity: 0.65 },
-  { top: 39, offset: 0, size: 8, opacity: 0.7 },
-  { top: 58, offset: 9, size: 7, opacity: 0.68 },
-  { top: 74, offset: 2, size: 6, opacity: 0.64 },
-  { top: 90, offset: 8, size: 7, opacity: 0.72 },
-];
-
-function HandDrawnSideBorder({
-  side,
-  color,
-  className,
-}: {
-  side: HandDrawnSide;
-  color: string;
-  className: string;
-}) {
-  return (
-    <div aria-hidden className={`pointer-events-none absolute w-9 md:w-11 ${className}`}>
-      {BRUSH_SEGMENTS.map((segment, index) => {
-        const position = side === 'left' ? { left: `${segment.offset}px` } : { right: `${segment.offset}px` };
-        const signedTilt = side === 'left' ? segment.tilt : -segment.tilt;
-
-        return (
-          <span
-            key={`stroke-${side}-${index}`}
-            className="absolute"
-            style={{
-              ...position,
-              top: `${segment.top}%`,
-              width: `clamp(${segment.thickness - 2}px, 1vw, ${segment.thickness + 1}px)`,
-              height: `${segment.height}%`,
-              opacity: segment.opacity,
-              transform: `rotate(${signedTilt}deg)`,
-              borderRadius: '999px',
-              background: `linear-gradient(180deg, ${color} 0%, ${color} 70%, ${color}C4 100%)`,
-              clipPath:
-                'polygon(14% 0%, 87% 4%, 100% 12%, 92% 88%, 78% 100%, 24% 96%, 0% 84%, 9% 16%)',
-              boxShadow: `0 0 0 0.8px ${color}A8`,
-            }}
-          />
-        );
-      })}
-
-      {BRUSH_DABS.map((dab, index) => {
-        const position = side === 'left' ? { left: `${dab.offset}px` } : { right: `${dab.offset}px` };
-
-        return (
-          <span
-            key={`dab-${side}-${index}`}
-            className="absolute rounded-full"
-            style={{
-              ...position,
-              top: `${dab.top}%`,
-              width: `${dab.size}px`,
-              height: `${Math.max(5, dab.size - 1)}px`,
-              opacity: dab.opacity,
-              backgroundColor: `${color}BF`,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
@@ -333,60 +244,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           />
         </div>
 
-        <details className="relative mx-auto mt-8 w-full max-w-[400px] pl-9 pr-5 pb-7 pt-14 md:mt-12 md:max-w-[960px] md:pl-14 md:pr-10 md:pb-10 md:pt-16">
-          <HandDrawnSideBorder side="left" color="#A8D64A" className="left-0 top-10 bottom-5" />
-          <summary className="absolute left-0 top-0 z-20 -translate-y-1/2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span className="relative inline-flex h-[44px] w-[190px] items-center justify-center md:h-[66px] md:w-[300px]">
-              <Image src="/product/inthejarbg.svg" alt="" fill aria-hidden className="object-contain" />
-              <span className="relative z-10 text-[clamp(1.9rem,3.2vw,3rem)] leading-none text-[#171717] font-schoolbell md:text-[clamp(2.3rem,3vw,3.6rem)]">
-                {product.detailInJarTitle}
-              </span>
-            </span>
-          </summary>
-          <div className="mt-3 md:mt-4">
-            <p className="whitespace-pre-line text-[clamp(2rem,3.5vw,3.4rem)] leading-[1.03] text-[#1A1A1A] font-schoolbell">
-              {product.detailInJarSummary}
-            </p>
-            <p className="mt-4 whitespace-pre-line text-[clamp(1.85rem,3.2vw,3.1rem)] leading-[1.07] text-[#1C2B08] font-schoolbell">
-              {product.detailInJarIngredients}
-            </p>
-          </div>
-        </details>
-
-        <details className="relative mx-auto mt-7 w-full max-w-[400px] px-9 pb-8 pt-14 md:mt-10 md:max-w-[960px] md:px-14 md:pb-11 md:pt-16">
-          <HandDrawnSideBorder side="left" color="#EFE86D" className="left-0 top-11 bottom-5" />
-          <HandDrawnSideBorder side="right" color="#EFE86D" className="right-0 top-11 bottom-5" />
-          <summary className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span className="relative inline-flex h-[58px] w-[106px] items-center justify-center md:h-[84px] md:w-[158px]">
-              <Image src="/product/onthetonguebg.svg" alt="" fill aria-hidden className="object-contain" />
-              <span className="relative z-10 max-w-[84px] text-center text-[clamp(1.55rem,2.3vw,2.5rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[130px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
-                {product.detailOnTongueTitle}
-              </span>
-            </span>
-          </summary>
-          <div className="mt-3 md:mt-4">
-            <p className="mx-auto max-w-[86%] whitespace-pre-line text-center text-[clamp(1.92rem,3.1vw,3rem)] leading-[1.08] text-[#1A1A1A] font-schoolbell">
-              {product.detailOnTongueBody}
-            </p>
-          </div>
-        </details>
-
-        <details className="relative mx-auto mt-7 w-full max-w-[400px] pl-5 pr-9 pb-8 pt-14 md:mt-10 md:max-w-[960px] md:pl-10 md:pr-14 md:pb-11 md:pt-16">
-          <HandDrawnSideBorder side="right" color="#C96A00" className="right-0 top-11 bottom-5" />
-          <summary className="absolute right-8 top-0 z-20 -translate-y-1/2 cursor-pointer list-none [&::-webkit-details-marker]:hidden md:right-14">
-            <span className="relative inline-flex h-[56px] w-[102px] items-center justify-center md:h-[80px] md:w-[154px]">
-              <Image src="/product/afteropeningbg.svg" alt="" fill aria-hidden className="object-contain" />
-              <span className="relative z-10 max-w-[84px] text-center text-[clamp(1.5rem,2.2vw,2.45rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[122px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
-                {product.detailAfterOpeningTitle}
-              </span>
-            </span>
-          </summary>
-          <div className="mt-3 md:mt-4">
-            <p className="whitespace-pre-line text-[clamp(1.95rem,3.2vw,3rem)] leading-[1.08] text-[#1A1A1A] font-schoolbell">
-              {product.detailAfterOpeningBody}
-            </p>
-          </div>
-        </details>
+        <ProductDetailSections
+          detailInJarTitle={product.detailInJarTitle}
+          detailInJarSummary={product.detailInJarSummary}
+          detailInJarIngredients={product.detailInJarIngredients}
+          detailOnTongueTitle={product.detailOnTongueTitle}
+          detailOnTongueBody={product.detailOnTongueBody}
+          detailAfterOpeningTitle={product.detailAfterOpeningTitle}
+          detailAfterOpeningBody={product.detailAfterOpeningBody}
+        />
 
         <p className="mx-auto mt-8 max-w-[390px] whitespace-pre-line text-center text-[clamp(2rem,3.2vw,3rem)] leading-[1.08] text-[#E63182] font-schoolbell md:mt-12 md:max-w-[930px]">
           {product.detailDispatchNote}
