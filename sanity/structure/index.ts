@@ -28,6 +28,17 @@ export const structure: StructureResolver = (S) =>
         ),
 
       S.listItem()
+        .title("Site Settings")
+        .id("siteSettingsSingleton")
+        .icon(() => "⚙️")
+        .child(
+          S.document()
+            .schemaType("siteSettings")
+            .documentId("siteSettings")
+            .title("Site Settings")
+        ),
+
+      S.listItem()
         .title("Products")
         .id("products")
         .icon(() => "🛍️")
@@ -41,6 +52,6 @@ export const structure: StructureResolver = (S) =>
       // If you want a clean CMS later, remove this block.
       S.divider(),
       ...S.documentTypeListItems().filter(
-        (item) => !["homePage", "aboutPage", "product"].includes(item.getId() as string)
+        (item) => !["homePage", "aboutPage", "siteSettings", "product"].includes(item.getId() as string)
       ),
     ]);

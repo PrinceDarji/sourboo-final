@@ -25,7 +25,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-2',
-    src: '/home/postcrysnack.svg',
+    src: '/home/postcrysnack.webp',
     alt: 'Food collage visual 2',
     frameClass:
       'z-[2] -ml-10 mt-[14vh] h-[210px] w-[180px] overflow-hidden rounded-[24px] -rotate-[4deg] md:-ml-16 md:mt-[12vh] md:h-[330px] md:w-[250px] lg:h-[400px] lg:w-[300px]',
@@ -34,7 +34,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-3',
-    src: '/home/girldinner.svg',
+    src: '/home/girldinner.webp',
     alt: 'Food collage visual 3',
     frameClass:
       'z-[3] -ml-10 mt-[38vh] h-[190px] w-[190px] overflow-hidden rounded-full md:-ml-14 md:mt-[40vh] md:h-[280px] md:w-[280px] lg:h-[340px] lg:w-[340px]',
@@ -43,7 +43,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-4',
-    src: '/home/hangoverdetox.svg',
+    src: '/home/hangoverdetox.webp',
     alt: 'Food collage visual 4',
     frameClass:
       'z-[4] -ml-8 mt-[6vh] h-[200px] w-[200px] overflow-visible md:-ml-10 md:mt-[5vh] md:h-[290px] md:w-[290px] lg:h-[360px] lg:w-[360px]',
@@ -52,7 +52,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-5',
-    src: '/home/deskcravings.svg',
+    src: '/home/deskcravings.webp',
     alt: 'Food collage visual 5',
     frameClass:
       'z-[1] -ml-16 mt-[26vh] h-[220px] w-[min(74vw,360px)] overflow-hidden rounded-[24px] md:-ml-24 md:mt-[22vh] md:h-[330px] md:w-[540px] lg:h-[420px] lg:w-[660px]',
@@ -61,7 +61,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-6',
-    src: '/home/recipe-2.svg',
+    src: '/home/recipe-2.webp',
     alt: 'Food collage visual 6',
     frameClass:
       'z-[2] -ml-12 mt-[10vh] h-[160px] w-[220px] overflow-hidden rounded-[30px] rotate-[2deg] md:-ml-16 md:mt-[9vh] md:h-[240px] md:w-[330px] lg:h-[300px] lg:w-[410px]',
@@ -70,7 +70,7 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-7',
-    src: '/home/latenightmunchies.svg',
+    src: '/home/latenightmunchies.webp',
     alt: 'Food collage visual 7',
     frameClass:
       'z-[3] -ml-10 mt-[28vh] h-[190px] w-[190px] overflow-hidden rounded-[48%_52%_46%_54%/44%_48%_52%_56%] md:-ml-14 md:mt-[30vh] md:h-[280px] md:w-[280px] lg:h-[330px] lg:w-[330px]',
@@ -87,6 +87,8 @@ export default function HomeHorizontalImageScroll() {
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
     const section = sectionRef.current;
     const viewport = viewportRef.current;
     if (!section || !viewport) return;
@@ -146,6 +148,7 @@ export default function HomeHorizontalImageScroll() {
                 fill
                 className={card.imageClass ?? 'object-cover'}
                 sizes={card.sizes}
+                quality={80}
               />
             </article>
           ))}

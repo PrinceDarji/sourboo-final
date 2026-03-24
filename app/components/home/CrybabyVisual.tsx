@@ -77,7 +77,14 @@ export default function CrybabyVisual({
     <div ref={rootRef} className={`relative w-[min(90vw,560px)] aspect-[4/5] ${rotateClass}`}>
       <div className={`relative h-full w-full overflow-hidden rounded-[10px]  ${mirrored ? '-scale-x-100' : ''}`}>
         <div className={`absolute inset-0 ${hasEnteredView ? 'home-readmyrant-slide-in-active' : 'home-readmyrant-slide-in-start'}`}>
-          <Image src="/home/readmyrant.svg" alt="crybaby challenge visual placeholder" fill className="object-cover" />
+          <Image
+            src="/home/readmyrant.webp"
+            alt="crybaby challenge visual placeholder"
+            fill
+            sizes="(max-width: 768px) 90vw, 560px"
+            quality={78}
+            className="object-cover"
+          />
         </div>
         <p
           className={`absolute z-20 text-[clamp(0.95rem,1.8vw,1.4rem)] leading-none tracking-[0.22em] text-[#F2E84A] font-coolvetica ${fluidPositionClass}`}

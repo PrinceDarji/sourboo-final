@@ -10,7 +10,7 @@ import ProductShareButton from '@/app/components/product/ProductShareButton';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { urlFor } from '@/src/lib/sanity/image';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 type StyleVariant = 'primary' | 'secondary';
 
@@ -77,6 +77,14 @@ const PRODUCT_DETAIL_QUERY = `*[_type == "product" && slug.current == $slug][0]{
   detailDispatchNote
 }`;
 
+const PRODUCT_SLUGS_QUERY = `*[_type == "product" && defined(slug.current)]{
+  "slug": slug.current
+}`;
+
+type ProductSlugRow = {
+  slug?: string;
+};
+
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -85,7 +93,7 @@ function asNonEmptyString(value: unknown): string | undefined {
 
 function imageSrc(source: unknown, fallback: string) {
   try {
-    return source ? urlFor(source).width(1800).quality(90).url() : fallback;
+    return source ? urlFor(source).width(1400).quality(80).url() : fallback;
   } catch {
     return fallback;
   }
@@ -162,13 +170,29 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
 
 async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   try {
-    const doc = await sanityClient
-      .withConfig({ useCdn: false })
-      .fetch<SanityProductDetail | null>(PRODUCT_DETAIL_QUERY, { slug }, { cache: 'no-store' });
+    const doc = await sanityClient.fetch<SanityProductDetail | null>(
+      PRODUCT_DETAIL_QUERY,
+      { slug },
+      { next: { revalidate } },
+    );
     if (!doc) return null;
     return toProductDetail(doc);
   } catch {
     return null;
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const rows = await sanityClient.fetch<ProductSlugRow[]>(PRODUCT_SLUGS_QUERY, {}, { next: { revalidate } });
+    if (!Array.isArray(rows)) return [];
+
+    return rows
+      .map((row) => (typeof row.slug === 'string' ? row.slug.trim() : ''))
+      .filter((slug) => slug.length > 0)
+      .map((slug) => ({ slug }));
+  } catch {
+    return [];
   }
 }
 

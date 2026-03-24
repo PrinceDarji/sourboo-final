@@ -97,9 +97,11 @@ export async function priceCheckoutItems(items: CheckoutItemInput[]): Promise<Pr
   const normalized = normalizeItems(items);
   const slugs = normalized.map((item) => item.slug);
 
-  const docs = await sanityClient
-    .withConfig({ useCdn: false })
-    .fetch<ProductPricingDoc[]>(PRODUCT_PRICING_QUERY, { slugs }, { cache: 'no-store' });
+  const docs = await sanityClient.fetch<ProductPricingDoc[]>(
+    PRODUCT_PRICING_QUERY,
+    { slugs },
+    { next: { revalidate: 60 } },
+  );
 
   const bySlug = new Map<string, ProductPricingDoc>();
   for (const doc of docs || []) {

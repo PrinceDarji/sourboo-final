@@ -10,6 +10,7 @@ const DELAY_STEP_MS = 40;
 const MAX_DELAY_MS = 160;
 const INITIAL_VISIBLE_RATIO = 0.45;
 const REVEAL_INTERSECTION_RATIO = 0.2;
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
 
 function markVisible(section: HTMLElement) {
   section.classList.add(VISIBLE_CLASS);
@@ -23,13 +24,28 @@ export default function SectionScrollReveal() {
     if (sections.length === 0) return;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const disableAnimatedReveal = window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
+    const revealImmediately = prefersReducedMotion || disableAnimatedReveal;
 
     sections.forEach((section, index) => {
       section.classList.add(BASE_CLASS);
+      if (revealImmediately) {
+        section.classList.add(VISIBLE_CLASS);
+        section.style.removeProperty('--scroll-reveal-delay');
+        return;
+      }
+
       section.classList.remove(VISIBLE_CLASS);
-      const delay = Math.min(index * DELAY_STEP_MS, MAX_DELAY_MS);
-      section.style.setProperty('--scroll-reveal-delay', `${delay}ms`);
+      section.style.setProperty('--scroll-reveal-delay', `${Math.min(index * DELAY_STEP_MS, MAX_DELAY_MS)}ms`);
     });
+
+    if (revealImmediately) {
+      return () => {
+        sections.forEach((section) => {
+          section.style.removeProperty('--scroll-reveal-delay');
+        });
+      };
+    }
 
     const viewportHeight = window.innerHeight || 0;
     sections.forEach((section) => {
@@ -38,15 +54,6 @@ export default function SectionScrollReveal() {
         markVisible(section);
       }
     });
-
-    if (prefersReducedMotion) {
-      sections.forEach((section) => markVisible(section));
-      return () => {
-        sections.forEach((section) => {
-          section.style.removeProperty('--scroll-reveal-delay');
-        });
-      };
-    }
 
     if (!('IntersectionObserver' in window)) {
       sections.forEach((section) => markVisible(section));

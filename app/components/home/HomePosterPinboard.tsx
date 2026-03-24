@@ -9,29 +9,33 @@ const POSTER_STEP_MS = 1800;
 const posterItems = [
   {
     id: 'post-cry-snack',
-    src: '/home/postcrysnack.svg',
+    src: '/home/postcrysnack.webp',
     alt: 'Post cry snack poster',
+    sizes: '(max-width: 768px) 57vw, 36vw',
     className:
       'left-[1%] top-1 w-[57%] -rotate-[10deg] sm:left-[4%] sm:top-3 sm:w-[48%] md:left-[12%] md:-top-20 md:w-[36%]',
   },
   {
     id: 'late-night-munchies',
-    src: '/home/latenightmunchies.svg',
+    src: '/home/latenightmunchies.webp',
     alt: 'Late night munchies poster',
+    sizes: '(max-width: 768px) 57vw, 36vw',
     className:
       'right-[1%] top-0 w-[57%] rotate-[11deg] sm:right-[4%] sm:w-[48%] md:right-[8%] md:-top-36 md:w-[36%]',
   },
   {
     id: 'girl-dinner',
-    src: '/home/girldinner.svg',
+    src: '/home/girldinner.webp',
     alt: 'Girl dinner but sour poster',
+    sizes: '(max-width: 768px) 55vw, 34vw',
     className:
       'left-[0%] top-[43%] w-[55%] sm:left-[3%] sm:top-[41%] sm:w-[46%] md:left-[18%] md:top-[45%] md:w-[34%]',
   },
   {
     id: 'hangover-detox',
-    src: '/home/deskcravings.svg',
+    src: '/home/deskcravings.webp',
     alt: 'Hangover detox poster',
+    sizes: '(max-width: 768px) 54vw, 28vw',
     className:
       'right-[3%] top-[46%] w-[54%] -rotate-[8deg] sm:right-[6%] sm:top-[44%] sm:w-[45%] md:right-[12%] md:top-[47%] md:w-[28%]',
   },
@@ -110,6 +114,8 @@ export default function HomePosterPinboard() {
                 alt={item.alt}
                 width={700}
                 height={980}
+                sizes={item.sizes}
+                quality={80}
                 className="h-auto w-full object-contain"
               />
             </div>

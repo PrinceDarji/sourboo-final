@@ -33,7 +33,7 @@ function CartItemRow({
         </button>
         
         <div className="relative h-16 w-16 overflow-hidden rounded border border-[#D7D7C8] bg-[#FFFF88] md:h-20 md:w-20">
-          <Image src={image} alt={name} fill unoptimized className="object-contain" />
+          <Image src={image} alt={name} fill sizes="80px" quality={76} className="object-contain" />
         </div>
 
         <div className="min-w-0">

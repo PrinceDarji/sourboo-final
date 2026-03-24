@@ -10,7 +10,7 @@ import AboutWordByWordReveal from '../components/about/AboutWordByWordReveal';
 import AboutEnvelopeText from '../components/about/AboutEnvelopeText';
 import SectionThreeEyesSequence from '../components/about/SectionThreeEyesSequence';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 const ABOUT_ENVELOPE_QUERY = `coalesce(
   *[_id == "drafts.aboutPage"][0],
@@ -83,9 +83,7 @@ function parseLegacyEnvelopeText(legacyText: string): EnvelopeContent {
 
 async function getEnvelopeContent(): Promise<EnvelopeContent> {
   try {
-    const data = await sanityClient
-      .withConfig({ useCdn: false })
-      .fetch<AboutEnvelopeQueryResult>(ABOUT_ENVELOPE_QUERY, {}, { cache: 'no-store' });
+    const data = await sanityClient.fetch<AboutEnvelopeQueryResult>(ABOUT_ENVELOPE_QUERY, {}, { next: { revalidate } });
     const heading = asNonEmptyString(data?.envelopeHeading);
     const body = asNonEmptyString(data?.envelopeBody);
     const signoff = asNonEmptyString(data?.envelopeSignoff);

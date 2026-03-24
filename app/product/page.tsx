@@ -10,7 +10,7 @@ import AnimatedFlavorMeters, { type FlavorMeter } from '../components/product/An
 import ProductWordByWordReveal from '../components/product/ProductWordByWordReveal';
 import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 type StyleVariant = 'primary' | 'secondary';
 
@@ -110,7 +110,7 @@ function asNonEmptyString(value: unknown): string | undefined {
 
 function imageSrc(source: unknown, fallback: string) {
   try {
-    return source ? urlFor(source).width(1600).quality(90).url() : fallback;
+    return source ? urlFor(source).width(1400).quality(80).url() : fallback;
   } catch {
     return fallback;
   }
@@ -139,9 +139,7 @@ function toProductCard(doc: SanityProduct, index: number): ProductCard {
 
 async function getProducts(): Promise<ProductCard[]> {
   try {
-    const docs = await sanityClient
-      .withConfig({ useCdn: false })
-      .fetch<SanityProduct[]>(PRODUCTS_QUERY, {}, { cache: 'no-store' });
+    const docs = await sanityClient.fetch<SanityProduct[]>(PRODUCTS_QUERY, {}, { next: { revalidate } });
 
     if (!Array.isArray(docs) || docs.length === 0) return [];
     return docs.map((doc, index) => toProductCard(doc, index));
@@ -236,9 +234,10 @@ function ProductCard({
           src={product.splashImage}
           alt="paint splash"
           fill
-          unoptimized
           priority={isAboveFoldCard}
           loading={isAboveFoldCard ? 'eager' : 'lazy'}
+          sizes={isDesktop ? '500px' : '360px'}
+          quality={80}
           className="object-contain"
           style={{ transform: splashTransform, transformOrigin: 'center center' }}
         />
@@ -248,8 +247,9 @@ function ProductCard({
               src={product.jarImage}
               alt={`${product.title} product jar`}
               fill
-              unoptimized
               loading={isAboveFoldCard ? 'eager' : 'lazy'}
+              sizes={isDesktop ? '350px' : '285px'}
+              quality={82}
               className="object-contain"
             />
           </div>

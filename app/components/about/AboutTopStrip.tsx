@@ -6,9 +6,9 @@ import { useEffect, useRef } from 'react';
 const REVEAL_RATIO = 0.35;
 
 const TOP_STRIP_IMAGES = [
-  { src: '/about/section-six-top-1.JPEG', alt: 'Sourboo event tasting moment' },
-  { src: '/about/section-six-top-2.JPEG', alt: 'Sourboo event team shot' },
-  { src: '/about/section-six-top-3.JPEG', alt: 'Sourboo event customer tasting moment' },
+  { src: '/about/section-six-top-1.webp', alt: 'Sourboo event tasting moment' },
+  { src: '/about/section-six-top-2.webp', alt: 'Sourboo event team shot' },
+  { src: '/about/section-six-top-3.webp', alt: 'Sourboo event customer tasting moment' },
 ] as const;
 
 export default function AboutTopStrip() {
@@ -23,7 +23,8 @@ export default function AboutTopStrip() {
     };
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
+    const disableAnimationOnMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (prefersReducedMotion || disableAnimationOnMobile) {
       setVisible(true);
       return;
     }
@@ -59,7 +60,14 @@ export default function AboutTopStrip() {
           key={image.src}
           className={`about-top-strip-item about-top-strip-item-${index + 1} relative w-full overflow-hidden`}
         >
-          <Image src={image.src} alt={image.alt} fill className="object-cover" />
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="(max-width: 1023px) 33vw, 33vw"
+            quality={74}
+            className="object-cover"
+          />
         </div>
       ))}
     </div>

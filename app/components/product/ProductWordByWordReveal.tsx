@@ -72,14 +72,6 @@ function collectOrWrapTokens(element: HTMLElement): HTMLSpanElement[] {
   return Array.from(element.querySelectorAll<HTMLSpanElement>(`.${TOKEN_CLASS}`));
 }
 
-function revealAll(items: RevealItem[]) {
-  items.forEach((item) => {
-    item.tokens.forEach((token) => token.classList.add(VISIBLE_CLASS));
-    item.revealedCount = item.tokens.length;
-    item.maxProgress = 1;
-  });
-}
-
 function revealByScroll(items: RevealItem[]) {
   const viewportHeight = window.innerHeight || 1;
   const revealStart = viewportHeight * 0.94;
@@ -119,6 +111,11 @@ function revealByScroll(items: RevealItem[]) {
 
 export default function ProductWordByWordReveal() {
   useEffect(() => {
+    const disableAnimatedReveal =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.matchMedia('(max-width: 767px)').matches;
+    if (disableAnimatedReveal) return;
+
     const targets = Array.from(document.querySelectorAll<HTMLElement>(TARGET_SELECTOR));
 
     const items: RevealItem[] = targets
@@ -135,12 +132,6 @@ export default function ProductWordByWordReveal() {
       .filter((item) => item.tokens.length > 0);
 
     if (items.length === 0) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      revealAll(items);
-      return;
-    }
 
     let rafId = 0;
     const scheduleUpdate = () => {

@@ -50,7 +50,7 @@ export default function Navbar() {
               src="/navbar.svg"
               alt="Navigation"
               fill
-              priority
+              sizes="(min-width: 1024px) min(100vw, 1320px), 0px"
               className="pointer-events-none select-none object-contain object-center"
             />
             <div className="absolute inset-x-[8%] top-[50%] z-20 flex items-center justify-between">
@@ -100,18 +100,19 @@ export default function Navbar() {
             src="/navbody.svg"
             alt="Navigation background"
             fill
-            priority
+            sizes="(max-width: 1023px) 100vw, 0px"
             className="pointer-events-none select-none object-cover object-center"
           />
 
           <div className="pointer-events-auto absolute left-1/2 top-[16%] z-20 -translate-x-1/2">
             <Link href="/" className="block">
-              <div className="relative h-[32px] w-[140px] sm:h-[54px] sm:w-[188px] md:h-[66px] md:w-[230px]">
+              <div className="relative h-[36px] w-[160px] sm:h-[60px] sm:w-[210px] md:h-[72px] md:w-[252px]">
                 <Image
-                  src="/logo.svg"
+                  src="/navlogo.svg"
                   alt="Sourboo logo"
                   fill
-                  priority
+                  sizes="(max-width: 640px) 160px, (max-width: 768px) 210px, 252px"
+                  fetchPriority="high"
                   className="object-contain object-center"
                 />
               </div>

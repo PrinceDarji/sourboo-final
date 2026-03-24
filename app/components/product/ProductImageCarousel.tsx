@@ -35,8 +35,9 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
           src={images[safeActiveIndex]}
           alt={`${productName} image ${safeActiveIndex + 1}`}
           fill
-          unoptimized
           priority={safeActiveIndex === 0}
+          sizes="(max-width: 768px) 335px, 620px"
+          quality={82}
           className="object-contain drop-shadow-[0_0_0.5px_#F18BB7] md:drop-shadow-[0_0_1px_#F18BB7]"
         />
       </div>

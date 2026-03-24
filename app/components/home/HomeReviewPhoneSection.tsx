@@ -80,50 +80,34 @@ export default function HomeReviewPhoneSection() {
       });
     };
 
-    const checkInView = () => {
-      if (revealed) return;
-      const rect = node.getBoundingClientRect();
-      const topTrigger = window.innerHeight * 0.82;
-      const bottomTrigger = window.innerHeight * 0.18;
-      if (rect.top <= topTrigger && rect.bottom >= bottomTrigger) {
-        reveal();
-      }
-    };
-
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       reveal();
       return;
     }
 
-    checkInView();
-
-    const handleScroll = () => checkInView();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
-
-    let observer: IntersectionObserver | null = null;
-    if ('IntersectionObserver' in window) {
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            reveal();
-            observer?.disconnect();
-          });
-        },
-        {
-          threshold: 0.01,
-          rootMargin: '0px 0px -16% 0px',
-        },
-      );
-
-      observer.observe(node);
+    if (!('IntersectionObserver' in window)) {
+      reveal();
+      return;
     }
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          reveal();
+          observer.disconnect();
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: '0px 0px -12% 0px',
+      },
+    );
+
+    observer.observe(node);
+
     return () => {
-      observer?.disconnect();
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      observer.disconnect();
     };
   }, []);
 
@@ -166,10 +150,11 @@ export default function HomeReviewPhoneSection() {
 
           <div className="relative z-20 mx-auto w-[min(40vw,290px)] pt-12 md:w-[min(22vw,300px)] md:pt-0">
             <Image
-              src="/review-phone.svg"
+              src="/review-phone.webp"
               alt="Phone showing what people say about Sourboo"
               width={3663}
               height={8227}
+              quality={82}
               className="h-auto w-full object-contain drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)]"
               sizes="(max-width: 768px) 40vw, (max-width: 1364px) 22vw, 300px"
             />

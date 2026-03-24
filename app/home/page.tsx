@@ -10,6 +10,8 @@ import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
 import { urlFor } from '@/src/lib/sanity/image';
 
+export const revalidate = 300;
+
 type StyleVariant = 'primary' | 'secondary';
 
 type SanityHomeProduct = {
@@ -47,7 +49,7 @@ type ProductBandProps = Omit<HomeBand, 'fallbackHref' | 'styleVariant'> & {
 const homeBands: HomeBand[] = [
   {
     id: 'side-eye',
-    bgImage: '/home/packagingbg.JPEG',
+    bgImage: '/home/packagingbg.webp',
     packageImage: '/home/sideeyepackage.png',
     packageAspectRatio: 1210 / 274,
     priceLabel: '₹399',
@@ -63,7 +65,7 @@ const homeBands: HomeBand[] = [
   },
   {
     id: 'tamarin-tease',
-    bgImage: '/home/packagingbg.JPEG',
+    bgImage: '/home/packagingbg.webp',
     packageImage: '/home/tamarinpackage.png',
     packageAspectRatio: 2314 / 408,
     priceLabel: '₹399',
@@ -102,7 +104,7 @@ function asNonEmptyString(value: unknown): string | undefined {
 
 function imageSrc(source: unknown, fallback: string) {
   try {
-    return source ? urlFor(source).width(2200).quality(90).url() : fallback;
+    return source ? urlFor(source).width(1600).quality(78).url() : fallback;
   } catch {
     return fallback;
   }
@@ -113,9 +115,11 @@ async function getHomeCtaByVariant(): Promise<{
   priceByVariant: Partial<Record<StyleVariant, string>>;
 }> {
   try {
-    const docs = await sanityClient
-      .withConfig({ useCdn: false })
-      .fetch<SanityHomeProduct[]>(HOME_CTA_PRODUCTS_QUERY, {}, { cache: 'no-store' });
+    const docs = await sanityClient.fetch<SanityHomeProduct[]>(
+      HOME_CTA_PRODUCTS_QUERY,
+      {},
+      { next: { revalidate } },
+    );
 
     if (!Array.isArray(docs) || docs.length === 0) {
       return { hrefByVariant: {}, priceByVariant: {} };
@@ -144,13 +148,11 @@ async function getHomeCtaByVariant(): Promise<{
 }
 
 async function getHomeHeroContent(): Promise<{ src: string; alt: string }> {
-  const fallbackSrc = '/home/hero-placeholder.JPEG';
+  const fallbackSrc = '/home/hero-placeholder.webp';
   const fallbackAlt = 'hero placeholder';
 
   try {
-    const data = await sanityClient
-      .withConfig({ useCdn: false })
-      .fetch<HomeHeroQueryResult>(HOME_HERO_QUERY, {}, { cache: 'no-store' });
+    const data = await sanityClient.fetch<HomeHeroQueryResult>(HOME_HERO_QUERY, {}, { next: { revalidate } });
 
     return {
       src: imageSrc(data?.heroImage, fallbackSrc),
@@ -210,7 +212,14 @@ function ProductBand({
   return (
     <article className="relative w-full overflow-hidden">
       <div className="relative h-[560px] w-full sm:h-[620px] md:h-[760px] lg:h-[840px]">
-        <Image src={bgImage} alt="product section background" fill className="object-cover object-center" />
+        <Image
+          src={bgImage}
+          alt="product section background"
+          fill
+          sizes="100vw"
+          quality={72}
+          className="object-cover object-center"
+        />
 
         {showTopWave ? <TopWave /> : null}
 
@@ -219,7 +228,14 @@ function ProductBand({
             className="relative mx-auto w-[min(88vw,1120px)] md:w-[min(78vw,1160px)] lg:w-[min(72vw,1220px)]"
             style={{ aspectRatio: packageAspectRatio }}
           >
-            <Image src={packageImage} alt="product packaging strip" fill className="object-contain object-center" />
+            <Image
+              src={packageImage}
+              alt="product packaging strip"
+              fill
+              sizes="(max-width: 768px) 88vw, (max-width: 1024px) 78vw, 72vw"
+              quality={78}
+              className="object-contain object-center"
+            />
           </div>
 
           <div
@@ -260,6 +276,8 @@ export default async function HomePage() {
               alt={hero.alt}
               fill
               priority
+              sizes="100vw"
+              quality={78}
               className="object-cover object-center"
             />
             <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/5 via-transparent to-black/25" />

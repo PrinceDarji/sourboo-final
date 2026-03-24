@@ -71,14 +71,6 @@ function wrapWords(element: HTMLElement): HTMLSpanElement[] {
   return Array.from(element.querySelectorAll<HTMLSpanElement>(`.${LOW_OPACITY_CLASS}`));
 }
 
-function revealAll(items: RevealItem[]) {
-  items.forEach((item) => {
-    item.words.forEach((word) => word.classList.add(VISIBLE_CLASS));
-    item.revealedCount = item.words.length;
-    item.maxProgress = 1;
-  });
-}
-
 function revealByScroll(items: RevealItem[]) {
   const viewportHeight = window.innerHeight || 1;
   const revealStart = viewportHeight * 0.94;
@@ -118,6 +110,11 @@ function revealByScroll(items: RevealItem[]) {
 
 export default function AboutWordByWordReveal() {
   useEffect(() => {
+    const disableAnimatedReveal =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.matchMedia('(max-width: 767px)').matches;
+    if (disableAnimatedReveal) return;
+
     const targets = Array.from(document.querySelectorAll<HTMLElement>(TARGET_SELECTOR)).filter(
       (element) => !shouldSkipElement(element),
     );
@@ -136,12 +133,6 @@ export default function AboutWordByWordReveal() {
       .filter((item) => item.words.length > 0);
 
     if (items.length === 0) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      revealAll(items);
-      return;
-    }
 
     let rafId = 0;
     const scheduleUpdate = () => {
