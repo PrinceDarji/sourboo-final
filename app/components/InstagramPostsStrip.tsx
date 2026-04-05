@@ -8,6 +8,8 @@ type InstagramPostsStripProps = {
   profileUrl: string;
   handle: string;
   posts: InstagramPostLink[];
+  headingPrefix: string;
+  fallbackCardLabel: string;
 };
 
 const FALLBACK_CARD_COUNT = 3;
@@ -18,7 +20,13 @@ function captionPreview(caption: string) {
   return `${singleLine.slice(0, 92)}...`;
 }
 
-export default function InstagramPostsStrip({ profileUrl, handle, posts }: InstagramPostsStripProps) {
+export default function InstagramPostsStrip({
+  profileUrl,
+  handle,
+  posts,
+  headingPrefix,
+  fallbackCardLabel,
+}: InstagramPostsStripProps) {
   const visiblePosts = posts.slice(0, 3);
   const hasPosts = visiblePosts.length > 0;
 
@@ -26,7 +34,7 @@ export default function InstagramPostsStrip({ profileUrl, handle, posts }: Insta
     <section className="w-full pb-14 md:pb-18 md:pt-14">
       <div className="mx-auto w-full max-w-[1500px] px-4 md:px-8">
         <p className="mx-auto max-w-[900px] text-center text-[clamp(2.1rem,4.5vw,5.1rem)] leading-[0.96] text-[#E61E6E] font-coolvetica">
-          get to know
+          {headingPrefix}
           <br />
           {handle}
         </p>
@@ -73,7 +81,7 @@ export default function InstagramPostsStrip({ profileUrl, handle, posts }: Insta
                   aria-label="Open Instagram profile"
                 >
                   <div className="flex aspect-[4/5] w-full items-center justify-center px-8 text-center text-[clamp(1.5rem,2.4vw,2.8rem)] leading-[1.04] text-[#201A17] font-schoolbell">
-                    connect instagram feed
+                    {fallbackCardLabel}
                   </div>
                 </a>
               ))}

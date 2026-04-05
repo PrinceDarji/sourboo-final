@@ -110,9 +110,7 @@ function revealByScroll(items: RevealItem[]) {
 
 export default function AboutWordByWordReveal() {
   useEffect(() => {
-    const disableAnimatedReveal =
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      window.matchMedia('(max-width: 767px)').matches;
+    const disableAnimatedReveal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (disableAnimatedReveal) return;
 
     const targets = Array.from(document.querySelectorAll<HTMLElement>(TARGET_SELECTOR)).filter(

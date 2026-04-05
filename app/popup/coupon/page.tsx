@@ -1,0 +1,124 @@
+import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import { getLandingPopupContent } from '@/src/lib/sanity/landingPopup';
+import LandingPopupCloseButton from '@/app/components/popup/LandingPopupCloseButton';
+import PopupPageViewportLock from '@/app/components/popup/PopupPageViewportLock';
+import LandingPopupLeadCaptureForm from '@/app/components/popup/LandingPopupLeadCaptureForm';
+
+export const revalidate = 0;
+
+function asSafeFromPath(value: string | string[] | undefined): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  if (typeof first !== 'string') return undefined;
+  return first.startsWith('/') ? first : undefined;
+}
+
+function toChoiceIndex(
+  value: string | string[] | undefined,
+  totalOptions: number,
+): number {
+  const first = Array.isArray(value) ? value[0] : value;
+  if (typeof first !== 'string') return 0;
+
+  const parsed = Number.parseInt(first, 10);
+  if (!Number.isInteger(parsed)) return 0;
+  if (totalOptions <= 0) return 0;
+  if (parsed < 0 || parsed >= totalOptions) return 0;
+  return parsed;
+}
+
+function cleanOptionLabel(value: string): string {
+  return value.replace(/\s*→\s*$/, '').trim();
+}
+
+export default async function PopupCouponPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ choice?: string | string[]; from?: string | string[] }>;
+}) {
+  const config = await getLandingPopupContent(0);
+  const params = await searchParams;
+
+  if (!config.enabled) {
+    redirect('/home');
+  }
+
+  const choiceIndex = toChoiceIndex(params.choice, config.options.length);
+  const selectedOption = config.options[choiceIndex] || config.options[0];
+  const selectedOptionLabel = cleanOptionLabel(selectedOption?.label || 'Sour & Savage');
+  const selectedOptionHref = selectedOption?.href || '/product';
+  const sourcePath = asSafeFromPath(params.from);
+
+  return (
+    <>
+      <PopupPageViewportLock />
+      <main
+        className="fixed inset-0 z-[9999] h-screen w-screen overflow-hidden"
+        style={{ backgroundColor: config.backgroundColor }}
+      >
+        <LandingPopupCloseButton
+          closeIconSrc={config.closeIcon.src}
+          closeIconAlt={config.closeIcon.alt}
+        />
+
+        <Image
+          src={config.images.topLeft.src}
+          alt={config.images.topLeft.alt}
+          width={360}
+          height={520}
+          sizes="(max-width: 640px) 170px, 300px"
+          className="pointer-events-none absolute left-0 top-0 z-10 h-auto w-[22vw] min-w-[110px] max-w-[290px] select-none"
+        />
+        <Image
+          src={config.images.thirdOilDrip.src}
+          alt={config.images.thirdOilDrip.alt}
+          width={360}
+          height={520}
+          sizes="(max-width: 640px) 190px, 320px"
+          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[24vw] min-w-[130px] max-w-[300px] scale-x-[-1] select-none"
+        />
+        <Image
+          src={config.images.bottomLeft.src}
+          alt={config.images.bottomLeft.alt}
+          width={210}
+          height={90}
+          sizes="(max-width: 640px) 300px, 520px"
+          className="pointer-events-none absolute z-10 select-none"
+          style={{
+            left: '2%',
+            bottom: '3%',
+            width: 'clamp(160px, 34vw, 300px)',
+            height: 'auto',
+            transform: 'scale(1.28)',
+            transformOrigin: 'bottom left',
+          }}
+        />
+        <Image
+          src={config.images.center.src}
+          alt={config.images.center.alt}
+          width={860}
+          height={620}
+          sizes="(max-width: 640px) 88vw, 760px"
+          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto w-[68vw] min-w-[320px] max-w-[700px] -translate-x-1/2 -translate-y-1/2 select-none"
+        />
+        <Image
+          src={config.images.topRight.src}
+          alt={config.images.topRight.alt}
+          width={240}
+          height={280}
+          sizes="(max-width: 640px) 120px, 210px"
+          className="pointer-events-none absolute right-0 top-[17%] z-10 h-auto w-[16vw] min-w-[100px] max-w-[200px] select-none md:right-[1%]"
+        />
+
+        <div className="relative z-20 mx-auto flex h-full w-full max-w-[1220px] items-center justify-center px-6 pb-8 pt-8 sm:px-8 md:px-10">
+          <LandingPopupLeadCaptureForm
+            copy={config.leadCapture}
+            selectedOptionLabel={selectedOptionLabel}
+            selectedOptionHref={selectedOptionHref}
+            sourcePath={sourcePath}
+          />
+        </div>
+      </main>
+    </>
+  );
+}

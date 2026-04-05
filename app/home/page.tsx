@@ -9,8 +9,9 @@ import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
 import { urlFor } from '@/src/lib/sanity/image';
+import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 
-export const revalidate = 300;
+export const revalidate = 0;
 
 type StyleVariant = 'primary' | 'secondary';
 
@@ -18,11 +19,44 @@ type SanityHomeProduct = {
   slug?: string;
   styleVariant?: StyleVariant;
   price?: string;
+  discountPercent?: number;
 };
 
-type HomeHeroQueryResult = {
+type HomeVariantPrice = {
+  priceLabel: string;
+  discountedPriceLabel?: string;
+};
+
+type HomePageProductBandQuery = {
+  variant?: StyleVariant;
+  ctaLabel?: string;
+  sectionBackgroundImage?: unknown;
+  ctaBackgroundImage?: unknown;
+};
+
+type HomePageImageItemQuery = {
+  image?: unknown;
+  alt?: string;
+};
+
+type HomePageReviewBubbleQuery = {
+  text?: string;
+};
+
+type HomePageQueryResult = {
   heroImage?: unknown;
   heroImageAlt?: string;
+  heroTitleLine1?: string;
+  heroTitleLine2?: string;
+  productBands?: HomePageProductBandQuery[];
+  introHeadlineLine1?: string;
+  introHeadlineLine2?: string;
+  introBodyLine1?: string;
+  introBodyLine2?: string;
+  readRantCtaLabel?: string;
+  posters?: HomePageImageItemQuery[];
+  horizontalGallery?: HomePageImageItemQuery[];
+  reviewBubbles?: HomePageReviewBubbleQuery[];
 } | null;
 
 type HomeBand = {
@@ -44,6 +78,38 @@ type HomeBand = {
 
 type ProductBandProps = Omit<HomeBand, 'fallbackHref' | 'styleVariant'> & {
   href: string;
+  discountedPriceLabel?: string;
+};
+
+type HomeBandCmsContent = {
+  ctaLabel?: string;
+  bgImage?: string;
+  ctaBackgroundImage?: string;
+};
+
+type HomeCmsImageItem = {
+  src: string;
+  alt?: string;
+};
+
+type HomeCmsContent = {
+  hero: {
+    src: string;
+    alt: string;
+    titleLine1: string;
+    titleLine2: string;
+  };
+  intro: {
+    headlineLine1: string;
+    headlineLine2: string;
+    bodyLine1: string;
+    bodyLine2: string;
+    readRantCtaLabel: string;
+  };
+  bandByVariant: Partial<Record<StyleVariant, HomeBandCmsContent>>;
+  posterItems: HomeCmsImageItem[];
+  horizontalItems: HomeCmsImageItem[];
+  reviewBubbleTexts: string[];
 };
 
 const homeBands: HomeBand[] = [
@@ -84,17 +150,61 @@ const homeBands: HomeBand[] = [
 const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
   "slug": slug.current,
   styleVariant,
-  price
+  price,
+  discountPercent
 }`;
 
-const HOME_HERO_QUERY = `coalesce(
-  *[_id == "drafts.homePage"][0],
-  *[_id == "homePage"][0],
-  *[_type == "homePage"] | order(_updatedAt desc)[0]
-){
+const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)[0]{
   heroImage,
-  heroImageAlt
+  heroImageAlt,
+  heroTitleLine1,
+  heroTitleLine2,
+  productBands[]{
+    variant,
+    ctaLabel,
+    sectionBackgroundImage,
+    ctaBackgroundImage
+  },
+  introHeadlineLine1,
+  introHeadlineLine2,
+  introBodyLine1,
+  introBodyLine2,
+  readRantCtaLabel,
+  posters[]{
+    image,
+    alt
+  },
+  horizontalGallery[]{
+    image,
+    alt
+  },
+  reviewBubbles[]{
+    text
+  }
 }`;
+
+const sanityClientLive = sanityClient.withConfig({ useCdn: false });
+const SANITY_NO_STORE_OPTIONS = { cache: 'no-store' as const };
+
+const DEFAULT_HOME_CONTENT: HomeCmsContent = {
+  hero: {
+    src: '/home/hero-placeholder.webp',
+    alt: 'hero placeholder',
+    titleLine1: 'the sourboo way,',
+    titleLine2: 'cravings comes first',
+  },
+  intro: {
+    headlineLine1: 'sourboo made for people who eat',
+    headlineLine2: 'with intent',
+    bodyLine1: 'who like flavour loud and immediate',
+    bodyLine2: 'food that fits into real moments',
+    readRantCtaLabel: 'read my rant →',
+  },
+  bandByVariant: {},
+  posterItems: [],
+  horizontalItems: [],
+  reviewBubbleTexts: [],
+};
 
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
@@ -102,23 +212,50 @@ function asNonEmptyString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function imageSrc(source: unknown, fallback: string) {
+function imageSrc(
+  source: unknown,
+  fallback: string,
+  options?: { width?: number; quality?: number },
+): string {
+  const width = options?.width ?? 1600;
+  const quality = options?.quality ?? 78;
+
   try {
-    return source ? urlFor(source).width(1600).quality(78).url() : fallback;
+    return source ? urlFor(source).width(width).quality(quality).url() : fallback;
   } catch {
     return fallback;
   }
 }
 
+function toCmsImageItems(
+  entries: HomePageImageItemQuery[] | undefined,
+  options: { width: number; quality: number },
+): HomeCmsImageItem[] {
+  if (!Array.isArray(entries)) return [];
+
+  const items: HomeCmsImageItem[] = [];
+  for (const entry of entries) {
+    const src = asNonEmptyString(imageSrc(entry?.image, '', options));
+    if (!src) continue;
+
+    items.push({
+      src,
+      alt: asNonEmptyString(entry?.alt),
+    });
+  }
+
+  return items;
+}
+
 async function getHomeCtaByVariant(): Promise<{
   hrefByVariant: Partial<Record<StyleVariant, string>>;
-  priceByVariant: Partial<Record<StyleVariant, string>>;
+  priceByVariant: Partial<Record<StyleVariant, HomeVariantPrice>>;
 }> {
   try {
-    const docs = await sanityClient.fetch<SanityHomeProduct[]>(
+    const docs = await sanityClientLive.fetch<SanityHomeProduct[]>(
       HOME_CTA_PRODUCTS_QUERY,
       {},
-      { next: { revalidate } },
+      SANITY_NO_STORE_OPTIONS,
     );
 
     if (!Array.isArray(docs) || docs.length === 0) {
@@ -126,13 +263,26 @@ async function getHomeCtaByVariant(): Promise<{
     }
 
     const hrefByVariant: Partial<Record<StyleVariant, string>> = {};
-    const priceByVariant: Partial<Record<StyleVariant, string>> = {};
+    const priceByVariant: Partial<Record<StyleVariant, HomeVariantPrice>> = {};
     for (const doc of docs) {
       const variant: StyleVariant = doc.styleVariant === 'secondary' ? 'secondary' : 'primary';
       if (!priceByVariant[variant]) {
-        const priceLabel = asNonEmptyString(doc.price);
-        if (priceLabel) {
-          priceByVariant[variant] = priceLabel;
+        const originalPriceLabel = asNonEmptyString(doc.price);
+        if (originalPriceLabel) {
+          const parsedPrice = parsePriceLabel(originalPriceLabel);
+          const discountPercent = normalizeDiscountPercent(doc.discountPercent);
+          const discountedRupees =
+            discountPercent && parsedPrice > 0
+              ? calculateDiscountedRupees(parsedPrice, discountPercent)
+              : Math.round(parsedPrice);
+          const shouldShowDiscount = Boolean(
+            discountPercent && parsedPrice > 0 && discountedRupees > 0 && discountedRupees < Math.round(parsedPrice),
+          );
+
+          priceByVariant[variant] = {
+            priceLabel: originalPriceLabel,
+            discountedPriceLabel: shouldShowDiscount ? formatInr(discountedRupees) : undefined,
+          };
         }
       }
 
@@ -147,19 +297,66 @@ async function getHomeCtaByVariant(): Promise<{
   }
 }
 
-async function getHomeHeroContent(): Promise<{ src: string; alt: string }> {
-  const fallbackSrc = '/home/hero-placeholder.webp';
-  const fallbackAlt = 'hero placeholder';
-
+async function getHomeCmsContent(): Promise<HomeCmsContent> {
   try {
-    const data = await sanityClient.fetch<HomeHeroQueryResult>(HOME_HERO_QUERY, {}, { next: { revalidate } });
+    const data = await sanityClientLive.fetch<HomePageQueryResult>(
+      HOME_PAGE_CONTENT_QUERY,
+      {},
+      SANITY_NO_STORE_OPTIONS,
+    );
+
+    const bandByVariant: HomeCmsContent['bandByVariant'] = {};
+    if (Array.isArray(data?.productBands)) {
+      for (const band of data.productBands) {
+        if (band?.variant !== 'primary' && band?.variant !== 'secondary') continue;
+        if (bandByVariant[band.variant]) continue;
+
+        bandByVariant[band.variant] = {
+          ctaLabel: asNonEmptyString(band?.ctaLabel),
+          bgImage: asNonEmptyString(
+            imageSrc(band?.sectionBackgroundImage, '', { width: 2400, quality: 76 }),
+          ),
+          ctaBackgroundImage: asNonEmptyString(
+            imageSrc(band?.ctaBackgroundImage, '', { width: 1400, quality: 80 }),
+          ),
+        };
+      }
+    }
+
+    const reviewBubbleTexts = Array.isArray(data?.reviewBubbles)
+      ? data.reviewBubbles
+          .map((bubble) => asNonEmptyString(bubble?.text))
+          .filter((text): text is string => Boolean(text))
+          .slice(0, 4)
+      : [];
 
     return {
-      src: imageSrc(data?.heroImage, fallbackSrc),
-      alt: asNonEmptyString(data?.heroImageAlt) || fallbackAlt,
+      hero: {
+        src: imageSrc(data?.heroImage, DEFAULT_HOME_CONTENT.hero.src),
+        alt: asNonEmptyString(data?.heroImageAlt) || DEFAULT_HOME_CONTENT.hero.alt,
+        titleLine1: asNonEmptyString(data?.heroTitleLine1) || DEFAULT_HOME_CONTENT.hero.titleLine1,
+        titleLine2: asNonEmptyString(data?.heroTitleLine2) || DEFAULT_HOME_CONTENT.hero.titleLine2,
+      },
+      intro: {
+        headlineLine1:
+          asNonEmptyString(data?.introHeadlineLine1) || DEFAULT_HOME_CONTENT.intro.headlineLine1,
+        headlineLine2:
+          asNonEmptyString(data?.introHeadlineLine2) || DEFAULT_HOME_CONTENT.intro.headlineLine2,
+        bodyLine1: asNonEmptyString(data?.introBodyLine1) || DEFAULT_HOME_CONTENT.intro.bodyLine1,
+        bodyLine2: asNonEmptyString(data?.introBodyLine2) || DEFAULT_HOME_CONTENT.intro.bodyLine2,
+        readRantCtaLabel:
+          asNonEmptyString(data?.readRantCtaLabel) || DEFAULT_HOME_CONTENT.intro.readRantCtaLabel,
+      },
+      bandByVariant,
+      posterItems: toCmsImageItems(data?.posters, { width: 1400, quality: 80 }).slice(0, 4),
+      horizontalItems: toCmsImageItems(data?.horizontalGallery, { width: 1400, quality: 80 }).slice(
+        0,
+        7,
+      ),
+      reviewBubbleTexts,
     };
   } catch {
-    return { src: fallbackSrc, alt: fallbackAlt };
+    return DEFAULT_HOME_CONTENT;
   }
 }
 
@@ -200,6 +397,7 @@ function ProductBand({
   packageImage,
   packageAspectRatio,
   priceLabel,
+  discountedPriceLabel,
   ctaLabel,
   href,
   ctaBackgroundImage,
@@ -247,7 +445,23 @@ function ProductBand({
               style={{ backgroundImage: `url(${ctaBackgroundImage})` }}
             >
               <span className="text-[0.88em] sm:text-[0.92em] md:text-[0.95em] lg:text-[1em]">{ctaLabel}</span>
-              <span className="ml-2 text-[0.6em] leading-none opacity-90">{priceLabel}</span>
+              {discountedPriceLabel ? (
+                <span className="ml-2 inline-flex flex-col items-start leading-none">
+                  <span
+                    className="inline-block text-[0.44em] text-[#7F1818] opacity-90"
+                    style={{
+                      textDecorationLine: 'line-through',
+                      textDecorationColor: '#DC2626',
+                      textDecorationThickness: '2px',
+                    }}
+                  >
+                    {priceLabel}
+                  </span>
+                  <span className="text-[0.6em] opacity-95">{discountedPriceLabel}</span>
+                </span>
+              ) : (
+                <span className="ml-2 text-[0.6em] leading-none opacity-90">{priceLabel}</span>
+              )}
             </Link>
           </div>
         </div>
@@ -259,9 +473,9 @@ function ProductBand({
 }
 
 export default async function HomePage() {
-  const [{ hrefByVariant, priceByVariant }, hero] = await Promise.all([
+  const [{ hrefByVariant, priceByVariant }, homeContent] = await Promise.all([
     getHomeCtaByVariant(),
-    getHomeHeroContent(),
+    getHomeCmsContent(),
   ]);
 
   return (
@@ -272,8 +486,8 @@ export default async function HomePage() {
         <div className="relative h-[64vh] min-h-[460px] w-full md:h-[78vh] md:min-h-[660px]">
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src={hero.src}
-              alt={hero.alt}
+              src={homeContent.hero.src}
+              alt={homeContent.hero.alt}
               fill
               priority
               sizes="100vw"
@@ -288,7 +502,7 @@ export default async function HomePage() {
               <h1 className="leading-[0.9]">
                 <CoolRascalText
                   as="span"
-                  text="the sourboo way,"
+                  text={homeContent.hero.titleLine1}
                   className="block text-[clamp(2rem,5vw,4.8rem)]"
                   pattern="alternate"
                   startWith="base"
@@ -297,7 +511,7 @@ export default async function HomePage() {
                 />
                 <CoolRascalText
                   as="span"
-                  text="cravings comes first"
+                  text={homeContent.hero.titleLine2}
                   className="block text-[clamp(2.2rem,6vw,5.6rem)]"
                   pattern="everyThird"
                   offset={1}
@@ -314,8 +528,22 @@ export default async function HomePage() {
         <div className="w-full">
           {homeBands.map((band) => {
             const href = hrefByVariant[band.styleVariant] ?? band.fallbackHref;
-            const priceLabel = priceByVariant[band.styleVariant] ?? band.priceLabel;
-            return <ProductBand key={band.id} {...band} href={href} priceLabel={priceLabel} />;
+            const variantPrice = priceByVariant[band.styleVariant];
+            const priceLabel = variantPrice?.priceLabel ?? band.priceLabel;
+            const cmsBand = homeContent.bandByVariant[band.styleVariant];
+
+            return (
+              <ProductBand
+                key={band.id}
+                {...band}
+                href={href}
+                priceLabel={priceLabel}
+                discountedPriceLabel={variantPrice?.discountedPriceLabel}
+                ctaLabel={cmsBand?.ctaLabel ?? band.ctaLabel}
+                bgImage={cmsBand?.bgImage ?? band.bgImage}
+                ctaBackgroundImage={cmsBand?.ctaBackgroundImage ?? band.ctaBackgroundImage}
+              />
+            );
           })}
         </div>
       </section>
@@ -324,7 +552,7 @@ export default async function HomePage() {
         <div className="max-w-[820px] text-left text-[clamp(2rem,3.6vw,4.6rem)] leading-[1.06]">
           <CoolRascalText
             as="span"
-            text="sourboo made for people who eat"
+            text={homeContent.intro.headlineLine1}
             className="block"
             pattern="alternate"
             startWith="base"
@@ -333,7 +561,7 @@ export default async function HomePage() {
           />
           <CoolRascalText
             as="span"
-            text="with intent"
+            text={homeContent.intro.headlineLine2}
             className="block"
             pattern="alternate"
             startWith="accent"
@@ -350,16 +578,18 @@ export default async function HomePage() {
 
             <div className="flex w-full max-w-[760px] flex-col items-center gap-6 md:items-center md:gap-8">
               <p className="text-center text-[clamp(2rem,3.2vw,4rem)] leading-[1.1] text-[#1D1D1D] font-schoolbell md:text-left">
-                who like flavour loud and immediate
+                {homeContent.intro.bodyLine1}
                 <br />
-                food that fits into real moments
+                {homeContent.intro.bodyLine2}
               </p>
 
               <Link
                 href="/about"
                 className="inline-flex w-[min(92vw,540px)] aspect-[256/67] items-center justify-center bg-[url('/home/readmyrantcta.svg')] bg-contain bg-center bg-no-repeat px-8 text-center text-[clamp(1.65rem,2.8vw,2.9rem)] leading-none text-[#FFF8F8] font-schoolbell transition duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E61E7A] md:text-[clamp(1.8rem,3vw,3.3rem)]"
               >
-                <span className="relative -translate-y-[4px] md:-translate-y-px">read my rant →</span>
+                <span className="relative -translate-y-[4px] md:-translate-y-px">
+                  {homeContent.intro.readRantCtaLabel}
+                </span>
               </Link>
             </div>
           </div>
@@ -367,7 +597,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto w-full max-w-[1500px] px-2 pb-0 md:px-8 md:pb-10">
-        <HomePosterPinboard />
+        <HomePosterPinboard items={homeContent.posterItems} />
       </section>
 
       <section className="w-full  md:pb-12">
@@ -381,8 +611,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <HomeHorizontalImageScroll />
-      <HomeReviewPhoneSection />
+      <HomeHorizontalImageScroll items={homeContent.horizontalItems} />
+      <HomeReviewPhoneSection bubbleTexts={homeContent.reviewBubbleTexts} />
 
       <SiteFooter />
     </main>

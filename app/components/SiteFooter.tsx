@@ -2,19 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import SiteFooterClient from '@/app/components/SiteFooterClient';
-import type { InstagramPostLink, SocialLinksConfig } from '@/src/lib/sanity/siteSettings';
-
-const DEFAULT_SOCIAL_LINKS_CONFIG: SocialLinksConfig = {
-  instagramProfileUrl: 'https://www.instagram.com/eatsourboo/',
-  instagramHandle: '@sourboosnacks',
-  instagramPosts: [],
-  whatsappUrl: 'https://chat.whatsapp.com/L9YSdLAYGfuEke1zXhvoWN',
-};
+import {
+  DEFAULT_SOCIAL_LINKS_CONFIG,
+  type FooterContent,
+  type FooterLink,
+  type InstagramPostLink,
+  type SocialLinksConfig,
+} from '@/src/lib/sanity/siteSettings';
 
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function asValidUrlOrFallback(value: unknown, fallback: string): string {
+  const maybeUrl = asNonEmptyString(value);
+  if (!maybeUrl) return fallback;
+
+  try {
+    return new URL(maybeUrl).toString();
+  } catch {
+    return fallback;
+  }
+}
+
+function asValidHref(value: unknown): string | undefined {
+  const maybeHref = asNonEmptyString(value);
+  if (!maybeHref) return undefined;
+  if (maybeHref.startsWith('/')) return maybeHref;
+
+  try {
+    return new URL(maybeHref).toString();
+  } catch {
+    return undefined;
+  }
 }
 
 function sanitizePosts(value: unknown): InstagramPostLink[] {
@@ -42,15 +64,63 @@ function sanitizePosts(value: unknown): InstagramPostLink[] {
   return posts.slice(0, 3);
 }
 
+function sanitizeFooterLinks(value: unknown, fallback: FooterLink[], maxCount: number): FooterLink[] {
+  if (!Array.isArray(value)) return fallback.slice(0, maxCount);
+
+  const links: FooterLink[] = [];
+  for (const entry of value) {
+    const label = asNonEmptyString((entry as { label?: unknown })?.label);
+    const href = asValidHref((entry as { href?: unknown })?.href);
+    if (!label || !href) continue;
+    links.push({ label, href });
+  }
+
+  if (links.length === 0) return fallback.slice(0, maxCount);
+  return links.slice(0, maxCount);
+}
+
+function sanitizeFooter(value: unknown): FooterContent {
+  const payload = (value as Partial<FooterContent> | null) || null;
+
+  return {
+    instagramHeadingPrefix:
+      asNonEmptyString(payload?.instagramHeadingPrefix) ||
+      DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramHeadingPrefix,
+    instagramFallbackCardLabel:
+      asNonEmptyString(payload?.instagramFallbackCardLabel) ||
+      DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramFallbackCardLabel,
+    topText: asNonEmptyString(payload?.topText) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.topText,
+    tagline: asNonEmptyString(payload?.tagline) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.tagline,
+    primaryLinks: sanitizeFooterLinks(
+      payload?.primaryLinks,
+      DEFAULT_SOCIAL_LINKS_CONFIG.footer.primaryLinks,
+      2,
+    ),
+    secondaryLinks: sanitizeFooterLinks(
+      payload?.secondaryLinks,
+      DEFAULT_SOCIAL_LINKS_CONFIG.footer.secondaryLinks,
+      2,
+    ),
+    policyLinks: sanitizeFooterLinks(
+      payload?.policyLinks,
+      DEFAULT_SOCIAL_LINKS_CONFIG.footer.policyLinks,
+      5,
+    ),
+  };
+}
+
 function sanitizePayload(value: unknown): SocialLinksConfig {
   const payload = (value as Partial<SocialLinksConfig> | null) || null;
 
   return {
-    instagramProfileUrl:
-      asNonEmptyString(payload?.instagramProfileUrl) || DEFAULT_SOCIAL_LINKS_CONFIG.instagramProfileUrl,
+    instagramProfileUrl: asValidUrlOrFallback(
+      payload?.instagramProfileUrl,
+      DEFAULT_SOCIAL_LINKS_CONFIG.instagramProfileUrl,
+    ),
     instagramHandle: asNonEmptyString(payload?.instagramHandle) || DEFAULT_SOCIAL_LINKS_CONFIG.instagramHandle,
     instagramPosts: sanitizePosts(payload?.instagramPosts),
-    whatsappUrl: asNonEmptyString(payload?.whatsappUrl) || DEFAULT_SOCIAL_LINKS_CONFIG.whatsappUrl,
+    whatsappUrl: asValidUrlOrFallback(payload?.whatsappUrl, DEFAULT_SOCIAL_LINKS_CONFIG.whatsappUrl),
+    footer: sanitizeFooter(payload?.footer),
   };
 }
 
@@ -91,6 +161,15 @@ export default function SiteFooter() {
         profileUrl: social.instagramProfileUrl,
         handle: social.instagramHandle,
         posts: social.instagramPosts,
+        headingPrefix: social.footer.instagramHeadingPrefix,
+        fallbackCardLabel: social.footer.instagramFallbackCardLabel,
+      }}
+      footer={{
+        topText: social.footer.topText,
+        tagline: social.footer.tagline,
+        primaryLinks: social.footer.primaryLinks,
+        secondaryLinks: social.footer.secondaryLinks,
+        policyLinks: social.footer.policyLinks,
       }}
     />
   );

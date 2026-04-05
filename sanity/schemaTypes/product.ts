@@ -77,6 +77,15 @@ export const product = defineType({
     }),
 
     defineField({
+      name: "discountPercent",
+      title: "Discount Percent (Optional)",
+      description:
+        "Set a discount between 10 and 50 to show strike-through original price with discounted price.",
+      type: "number",
+      validation: (r) => r.integer().min(10).max(50),
+    }),
+
+    defineField({
       name: "hoverLabel",
       title: "Hover Label",
       type: "text",

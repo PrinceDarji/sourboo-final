@@ -9,6 +9,7 @@ import ProductDetailSections from '@/app/components/product/ProductDetailSection
 import ProductShareButton from '@/app/components/product/ProductShareButton';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { urlFor } from '@/src/lib/sanity/image';
+import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 
 export const revalidate = 300;
 
@@ -20,6 +21,7 @@ type SanityProductDetail = {
   accentWord?: string;
   suffixWord?: string;
   price?: string;
+  discountPercent?: number;
   jarImage?: unknown;
   galleryImages?: unknown[];
   titleColor?: string;
@@ -41,6 +43,8 @@ type ProductDetail = {
   accent: string;
   suffix?: string;
   price: string;
+  discountedPrice?: string;
+  cartPrice: string;
   jarImage: string;
   carouselImages: string[];
   titleColor: string;
@@ -62,6 +66,7 @@ const PRODUCT_DETAIL_QUERY = `*[_type == "product" && slug.current == $slug][0]{
   accentWord,
   suffixWord,
   price,
+  discountPercent,
   jarImage,
   galleryImages,
   titleColor,
@@ -135,6 +140,19 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
   const styleVariant: StyleVariant = doc.styleVariant === 'secondary' ? 'secondary' : 'primary';
   const isSecondary = styleVariant === 'secondary';
   const defaults = defaultDetailContent(styleVariant);
+  const price = asNonEmptyString(doc.price) || '₹399';
+  const parsedPrice = parsePriceLabel(price);
+  const discountPercent = normalizeDiscountPercent(doc.discountPercent);
+  const hasValidPrice = Number.isFinite(parsedPrice) && parsedPrice > 0;
+  const discountedRupees =
+    hasValidPrice && discountPercent
+      ? calculateDiscountedRupees(parsedPrice, discountPercent)
+      : Math.round(parsedPrice);
+  const hasDiscount = Boolean(
+    hasValidPrice && discountPercent && discountedRupees > 0 && discountedRupees < Math.round(parsedPrice),
+  );
+  const discountedPrice = hasDiscount ? formatInr(discountedRupees) : undefined;
+  const cartPrice = discountedPrice || price;
   const jarFallback = isSecondary ? '/product/tamarin-jar.svg' : '/product/side-eye-jar.svg';
   const jarImage = imageSrc(doc.jarImage, jarFallback);
   const gallerySources = Array.isArray(doc.galleryImages) ? doc.galleryImages : [];
@@ -148,7 +166,9 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
     title: asNonEmptyString(doc.titleWord) || (isSecondary ? "tamarin'" : 'side'),
     accent: asNonEmptyString(doc.accentWord) || (isSecondary ? 'tease' : 'eye'),
     suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : 'sour'),
-    price: asNonEmptyString(doc.price) || '₹399',
+    price,
+    discountedPrice,
+    cartPrice,
     jarImage,
     carouselImages,
     titleColor: asNonEmptyString(doc.titleColor) || (isSecondary ? '#3E6A18' : '#E61E6E'),
@@ -240,7 +260,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="mt-2 flex md:mt-4">
           <Link
             href="/product"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-[#E61E6E] bg-[#F8E2EE] px-4 py-2 text-[clamp(1.2rem,2.2vw,1.9rem)] leading-none text-[#E61E6E] font-schoolbell transition-transform hover:scale-[1.02]"
+            className="inline-flex h-[56px] w-[220px] items-center justify-center gap-2 whitespace-nowrap bg-[url('/product/button1.svg')] bg-contain bg-center bg-no-repeat px-4 text-[clamp(1.1rem,2vw,1.55rem)] leading-none text-[#FFF8F8] font-schoolbell transition-transform hover:scale-[1.02] md:h-[64px] md:w-[260px]"
           >
             <span aria-hidden>←</span>
             back to products
@@ -257,13 +277,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <div className="relative mx-auto mt-2 h-[34px] w-[194px] md:h-[42px] md:w-[240px]">
             <Image src="/product/reviewstars.svg" alt="5 star reviews" fill className="object-contain" />
           </div>
-          <p className="mt-2 text-center text-[clamp(2.1rem,3.8vw,3.3rem)] leading-none text-[#1D1D1D] font-coolvetica">
-            {product.price}
-          </p>
+          {product.discountedPrice ? (
+            <div className="mt-2 flex items-center justify-center gap-3 leading-none">
+              <p
+                className="inline-block text-[#8A7F74] font-coolvetica"
+                style={{
+                  fontSize: 'clamp(2.8rem,3.2vw,3.7rem)',
+                  lineHeight: 1,
+                  textDecorationLine: 'line-through',
+                  textDecorationColor: '#DC2626',
+                  textDecorationThickness: '3px',
+                }}
+              >
+                {product.price}
+              </p>
+              <p className="text-center text-[clamp(2.1rem,3.8vw,3.3rem)] text-[#1D1D1D] font-coolvetica">
+                {product.discountedPrice}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-center text-[clamp(2.1rem,3.8vw,3.3rem)] leading-none text-[#1D1D1D] font-coolvetica">
+              {product.price}
+            </p>
+          )}
           <ProductDetailCartActions
             slug={product.slug}
             name={productName}
-            priceLabel={product.price}
+            priceLabel={product.cartPrice}
             image={product.jarImage}
           />
         </div>

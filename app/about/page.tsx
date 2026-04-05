@@ -9,19 +9,95 @@ import AboutFlavorWords from '../components/about/AboutFlavorWords';
 import AboutWordByWordReveal from '../components/about/AboutWordByWordReveal';
 import AboutEnvelopeText from '../components/about/AboutEnvelopeText';
 import SectionThreeEyesSequence from '../components/about/SectionThreeEyesSequence';
+import { urlFor } from '@/src/lib/sanity/image';
 
-export const revalidate = 300;
+export const revalidate = 0;
 
-const ABOUT_ENVELOPE_QUERY = `coalesce(
-  *[_id == "drafts.aboutPage"][0],
-  *[_id == "aboutPage"][0],
-  *[_type == "aboutPage"] | order(_updatedAt desc)[0]
-){
-  envelopeHeading,
-  envelopeBody,
-  envelopeSignoff,
-  envelopeText
-}`;
+type AboutImageItemQuery = {
+  image?: unknown;
+  alt?: string;
+};
+
+type AboutFlavorWordQuery = {
+  label?: string;
+  backgroundImage?: unknown;
+};
+
+type AboutPageQueryResult = {
+  heroImage?: unknown;
+  heroImageAlt?: string;
+  heroHeading?: string;
+  heroSubheading?: string;
+  heroIntroBody?: string;
+
+  section2Heading?: string;
+  section2MixingLabel?: string;
+  section2TastingLabel?: string;
+  section2Image1?: unknown;
+  section2Image1Alt?: string;
+  section2Image2?: unknown;
+  section2Image2Alt?: string;
+  section2Image3?: unknown;
+  section2Image3Alt?: string;
+  section2SpentYearsText?: string;
+  section2JourneyText?: string;
+
+  section3Heading?: string;
+  section3EyesSequence?: AboutImageItemQuery[];
+  section3TongueImage?: unknown;
+  section3TongueImageAlt?: string;
+  section3IndiaCallout1?: string;
+  section3IndiaCallout2?: string;
+  section3IndiaCallout3?: string;
+  section3ClosingText?: string;
+
+  section4FlavorWords?: AboutFlavorWordQuery[];
+  section4BodyText?: string;
+  section4IssueHeading?: string;
+  section4SideText?: string;
+  section4LemonImage?: unknown;
+  section4LemonImageAlt?: string;
+  section4LemonCaption?: string;
+  section4SpoonImage?: unknown;
+  section4SpoonImageAlt?: string;
+  section4SpoonCaption?: string;
+
+  section5TearImage?: unknown;
+  section5TearImageAlt?: string;
+  section5IntroducingText?: string;
+  section5LogoImage?: unknown;
+  section5LogoImageAlt?: string;
+  section5TaglineImage?: unknown;
+  section5TaglineImageAlt?: string;
+  section5Paragraph1?: string;
+  section5Paragraph2Prefix?: string;
+  section5Paragraph2Accent?: string;
+  section5Paragraph3?: string;
+  section5Paragraph4?: string;
+  section5ClosingText?: string;
+
+  section6TopStripImages?: AboutImageItemQuery[];
+  section6HeadingLine1?: string;
+  section6HeadingLine2?: string;
+  section6JoinMoreText?: string;
+  section6EnvelopeImage?: unknown;
+  section6EnvelopeImageAlt?: string;
+
+  envelopeHeading?: string;
+  envelopeBody?: string;
+  envelopeSignoff?: string;
+  envelopeText?: string;
+} | null;
+
+type AboutImage = {
+  src: string;
+  alt: string;
+};
+
+type AboutFlavorWord = {
+  label: string;
+  bgSrc: string;
+};
 
 type EnvelopeContent = {
   heading: string;
@@ -29,23 +105,256 @@ type EnvelopeContent = {
   signoff: string;
 };
 
-type AboutEnvelopeQueryResult = {
-  envelopeHeading?: string;
-  envelopeBody?: string;
-  envelopeSignoff?: string;
-  envelopeText?: string;
-} | null;
+type AboutPageContent = {
+  hero: {
+    image: AboutImage;
+    heading: string;
+    subheading: string;
+    introBody: string;
+  };
+  section2: {
+    heading: string;
+    mixingLabel: string;
+    tastingLabel: string;
+    image1: AboutImage;
+    image2: AboutImage;
+    image3: AboutImage;
+    spentYearsText: string;
+    journeyText: string;
+  };
+  section3: {
+    heading: string;
+    eyesSequence: string[];
+    tongueImage: AboutImage;
+    indiaLines: string[];
+    closingText: string;
+  };
+  section4: {
+    flavorWords: AboutFlavorWord[];
+    bodyText: string;
+    issueHeading: string;
+    sideText: string;
+    lemonImage: AboutImage;
+    lemonCaption: string;
+    spoonImage: AboutImage;
+    spoonCaption: string;
+  };
+  section5: {
+    tearImage: AboutImage;
+    introducingText: string;
+    logoImage: AboutImage;
+    taglineImage: AboutImage;
+    paragraph1: string;
+    paragraph2Prefix: string;
+    paragraph2Accent: string;
+    paragraph3: string;
+    paragraph4: string;
+    closingText: string;
+  };
+  section6: {
+    topStripImages: AboutImage[];
+    headingLine1: string;
+    headingLine2: string;
+    joinMoreText: string;
+    envelopeImage: AboutImage;
+    envelope: EnvelopeContent;
+  };
+};
+
+const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
+  heroImage,
+  heroImageAlt,
+  heroHeading,
+  heroSubheading,
+  heroIntroBody,
+
+  section2Heading,
+  section2MixingLabel,
+  section2TastingLabel,
+  section2Image1,
+  section2Image1Alt,
+  section2Image2,
+  section2Image2Alt,
+  section2Image3,
+  section2Image3Alt,
+  section2SpentYearsText,
+  section2JourneyText,
+
+  section3Heading,
+  section3EyesSequence[]{
+    image,
+    alt
+  },
+  section3TongueImage,
+  section3TongueImageAlt,
+  section3IndiaCallout1,
+  section3IndiaCallout2,
+  section3IndiaCallout3,
+  section3ClosingText,
+
+  section4FlavorWords[]{
+    label,
+    backgroundImage
+  },
+  section4BodyText,
+  section4IssueHeading,
+  section4SideText,
+  section4LemonImage,
+  section4LemonImageAlt,
+  section4LemonCaption,
+  section4SpoonImage,
+  section4SpoonImageAlt,
+  section4SpoonCaption,
+
+  section5TearImage,
+  section5TearImageAlt,
+  section5IntroducingText,
+  section5LogoImage,
+  section5LogoImageAlt,
+  section5TaglineImage,
+  section5TaglineImageAlt,
+  section5Paragraph1,
+  section5Paragraph2Prefix,
+  section5Paragraph2Accent,
+  section5Paragraph3,
+  section5Paragraph4,
+  section5ClosingText,
+
+  section6TopStripImages[]{
+    image,
+    alt
+  },
+  section6HeadingLine1,
+  section6HeadingLine2,
+  section6JoinMoreText,
+  section6EnvelopeImage,
+  section6EnvelopeImageAlt,
+
+  envelopeHeading,
+  envelopeBody,
+  envelopeSignoff,
+  envelopeText
+}`;
+
+const sanityClientLive = sanityClient.withConfig({ useCdn: false });
+const SANITY_NO_STORE_OPTIONS = { cache: 'no-store' as const };
 
 const DEFAULT_ENVELOPE_CONTENT: EnvelopeContent = {
-  heading: "hellooo",
-  body: "i am sakshi the founder of sourboo\n\nwe are hosting an event at 27th!\ncome through",
-  signoff: "xx",
+  heading: 'hellooo',
+  body: 'i am sakshi the founder of sourboo\n\nwe are hosting an event at 27th!\ncome through',
+  signoff: 'xx',
+};
+
+const DEFAULT_SECTION3_EYES_SEQUENCE = [
+  '/about/section-three-eyes.webp',
+  '/about/eyes2.webp',
+  '/about/eyes3.webp',
+  '/about/section-three-eyes.webp',
+];
+
+const DEFAULT_SECTION4_FLAVOR_WORDS: AboutFlavorWord[] = [
+  { label: 'BOLD', bgSrc: '/about/boldbg.svg' },
+  { label: 'spicy', bgSrc: '/about/spicybg.svg' },
+  { label: 'sour', bgSrc: '/about/sourbg.svg' },
+];
+
+const DEFAULT_SECTION6_TOP_STRIP_IMAGES: AboutImage[] = [
+  { src: '/about/section-six-top-1.webp', alt: 'Sourboo event tasting moment' },
+  { src: '/about/section-six-top-2.webp', alt: 'Sourboo event team shot' },
+  { src: '/about/section-six-top-3.webp', alt: 'Sourboo event customer tasting moment' },
+];
+
+const DEFAULT_ABOUT_CONTENT: AboutPageContent = {
+  hero: {
+    image: { src: '/about/about-cover.JPG', alt: 'Hero' },
+    heading: 'hi i am sakshi,',
+    subheading: 'and i am really glad you are here',
+    introBody: 'if u are here, i am assuming, you like sour or curious enough to try it',
+  },
+  section2: {
+    heading: "I've always been (annoyingly) obsessed with flavours.",
+    mixingLabel: 'Mixing things',
+    tastingLabel: 'Tasting everything',
+    image1: { src: '/about/section-two-1.svg', alt: 'Mixing drinks' },
+    image2: { src: '/about/section-two-2.svg', alt: 'Tasting everything' },
+    image3: { src: '/about/section-two-3.svg', alt: 'Third collage visual' },
+    spentYearsText: 'spent 5 years',
+    journeyText: 'around food and drinks from london bar shifts to a 9-5 desk job in India',
+  },
+  section3: {
+    heading: 'different lives, same cravings',
+    eyesSequence: DEFAULT_SECTION3_EYES_SEQUENCE,
+    tongueImage: { src: '/about/section-three-tongue.svg', alt: 'Tongue illustration' },
+    indiaLines: [
+      'India loves chaaat',
+      'India loves flavour',
+      'India loves that sour & spicy hit',
+    ],
+    closingText: 'Nothing worked for a desi palate that loves',
+  },
+  section4: {
+    flavorWords: DEFAULT_SECTION4_FLAVOR_WORDS,
+    bodyText: "but doesn't want to feel weighed down after snacking",
+    issueHeading: 'MY BIGGEST ISSUE?',
+    sideText: 'Sour was always treated like a side.',
+    lemonImage: { src: '/about/lemonsqueze.gif', alt: 'Lemon drop illustration' },
+    lemonCaption: 'A squeeze here.',
+    spoonImage: { src: '/about/spoonofpickle.gif', alt: 'Spoon of pickle illustration' },
+    spoonCaption: 'A spoon of pickle there.',
+  },
+  section5: {
+    tearImage: { src: '/about/paper-tear.svg', alt: 'Paper tear' },
+    introducingText: 'Introducing',
+    logoImage: { src: '/logo.svg', alt: 'Sourboo logo' },
+    taglineImage: { src: '/tagline.svg', alt: 'Tagline illustration' },
+    paragraph1: "sour first snack, made for people who don't eat quietly.",
+    paragraph2Prefix: 'for women who love',
+    paragraph2Accent: 'loud flavours, strong opinions, and fully indulging.',
+    paragraph3: 'The kind who make faces when they eat.',
+    paragraph4: 'The kind who ask for extra nimbu.',
+    closingText: 'A new way of snacking.',
+  },
+  section6: {
+    topStripImages: DEFAULT_SECTION6_TOP_STRIP_IMAGES,
+    headingLine1: "That's Sourboo to me.",
+    headingLine2: 'And I hope you love it as much as I do',
+    joinMoreText: 'join more',
+    envelopeImage: { src: '/about/section-six-envelope.svg', alt: 'Envelope card' },
+    envelope: DEFAULT_ENVELOPE_CONTENT,
+  },
 };
 
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function imageSrc(
+  source: unknown,
+  fallback: string,
+  options?: { width?: number; quality?: number },
+): string {
+  const width = options?.width ?? 1800;
+  const quality = options?.quality ?? 78;
+
+  try {
+    return source ? urlFor(source).width(width).quality(quality).url() : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function toImage(
+  source: unknown,
+  altValue: unknown,
+  fallback: AboutImage,
+  options?: { width?: number; quality?: number },
+): AboutImage {
+  const src = asNonEmptyString(imageSrc(source, '', options)) || fallback.src;
+  const alt = asNonEmptyString(altValue) || fallback.alt;
+
+  return { src, alt };
 }
 
 function parseLegacyEnvelopeText(legacyText: string): EnvelopeContent {
@@ -81,44 +390,227 @@ function parseLegacyEnvelopeText(legacyText: string): EnvelopeContent {
   };
 }
 
-async function getEnvelopeContent(): Promise<EnvelopeContent> {
+function toOverridableImageList(
+  entries: AboutImageItemQuery[] | undefined,
+  fallbacks: AboutImage[],
+  options?: { width?: number; quality?: number },
+): AboutImage[] {
+  return fallbacks.map((fallback, index) => {
+    const entry = entries?.[index];
+    return toImage(entry?.image, entry?.alt, fallback, options);
+  });
+}
+
+function toOverridableImageSequence(
+  entries: AboutImageItemQuery[] | undefined,
+  fallbacks: string[],
+  options?: { width?: number; quality?: number },
+): string[] {
+  return fallbacks.map((fallback, index) => {
+    const overrideSrc = asNonEmptyString(imageSrc(entries?.[index]?.image, '', options));
+    return overrideSrc || fallback;
+  });
+}
+
+function toOverridableFlavorWords(
+  entries: AboutFlavorWordQuery[] | undefined,
+  fallbacks: AboutFlavorWord[],
+): AboutFlavorWord[] {
+  return fallbacks.map((fallback, index) => {
+    const entry = entries?.[index];
+    return {
+      label: asNonEmptyString(entry?.label) || fallback.label,
+      bgSrc:
+        asNonEmptyString(imageSrc(entry?.backgroundImage, '', { width: 900, quality: 80 })) ||
+        fallback.bgSrc,
+    };
+  });
+}
+
+async function getAboutPageContent(): Promise<AboutPageContent> {
   try {
-    const data = await sanityClient.fetch<AboutEnvelopeQueryResult>(ABOUT_ENVELOPE_QUERY, {}, { next: { revalidate } });
-    const heading = asNonEmptyString(data?.envelopeHeading);
-    const body = asNonEmptyString(data?.envelopeBody);
-    const signoff = asNonEmptyString(data?.envelopeSignoff);
+    const data = await sanityClientLive.fetch<AboutPageQueryResult>(
+      ABOUT_PAGE_QUERY,
+      {},
+      SANITY_NO_STORE_OPTIONS,
+    );
 
-    if (heading && body && signoff) {
-      return { heading, body, signoff };
-    }
+    const legacyEnvelope = asNonEmptyString(data?.envelopeText)
+      ? parseLegacyEnvelopeText(asNonEmptyString(data?.envelopeText) || '')
+      : undefined;
 
-    const legacy = asNonEmptyString(data?.envelopeText);
-    if (legacy) {
-      return parseLegacyEnvelopeText(legacy);
-    }
+    const envelope: EnvelopeContent = {
+      heading:
+        asNonEmptyString(data?.envelopeHeading) ||
+        legacyEnvelope?.heading ||
+        DEFAULT_ABOUT_CONTENT.section6.envelope.heading,
+      body:
+        asNonEmptyString(data?.envelopeBody) ||
+        legacyEnvelope?.body ||
+        DEFAULT_ABOUT_CONTENT.section6.envelope.body,
+      signoff:
+        asNonEmptyString(data?.envelopeSignoff) ||
+        legacyEnvelope?.signoff ||
+        DEFAULT_ABOUT_CONTENT.section6.envelope.signoff,
+    };
 
-    return DEFAULT_ENVELOPE_CONTENT;
+    return {
+      hero: {
+        image: toImage(data?.heroImage, data?.heroImageAlt, DEFAULT_ABOUT_CONTENT.hero.image, {
+          width: 2200,
+          quality: 78,
+        }),
+        heading: asNonEmptyString(data?.heroHeading) || DEFAULT_ABOUT_CONTENT.hero.heading,
+        subheading: asNonEmptyString(data?.heroSubheading) || DEFAULT_ABOUT_CONTENT.hero.subheading,
+        introBody: asNonEmptyString(data?.heroIntroBody) || DEFAULT_ABOUT_CONTENT.hero.introBody,
+      },
+      section2: {
+        heading: asNonEmptyString(data?.section2Heading) || DEFAULT_ABOUT_CONTENT.section2.heading,
+        mixingLabel:
+          asNonEmptyString(data?.section2MixingLabel) || DEFAULT_ABOUT_CONTENT.section2.mixingLabel,
+        tastingLabel:
+          asNonEmptyString(data?.section2TastingLabel) || DEFAULT_ABOUT_CONTENT.section2.tastingLabel,
+        image1: toImage(data?.section2Image1, data?.section2Image1Alt, DEFAULT_ABOUT_CONTENT.section2.image1, {
+          width: 1400,
+          quality: 78,
+        }),
+        image2: toImage(data?.section2Image2, data?.section2Image2Alt, DEFAULT_ABOUT_CONTENT.section2.image2, {
+          width: 1400,
+          quality: 78,
+        }),
+        image3: toImage(data?.section2Image3, data?.section2Image3Alt, DEFAULT_ABOUT_CONTENT.section2.image3, {
+          width: 1200,
+          quality: 78,
+        }),
+        spentYearsText:
+          asNonEmptyString(data?.section2SpentYearsText) || DEFAULT_ABOUT_CONTENT.section2.spentYearsText,
+        journeyText:
+          asNonEmptyString(data?.section2JourneyText) || DEFAULT_ABOUT_CONTENT.section2.journeyText,
+      },
+      section3: {
+        heading: asNonEmptyString(data?.section3Heading) || DEFAULT_ABOUT_CONTENT.section3.heading,
+        eyesSequence: toOverridableImageSequence(
+          data?.section3EyesSequence,
+          DEFAULT_ABOUT_CONTENT.section3.eyesSequence,
+          { width: 1600, quality: 78 },
+        ),
+        tongueImage: toImage(
+          data?.section3TongueImage,
+          data?.section3TongueImageAlt,
+          DEFAULT_ABOUT_CONTENT.section3.tongueImage,
+          { width: 1500, quality: 78 },
+        ),
+        indiaLines: [
+          asNonEmptyString(data?.section3IndiaCallout1) || DEFAULT_ABOUT_CONTENT.section3.indiaLines[0],
+          asNonEmptyString(data?.section3IndiaCallout2) || DEFAULT_ABOUT_CONTENT.section3.indiaLines[1],
+          asNonEmptyString(data?.section3IndiaCallout3) || DEFAULT_ABOUT_CONTENT.section3.indiaLines[2],
+        ],
+        closingText:
+          asNonEmptyString(data?.section3ClosingText) || DEFAULT_ABOUT_CONTENT.section3.closingText,
+      },
+      section4: {
+        flavorWords: toOverridableFlavorWords(
+          data?.section4FlavorWords,
+          DEFAULT_ABOUT_CONTENT.section4.flavorWords,
+        ),
+        bodyText: asNonEmptyString(data?.section4BodyText) || DEFAULT_ABOUT_CONTENT.section4.bodyText,
+        issueHeading:
+          asNonEmptyString(data?.section4IssueHeading) || DEFAULT_ABOUT_CONTENT.section4.issueHeading,
+        sideText: asNonEmptyString(data?.section4SideText) || DEFAULT_ABOUT_CONTENT.section4.sideText,
+        lemonImage: toImage(
+          data?.section4LemonImage,
+          data?.section4LemonImageAlt,
+          DEFAULT_ABOUT_CONTENT.section4.lemonImage,
+          { width: 900, quality: 80 },
+        ),
+        lemonCaption:
+          asNonEmptyString(data?.section4LemonCaption) || DEFAULT_ABOUT_CONTENT.section4.lemonCaption,
+        spoonImage: toImage(
+          data?.section4SpoonImage,
+          data?.section4SpoonImageAlt,
+          DEFAULT_ABOUT_CONTENT.section4.spoonImage,
+          { width: 900, quality: 80 },
+        ),
+        spoonCaption:
+          asNonEmptyString(data?.section4SpoonCaption) || DEFAULT_ABOUT_CONTENT.section4.spoonCaption,
+      },
+      section5: {
+        tearImage: toImage(
+          data?.section5TearImage,
+          data?.section5TearImageAlt,
+          DEFAULT_ABOUT_CONTENT.section5.tearImage,
+          { width: 1800, quality: 78 },
+        ),
+        introducingText:
+          asNonEmptyString(data?.section5IntroducingText) ||
+          DEFAULT_ABOUT_CONTENT.section5.introducingText,
+        logoImage: toImage(
+          data?.section5LogoImage,
+          data?.section5LogoImageAlt,
+          DEFAULT_ABOUT_CONTENT.section5.logoImage,
+          { width: 1200, quality: 82 },
+        ),
+        taglineImage: toImage(
+          data?.section5TaglineImage,
+          data?.section5TaglineImageAlt,
+          DEFAULT_ABOUT_CONTENT.section5.taglineImage,
+          { width: 1600, quality: 80 },
+        ),
+        paragraph1:
+          asNonEmptyString(data?.section5Paragraph1) || DEFAULT_ABOUT_CONTENT.section5.paragraph1,
+        paragraph2Prefix:
+          asNonEmptyString(data?.section5Paragraph2Prefix) ||
+          DEFAULT_ABOUT_CONTENT.section5.paragraph2Prefix,
+        paragraph2Accent:
+          asNonEmptyString(data?.section5Paragraph2Accent) ||
+          DEFAULT_ABOUT_CONTENT.section5.paragraph2Accent,
+        paragraph3:
+          asNonEmptyString(data?.section5Paragraph3) || DEFAULT_ABOUT_CONTENT.section5.paragraph3,
+        paragraph4:
+          asNonEmptyString(data?.section5Paragraph4) || DEFAULT_ABOUT_CONTENT.section5.paragraph4,
+        closingText:
+          asNonEmptyString(data?.section5ClosingText) || DEFAULT_ABOUT_CONTENT.section5.closingText,
+      },
+      section6: {
+        topStripImages: toOverridableImageList(
+          data?.section6TopStripImages,
+          DEFAULT_ABOUT_CONTENT.section6.topStripImages,
+          { width: 1400, quality: 76 },
+        ),
+        headingLine1:
+          asNonEmptyString(data?.section6HeadingLine1) || DEFAULT_ABOUT_CONTENT.section6.headingLine1,
+        headingLine2:
+          asNonEmptyString(data?.section6HeadingLine2) || DEFAULT_ABOUT_CONTENT.section6.headingLine2,
+        joinMoreText:
+          asNonEmptyString(data?.section6JoinMoreText) || DEFAULT_ABOUT_CONTENT.section6.joinMoreText,
+        envelopeImage: toImage(
+          data?.section6EnvelopeImage,
+          data?.section6EnvelopeImageAlt,
+          DEFAULT_ABOUT_CONTENT.section6.envelopeImage,
+          { width: 1400, quality: 82 },
+        ),
+        envelope,
+      },
+    };
   } catch {
-    return DEFAULT_ENVELOPE_CONTENT;
+    return DEFAULT_ABOUT_CONTENT;
   }
 }
 
 export default async function Home() {
-  const envelopeContent = await getEnvelopeContent();
+  const aboutContent = await getAboutPageContent();
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#F7FEE7]">
-      {/* Navbar */}
       <Navbar />
       <AboutWordByWordReveal />
 
-      {/* Section 1 */}
       <section className="relative w-full">
         <div className="relative h-[72vh] w-full md:h-[82vh]">
           <div className="absolute inset-0">
             <Image
-              src="/about/about-cover.JPG"
-              alt="Hero"
+              src={aboutContent.hero.image.src}
+              alt={aboutContent.hero.image.alt}
               fill
               className="object-cover"
               priority
@@ -129,7 +621,7 @@ export default async function Home() {
             <div className="mx-auto w-full max-w-[1220px] px-6 md:px-12">
               <CoolRascalText
                 as="h1"
-                text="hi i am sakshi,"
+                text={aboutContent.hero.heading}
                 className="break-words text-4xl font-bold leading-[0.95] sm:text-5xl md:text-7xl lg:text-8xl"
                 pattern="everyThird"
                 baseClassName="text-[#F9A8D4] opacity-70"
@@ -142,7 +634,7 @@ export default async function Home() {
         <div className="mx-auto w-full max-w-[1220px] px-6 pb-12 pt-6 md:px-12 md:pb-16 md:pt-20">
           <CoolRascalText
             as="h2"
-            text="and i am really glad you are here"
+            text={aboutContent.hero.subheading}
             className="mb-8 break-words text-4xl font-bold leading-[0.95] text-[#E61E6E] sm:text-5xl md:mb-12 md:text-7xl lg:text-8xl"
             pattern="alternate"
             startWith="accent"
@@ -152,37 +644,36 @@ export default async function Home() {
             className="ml-auto max-w-md break-words text-right text-base text-[#1C1917] md:max-w-lg md:text-lg lg:text-xl"
             style={{ fontFamily: 'schoolbell' }}
           >
-            if u are here, i am assuming, you like sour or curious enough to try it
+            {aboutContent.hero.introBody}
           </p>
         </div>
       </section>
 
-      {/* Section 2 */}
       <section className="mx-auto w-full max-w-[420px] pb-16 md:max-w-[1100px] md:pb-24">
         <p className="mx-auto max-w-[350px] text-center text-[32px] leading-[1.02] text-[#E61E6E] font-coolvetica md:max-w-[1040px] md:text-[78px]">
-          I&apos;ve always been (annoyingly) obsessed with flavours.
+          {aboutContent.section2.heading}
         </p>
 
         <div className="relative mx-auto mt-8 h-[530px] w-full md:mt-14 md:h-[760px]">
           <p className="absolute right-0 top-12 z-20 rotate-[16deg] text-[24px] text-[#1E1E1E] font-schoolbell md: -right-[4%] md:text-[52px]">
-            Mixing things
+            {aboutContent.section2.mixingLabel}
           </p>
           <div className="absolute right-2 top-14 h-[210px] w-[90%] overflow-hidden md:top-20 md:h-[340px] md:w-[44%]">
             <Image
-              src="/about/section-two-1.svg"
-              alt="Mixing drinks"
+              src={aboutContent.section2.image1.src}
+              alt={aboutContent.section2.image1.alt}
               fill
               className="object-cover object-top"
             />
           </div>
 
           <p className="absolute left-[6px] top-[50%] z-20 -rotate-[14deg] text-[24px] text-[#A8AC1A] font-schoolbell md: -left-[32%] md:top-[44%] md:text-[52px]">
-            Tasting everything
+            {aboutContent.section2.tastingLabel}
           </p>
           <div className="absolute mt-8 left-0 top-[48%] h-[210px] w-[98%] overflow-hidden md:left-[2%] md:top-[52%] md:h-[380px] md:w-[54%]">
             <Image
-              src="/about/section-two-2.svg"
-              alt="Tasting everything"
+              src={aboutContent.section2.image2.src}
+              alt={aboutContent.section2.image2.alt}
               fill
               className="object-cover"
             />
@@ -190,8 +681,8 @@ export default async function Home() {
 
           <div className="absolute top-[92%] bottom-0 right-0 h-[200px] w-[52%] overflow-hidden md:h-[360px] md:w-[25%]">
             <Image
-              src="/about/section-two-3.svg"
-              alt="Third collage visual"
+              src={aboutContent.section2.image3.src}
+              alt={aboutContent.section2.image3.alt}
               fill
               className="object-cover"
             />
@@ -199,39 +690,38 @@ export default async function Home() {
         </div>
 
         <p className="mt-48 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
-          spent 5 years
+          {aboutContent.section2.spentYearsText}
         </p>
         <p className="mx-auto mt-4 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:max-w-[920px] md:text-[52px]">
-          around food and drinks from london bar shifts to a 9-5 desk job in India
+          {aboutContent.section2.journeyText}
         </p>
       </section>
 
-      {/* Section 3 */}
       <section className="mx-auto w-full max-w-[520px] px-4 pb-2 md:max-w-[1320px] md:px-10 md:pb-28">
         <p className="text-center text-[26px] leading-[1.02] text-[#E61E6E] font-schoolbell md:text-[76px]">
-          different lives, same cravings
+          {aboutContent.section3.heading}
         </p>
 
-        <div className="relative mx-auto h-[720px] w-full overflow-hidden md:h-[1280px]">
-          <SectionThreeEyesSequence />
+        <div className="relative mx-auto h-[720px] w-full overflow-visible md:h-[1280px]">
+          <div className="absolute inset-0 overflow-hidden">
+            <SectionThreeEyesSequence imageSrcs={aboutContent.section3.eyesSequence} />
+          </div>
 
           <div className="about-tongue-position absolute left-1/2 h-[380px] w-[108%] -translate-x-1/2 md:h-[900px] md:w-[68%]">
             <Image
-              src="/about/section-three-tongue.svg"
-              alt="Tongue illustration"
+              src={aboutContent.section3.tongueImage.src}
+              alt={aboutContent.section3.tongueImage.alt}
               fill
               className="object-contain z-10"
             />
-            <IndiaLovesLines />
+            <IndiaLovesLines lines={aboutContent.section3.indiaLines} />
           </div>
-        
         </div>
-          <p className="-mt-90 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-64 md:text-[48px]">
-            Nothing worked for a desi palate that loves
-          </p>
+        <p className="-mt-90 text-center text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:-mt-64 md:text-[48px]">
+          {aboutContent.section3.closingText}
+        </p>
       </section>
 
-      {/* Section 4 */}
       <section className="relative mt-12 w-full bg-[#F6AE5A] pb-20 pt-6 md:mt-0 md:pb-28 md:pt-10">
         <div
           aria-hidden="true"
@@ -245,11 +735,10 @@ export default async function Home() {
           </svg>
         </div>
         <div className="mx-auto w-full max-w-[430px] md:max-w-[1100px] md:px-10">
-         
-          <AboutFlavorWords />
+          <AboutFlavorWords words={aboutContent.section4.flavorWords} />
 
           <p className="mx-auto mt-7 max-w-[390px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:mt-12 md:max-w-[740px] md:text-[62px]">
-            but doesn&apos;t want to feel weighed down after snacking
+            {aboutContent.section4.bodyText}
           </p>
 
           <div className="relative mx-auto mt-16 w-fit md:mt-8">
@@ -274,45 +763,43 @@ export default async function Home() {
               />
             </svg>
             <p className="relative z-10 text-center text-[32px] leading-none text-[#15803D] font-coolvetica md:text-[128px]">
-              MY BIGGEST ISSUE?
+              {aboutContent.section4.issueHeading}
             </p>
-        
           </div>
 
           <p className="mx-auto mt-16 max-w-[390px] text-center text-[32px] leading-[1.02] text-[#E61E6E] font-schoolbell md:mt-16 md:max-w-[760px] md:text-[64px]">
-            Sour was always treated like a side.
+            {aboutContent.section4.sideText}
           </p>
 
           <div className="relative mt-16 md:mt-16">
             <div className="pointer-events-none absolute left-6 top-6 z-0 h-[120px] w-[250px] -translate-x-[40%] -translate-y-1/2 md:top-8 md:h-[260px] md:w-[300px] md:-translate-x-[38%] md:-translate-y-1/2">
               <Image
-                src="/about/lemonsqueze.gif"
-                alt="Lemon drop illustration"
+                src={aboutContent.section4.lemonImage.src}
+                alt={aboutContent.section4.lemonImage.alt}
                 fill
                 className="object-contain"
               />
             </div>
             <p className="relative z-10 pl-22 text-left text-[24px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pl-16 md:text-[36px]">
-              A squeeze here.
+              {aboutContent.section4.lemonCaption}
             </p>
           </div>
           <div className="relative mt-16 md:mt-12">
             <div className="pointer-events-none absolute right-8 top-[48%] z-0 h-[120px] w-[250px] translate-x-[40%] -translate-y-1/2 md:top-[48%] md:h-[260px] md:w-[300px] md:translate-x-[38%]">
               <Image
-                src="/about/spoonofpickle.gif"
-                alt="Spoon of pickle illustration"
+                src={aboutContent.section4.spoonImage.src}
+                alt={aboutContent.section4.spoonImage.alt}
                 fill
                 className="object-contain rotate-[8deg]"
               />
             </div>
             <p className="relative z-10 pr-24 text-right text-[24px] leading-[1.02] text-[#E61E6E] font-schoolbell md:pr-16 md:text-[36px]">
-              A spoon of pickle there.
+              {aboutContent.section4.spoonCaption}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Section 5 */}
       <section className="relative -mt-12 w-full overflow-hidden bg-[#F7FEE7] pb-0 md:-mt-24 md:pb-0">
         <div
           className="relative left-1/2 h-[124px] w-screen -translate-x-1/2 md:h-[240px]"
@@ -322,8 +809,8 @@ export default async function Home() {
           }}
         >
           <Image
-            src="/about/paper-tear.svg"
-            alt="Paper tear top"
+            src={aboutContent.section5.tearImage.src}
+            alt={aboutContent.section5.tearImage.alt}
             fill
             className="object-cover"
           />
@@ -331,13 +818,13 @@ export default async function Home() {
 
         <div className="mx-auto max-w-[430px] px-5 pt-6 text-center md:max-w-[1100px] md:px-12 md:pt-10">
           <p className="text-[24px] leading-none text-[#b68ad9] font-schoolbell md:text-[48px]">
-            Introducing
+            {aboutContent.section5.introducingText}
           </p>
 
           <div className="relative mx-auto h-[62px] w-[250px] md:h-[116px] md:w-[360px]">
             <Image
-              src="/logo.svg"
-              alt="Sourboo logo"
+              src={aboutContent.section5.logoImage.src}
+              alt={aboutContent.section5.logoImage.alt}
               fill
               className="object-contain"
             />
@@ -345,8 +832,8 @@ export default async function Home() {
 
           <div className="relative mx-auto -mt-1 h-[120px] w-[420px] max-w-full md:-mt-2 md:h-[250px] md:w-[900px]">
             <Image
-              src="/tagline.svg"
-              alt="Tagline illustration"
+              src={aboutContent.section5.taglineImage.src}
+              alt={aboutContent.section5.taglineImage.alt}
               fill
               className="object-contain"
             />
@@ -354,26 +841,26 @@ export default async function Home() {
 
           <div className="mx-auto mt-1 flex max-w-[390px] flex-col gap-16 text-center md:mt-2 md:max-w-[740px] md:gap-14">
             <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[52px]">
-              sour first snack, made for people who don&apos;t eat quietly.
+              {aboutContent.section5.paragraph1}
             </p>
 
             <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[48px]">
-              for women who love{" "}
-              <span className="text-[#A8CF3D]">loud flavours, strong opinions, and fully indulging.</span>
+              {aboutContent.section5.paragraph2Prefix}{' '}
+              <span className="text-[#A8CF3D]">{aboutContent.section5.paragraph2Accent}</span>
             </p>
 
             <div className="flex flex-col gap-6 md:gap-4">
               <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
-                The kind who make faces when they eat.
+                {aboutContent.section5.paragraph3}
               </p>
 
               <p className="text-[24px] leading-[1.03] text-[#E61E6E] font-schoolbell md:text-[36px]">
-                The kind who ask for extra nimbu.
+                {aboutContent.section5.paragraph4}
               </p>
             </div>
 
             <p className="text-[32px] leading-[1.04] text-[#F18BB7] font-rascal md:text-[62px]">
-              A new way of snacking.
+              {aboutContent.section5.closingText}
             </p>
           </div>
         </div>
@@ -386,47 +873,44 @@ export default async function Home() {
           }}
         >
           <Image
-            src="/about/paper-tear.svg"
-            alt="Paper tear bottom"
+            src={aboutContent.section5.tearImage.src}
+            alt={aboutContent.section5.tearImage.alt}
             fill
             className="object-cover"
           />
         </div>
       </section>
 
-      {/* Section 6 */}
       <section data-scroll-reveal="off" className="w-full bg-[#F6AE5A] pb-0 md:pb-28">
-        <AboutTopStrip />
+        <AboutTopStrip items={aboutContent.section6.topStripImages} />
 
         <div className="mx-auto w-full max-w-[430px] md:max-w-[1100px]">
           <p className="mx-auto mt-8 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-coolvetica md:mt-10 md:max-w-[620px] md:text-[62px]">
-            That&apos;s Sourboo to me.
+            {aboutContent.section6.headingLine1}
             <br />
-            And I hope you love it as much as I do
+            {aboutContent.section6.headingLine2}
           </p>
 
           <div className="mx-auto mt-14 w-[92%] md:mt-20 md:w-[82%]">
             <p className="ml-auto w-fit translate-y-1 text-right text-[32px] leading-none text-[#4f4956] font-coolvetica md:translate-y-12 md:text-[64px]">
-              join more
+              {aboutContent.section6.joinMoreText}
             </p>
           </div>
 
           <div className="relative mx-auto mt-2 h-[300px] w-[88%] md:mt-4 md:h-[680px] md:w-[76%]">
             <Image
-              src="/about/section-six-envelope.svg"
-              alt="Envelope card"
+              src={aboutContent.section6.envelopeImage.src}
+              alt={aboutContent.section6.envelopeImage.alt}
               fill
               className="object-contain"
             />
 
             <AboutEnvelopeText
-              heading={envelopeContent.heading}
-              body={envelopeContent.body}
-              signoff={envelopeContent.signoff}
+              heading={aboutContent.section6.envelope.heading}
+              body={aboutContent.section6.envelope.body}
+              signoff={aboutContent.section6.envelope.signoff}
             />
           </div>
-
-
         </div>
 
         <div

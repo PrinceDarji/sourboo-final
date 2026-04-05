@@ -341,7 +341,7 @@ body {
   top: 24%;
   width: 50%;
   height: 60%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 46% 46% 42% 42% / 28% 28% 58% 58%;
 }
 
@@ -367,7 +367,8 @@ body {
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 5px;
+  width: max-content;
+  gap: var(--callout-gap, 5px);
   --line-size: 64px;
 }
 
@@ -385,9 +386,11 @@ body {
 }
 
 .india-callout-text {
+  display: inline-block;
   margin: 0;
-  max-width: 7ch;
-  text-wrap: pretty;
+  max-width: none;
+  white-space: nowrap;
+  text-wrap: nowrap;
   color: #f9ed78;
   font-family: var(--font-coolvetica), sans-serif;
   font-size: clamp(15px, 1.6vw, 34px);
@@ -408,22 +411,18 @@ body {
   --line-size: 56px;
 }
 
+.india-callout-2 .india-callout-text {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + var(--callout-gap, 5px));
+  transform: translateY(-50%);
+  text-align: right;
+}
+
 .india-callout-3 {
   left: 8%;
   top: 58%;
   --line-size: 52px;
-}
-
-.india-callout-1 .india-callout-text {
-  max-width: 6.4ch;
-}
-
-.india-callout-2 .india-callout-text {
-  max-width: 5.6ch;
-}
-
-.india-callout-3 .india-callout-text {
-  max-width: 7.2ch;
 }
 
 @keyframes india-marker-blip {
@@ -544,7 +543,7 @@ body {
   }
 
   .india-callout {
-    gap: 6px;
+    --callout-gap: 6px;
   }
 
   .india-callout-line {

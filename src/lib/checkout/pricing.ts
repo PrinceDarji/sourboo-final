@@ -1,5 +1,5 @@
 import { sanityClient } from '@/src/lib/sanity/client';
-import { parsePriceLabel } from '@/src/lib/cart/price';
+import { calculateDiscountedRupees, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 
 export type CheckoutItemInput = {
   slug: string;
@@ -25,6 +25,7 @@ type ProductPricingDoc = {
   accentWord?: string;
   suffixWord?: string;
   price?: string;
+  discountPercent?: number;
 };
 
 const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] | order(sortOrder asc, _createdAt asc) {
@@ -32,7 +33,8 @@ const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] |
   titleWord,
   accentWord,
   suffixWord,
-  price
+  price,
+  discountPercent
 }`;
 
 function toCleanSlug(value: unknown): string | null {
@@ -63,7 +65,12 @@ function toUnitPricePaise(doc: ProductPricingDoc, slug: string): number {
     throw new Error(`Missing price for slug: ${slug}`);
   }
 
-  const rupees = parsePriceLabel(priceLabel);
+  const originalRupees = parsePriceLabel(priceLabel);
+  const discountPercent = normalizeDiscountPercent(doc.discountPercent);
+  const rupees =
+    discountPercent && originalRupees > 0
+      ? calculateDiscountedRupees(originalRupees, discountPercent)
+      : originalRupees;
   const paise = Math.round(rupees * 100);
   if (!Number.isFinite(paise) || paise <= 0) {
     throw new Error(`Invalid price for slug: ${slug}`);

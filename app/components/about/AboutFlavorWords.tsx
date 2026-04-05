@@ -5,6 +5,19 @@ import { useEffect, useRef } from 'react';
 
 const REVEAL_RATIO = 0.34;
 
+type FlavorWordOverride = {
+  label?: string;
+  bgSrc?: string;
+};
+
+type FlavorWordLayout = {
+  wrapperClassName: string;
+  itemClassName: string;
+  textClassName: string;
+  defaultLabel: string;
+  defaultBgSrc: string;
+};
+
 function FlavorWord({
   wrapperClassName,
   itemClassName,
@@ -36,7 +49,44 @@ function FlavorWord({
   );
 }
 
-export default function AboutFlavorWords() {
+const FLAVOR_WORD_LAYOUTS: FlavorWordLayout[] = [
+  {
+    wrapperClassName:
+      'absolute left-3 top-4 w-[150px] aspect-[213/217] sm:w-[178px] md:left-8 md:top-6 lg:top-10 md:w-[228px]',
+    itemClassName: 'about-flavor-word-1',
+    textClassName: 'text-[52px] leading-none text-[#4e7805] font-coolvetica md:text-[86px]',
+    defaultLabel: 'BOLD',
+    defaultBgSrc: '/about/boldbg.svg',
+  },
+  {
+    wrapperClassName:
+      'absolute left-1/2 top-[42%] w-[220px] aspect-[303/153] -translate-x-1/2 sm:w-[252px] md:w-[336px]',
+    itemClassName: 'about-flavor-word-2',
+    textClassName: 'text-[58px] leading-none text-[#E61E6E] font-rascal md:text-[82px]',
+    defaultLabel: 'spicy',
+    defaultBgSrc: '/about/spicybg.svg',
+  },
+  {
+    wrapperClassName:
+      'absolute right-3 top-[55%] w-[188px] aspect-[264/186] sm:w-[210px] md:right-8 md:w-[240px]',
+    itemClassName: 'about-flavor-word-3',
+    textClassName: 'text-[54px] leading-none text-[#4e7805] font-rascal md:text-[74px]',
+    defaultLabel: 'sour',
+    defaultBgSrc: '/about/sourbg.svg',
+  },
+];
+
+function asNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+type AboutFlavorWordsProps = {
+  words?: FlavorWordOverride[];
+};
+
+export default function AboutFlavorWords({ words }: AboutFlavorWordsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -85,29 +135,19 @@ export default function AboutFlavorWords() {
       ref={containerRef}
       className="about-flavor-words relative left-1/2 mt-5 h-[300px] w-screen -translate-x-1/2 overflow-hidden md:mt-8 md:h-[390px]"
     >
-      <FlavorWord
-        wrapperClassName="absolute left-3 top-4 w-[150px] aspect-[213/217] sm:w-[178px] md:left-8 md:top-6 lg:top-10 md:w-[228px]"
-        itemClassName="about-flavor-word-1"
-        textClassName="text-[52px] leading-none text-[#4e7805] font-coolvetica md:text-[86px]"
-        label="BOLD"
-        bgSrc="/about/boldbg.svg"
-      />
-
-      <FlavorWord
-        wrapperClassName="absolute left-1/2 top-[42%] w-[220px] aspect-[303/153] -translate-x-1/2 sm:w-[252px] md:w-[336px]"
-        itemClassName="about-flavor-word-2"
-        textClassName="text-[58px] leading-none text-[#E61E6E] font-rascal md:text-[82px]"
-        label="spicy"
-        bgSrc="/about/spicybg.svg"
-      />
-
-      <FlavorWord
-        wrapperClassName="absolute right-3 top-[55%] w-[188px] aspect-[264/186] sm:w-[210px] md:right-8 md:w-[240px]"
-        itemClassName="about-flavor-word-3"
-        textClassName="text-[54px] leading-none text-[#4e7805] font-rascal md:text-[74px]"
-        label="sour"
-        bgSrc="/about/sourbg.svg"
-      />
+      {FLAVOR_WORD_LAYOUTS.map((layout, index) => {
+        const override = words?.[index];
+        return (
+          <FlavorWord
+            key={layout.itemClassName}
+            wrapperClassName={layout.wrapperClassName}
+            itemClassName={layout.itemClassName}
+            textClassName={layout.textClassName}
+            label={asNonEmptyString(override?.label) || layout.defaultLabel}
+            bgSrc={asNonEmptyString(override?.bgSrc) || layout.defaultBgSrc}
+          />
+        );
+      })}
     </div>
   );
 }

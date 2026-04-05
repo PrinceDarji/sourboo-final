@@ -16,10 +16,14 @@ type ReviewBubble = {
   rotationDeg: number;
 };
 
-const reviewBubbles: ReviewBubble[] = [
+type ReviewBubbleTemplate = Omit<ReviewBubble, 'text'> & {
+  defaultText: string;
+};
+
+const reviewBubbleTemplates: ReviewBubbleTemplate[] = [
   {
     id: 'addictive',
-    text: 'addictive',
+    defaultText: 'addictive',
     background: '#BFEA5A',
     textColor: '#141414',
     positionClassName: 'left-[0%] -top-[2%] md:left-[2%] md:top-[10%]',
@@ -30,7 +34,7 @@ const reviewBubbles: ReviewBubble[] = [
   },
   {
     id: 'super-punchy',
-    text: 'super punchy\n& sour',
+    defaultText: 'super punchy\n& sour',
     background: '#E61E6E',
     textColor: '#121212',
     positionClassName: 'right-[0%] -top-[12%] md:right-[2%] md:top-[20%]',
@@ -41,7 +45,7 @@ const reviewBubbles: ReviewBubble[] = [
   },
   {
     id: 'perfect-spicy',
-    text: 'perfect spicy',
+    defaultText: 'perfect spicy',
     background: '#E61E6E',
     textColor: '#141414',
     positionClassName: 'left-[2%] top-[80%] md:left-[6%] md:top-[57%]',
@@ -52,7 +56,7 @@ const reviewBubbles: ReviewBubble[] = [
   },
   {
     id: 'instant-fav',
-    text: 'instant fav',
+    defaultText: 'instant fav',
     background: '#BFEA5A',
     textColor: '#141414',
     positionClassName: 'right-[1%] top-[64%] md:right-[4%] md:top-[63%]',
@@ -63,7 +67,22 @@ const reviewBubbles: ReviewBubble[] = [
   },
 ];
 
-export default function HomeReviewPhoneSection() {
+function asNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+type HomeReviewPhoneSectionProps = {
+  bubbleTexts?: string[];
+};
+
+export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneSectionProps) {
+  const reviewBubbles: ReviewBubble[] = reviewBubbleTemplates.map((bubble, index) => ({
+    ...bubble,
+    text: asNonEmptyString(bubbleTexts?.[index]) || bubble.defaultText,
+  }));
+
   const sectionRef = useRef<HTMLElement | null>(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
 

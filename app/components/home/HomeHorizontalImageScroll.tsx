@@ -12,12 +12,26 @@ type GalleryCard = {
   sizes: string;
 };
 
-// Replace only `src` values with your own assets; keep/tune `frameClass` to control collage shape + size.
-const galleryCards: GalleryCard[] = [
+type GalleryImageOverride = {
+  src: string;
+  alt?: string;
+};
+
+type GalleryCardLayout = {
+  id: string;
+  fallbackSrc: string;
+  fallbackAlt: string;
+  frameClass: string;
+  imageClass?: string;
+  sizes: string;
+};
+
+// Keep frameClass/imageClass fixed to preserve the collage layout while CMS controls image content.
+const galleryCardLayouts: GalleryCardLayout[] = [
   {
     id: 'img-1',
-    src: '/home/recipe-1.jpg',
-    alt: 'Food collage visual 1',
+    fallbackSrc: '/home/recipe-1.jpg',
+    fallbackAlt: 'Food collage visual 1',
     frameClass:
       'z-[1] mt-[32vh] h-[170px] w-[min(66vw,290px)] overflow-hidden rounded-[20px] md:mt-[34vh] md:h-[250px] md:w-[420px] lg:h-[300px] lg:w-[500px]',
     imageClass: 'object-cover',
@@ -25,8 +39,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-2',
-    src: '/home/postcrysnack.webp',
-    alt: 'Food collage visual 2',
+    fallbackSrc: '/home/postcrysnack.webp',
+    fallbackAlt: 'Food collage visual 2',
     frameClass:
       'z-[2] -ml-10 mt-[14vh] h-[210px] w-[180px] overflow-hidden rounded-[24px] -rotate-[4deg] md:-ml-16 md:mt-[12vh] md:h-[330px] md:w-[250px] lg:h-[400px] lg:w-[300px]',
     imageClass: 'object-cover',
@@ -34,8 +48,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-3',
-    src: '/home/girldinner.webp',
-    alt: 'Food collage visual 3',
+    fallbackSrc: '/home/girldinner.webp',
+    fallbackAlt: 'Food collage visual 3',
     frameClass:
       'z-[3] -ml-10 mt-[38vh] h-[190px] w-[190px] overflow-hidden rounded-full md:-ml-14 md:mt-[40vh] md:h-[280px] md:w-[280px] lg:h-[340px] lg:w-[340px]',
     imageClass: 'object-cover',
@@ -43,8 +57,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-4',
-    src: '/home/hangoverdetox.webp',
-    alt: 'Food collage visual 4',
+    fallbackSrc: '/home/hangoverdetox.webp',
+    fallbackAlt: 'Food collage visual 4',
     frameClass:
       'z-[4] -ml-8 mt-[6vh] h-[200px] w-[200px] overflow-visible md:-ml-10 md:mt-[5vh] md:h-[290px] md:w-[290px] lg:h-[360px] lg:w-[360px]',
     imageClass: 'object-contain drop-shadow-[0_14px_16px_rgba(0,0,0,0.22)]',
@@ -52,8 +66,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-5',
-    src: '/home/deskcravings.webp',
-    alt: 'Food collage visual 5',
+    fallbackSrc: '/home/deskcravings.webp',
+    fallbackAlt: 'Food collage visual 5',
     frameClass:
       'z-[1] -ml-16 mt-[26vh] h-[220px] w-[min(74vw,360px)] overflow-hidden rounded-[24px] md:-ml-24 md:mt-[22vh] md:h-[330px] md:w-[540px] lg:h-[420px] lg:w-[660px]',
     imageClass: 'object-cover',
@@ -61,8 +75,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-6',
-    src: '/home/recipe-2.webp',
-    alt: 'Food collage visual 6',
+    fallbackSrc: '/home/recipe-2.webp',
+    fallbackAlt: 'Food collage visual 6',
     frameClass:
       'z-[2] -ml-12 mt-[10vh] h-[160px] w-[220px] overflow-hidden rounded-[30px] rotate-[2deg] md:-ml-16 md:mt-[9vh] md:h-[240px] md:w-[330px] lg:h-[300px] lg:w-[410px]',
     imageClass: 'object-cover',
@@ -70,8 +84,8 @@ const galleryCards: GalleryCard[] = [
   },
   {
     id: 'img-7',
-    src: '/home/latenightmunchies.webp',
-    alt: 'Food collage visual 7',
+    fallbackSrc: '/home/latenightmunchies.webp',
+    fallbackAlt: 'Food collage visual 7',
     frameClass:
       'z-[3] -ml-10 mt-[28vh] h-[190px] w-[190px] overflow-hidden rounded-[48%_52%_46%_54%/44%_48%_52%_56%] md:-ml-14 md:mt-[30vh] md:h-[280px] md:w-[280px] lg:h-[330px] lg:w-[330px]',
     imageClass: 'object-cover',
@@ -82,7 +96,29 @@ const galleryCards: GalleryCard[] = [
 const EDGE_EPSILON = 1;
 const ACTIVATION_LINE_RATIO = 0.5;
 
-export default function HomeHorizontalImageScroll() {
+function asNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+type HomeHorizontalImageScrollProps = {
+  items?: GalleryImageOverride[];
+};
+
+export default function HomeHorizontalImageScroll({ items }: HomeHorizontalImageScrollProps) {
+  const galleryCards: GalleryCard[] = galleryCardLayouts.map((layout, index) => {
+    const override = items?.[index];
+    return {
+      id: layout.id,
+      src: asNonEmptyString(override?.src) || layout.fallbackSrc,
+      alt: asNonEmptyString(override?.alt) || layout.fallbackAlt,
+      frameClass: layout.frameClass,
+      imageClass: layout.imageClass,
+      sizes: layout.sizes,
+    };
+  });
+
   const sectionRef = useRef<HTMLElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
