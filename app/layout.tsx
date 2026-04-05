@@ -16,6 +16,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <LandingPopupRedirect
           enabled={landingPopup.enabled}
+          delaySeconds={landingPopup.delaySeconds}
         />
         <SectionScrollReveal />
         <CartRoot>{children}</CartRoot>

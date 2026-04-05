@@ -95,6 +95,7 @@ export default async function PopupPage({
         <LandingPopupCloseButton
           closeIconSrc={config.closeIcon.src}
           closeIconAlt={config.closeIcon.alt}
+          fromPath={fromPath}
         />
 
         <Image

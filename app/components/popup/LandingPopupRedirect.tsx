@@ -1,16 +1,19 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { isLandingPopupDismissed } from './landingPopupStorage';
 
 type LandingPopupRedirectProps = {
   enabled: boolean;
+  delaySeconds: number;
 };
 
-export default function LandingPopupRedirect({ enabled }: LandingPopupRedirectProps) {
+export default function LandingPopupRedirect({
+  enabled,
+  delaySeconds,
+}: LandingPopupRedirectProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
@@ -18,16 +21,15 @@ export default function LandingPopupRedirect({ enabled }: LandingPopupRedirectPr
     if (pathname.startsWith('/popup')) return;
     if (isLandingPopupDismissed()) return;
 
-    const currentQuery = searchParams.toString();
-    const fromPath = `${pathname}${currentQuery ? `?${currentQuery}` : ''}`;
-    const effectiveDelaySeconds = 4;
+    const currentQuery = window.location.search;
+    const fromPath = `${pathname}${currentQuery}`;
 
     const timer = window.setTimeout(() => {
       router.push(`/popup?from=${encodeURIComponent(fromPath)}`);
-    }, Math.max(0, effectiveDelaySeconds) * 1000);
+    }, Math.max(0, delaySeconds) * 1000);
 
     return () => window.clearTimeout(timer);
-  }, [enabled, pathname, router, searchParams]);
+  }, [delaySeconds, enabled, pathname, router]);
 
   return null;
 }

@@ -1,26 +1,26 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 import { setLandingPopupDismissed } from './landingPopupStorage';
 
 type LandingPopupCloseButtonProps = {
   closeIconSrc?: string;
   closeIconAlt: string;
+  fromPath?: string;
 };
 
 export default function LandingPopupCloseButton({
   closeIconSrc,
   closeIconAlt,
+  fromPath,
 }: LandingPopupCloseButtonProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const handleClose = () => {
     setLandingPopupDismissed();
-    const from = searchParams.get('from');
-    if (from && from.startsWith('/')) {
-      router.replace(from);
+
+    if (fromPath && fromPath.startsWith('/')) {
+      router.replace(fromPath);
       return;
     }
 
