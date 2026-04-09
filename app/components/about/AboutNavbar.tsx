@@ -42,12 +42,12 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="pointer-events-none fixed left-0 right-0 -top-4 z-50 w-full px-2 sm:px-4 md:px-6 lg:-top-10 lg:px-8 xl:px-10">
+    <nav className="pointer-events-none fixed left-0 right-0 -top-4 z-50 w-full px-2 [backface-visibility:hidden] [contain:paint] [transform:translateZ(0)] sm:px-4 md:px-6 lg:-top-10 lg:px-8 xl:px-10">
       <div className="relative mx-auto hidden w-full max-w-[1120px] lg:block xl:max-w-[1240px] 2xl:max-w-[1320px]">
         <div className="relative aspect-[1440/260] w-full overflow-hidden">
           <div className="absolute inset-0 -translate-y-[8%] scale-[1.06] origin-top">
             <Image
-              src="/navbar.svg"
+              src="/navbar.webp"
               alt="Navigation"
               fill
               sizes="(min-width: 1024px) min(100vw, 1320px), 0px"
@@ -97,7 +97,7 @@ export default function Navbar() {
       <div className="relative mx-auto w-full max-w-[1520px] lg:hidden">
         <div className="relative h-[100px] w-full overflow-hidden sm:h-[112px] md:h-[124px]">
           <Image
-            src="/navbody.svg"
+            src="/navbody.webp"
             alt="Navigation background"
             fill
             sizes="(max-width: 1023px) 100vw, 0px"

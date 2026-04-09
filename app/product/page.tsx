@@ -711,7 +711,13 @@ function ProductCard({
         <ProductTitle product={product} />
       </div>
       <div className={`relative mx-auto mt-1 ${isDesktop ? 'h-[32px] w-[186px]' : 'h-[28px] w-[164px]'}`}>
-        <Image src="/product/reviewstars.svg" alt="5 star reviews" fill className="object-contain" />
+        <Image
+          src="/product/reviewstars.svg"
+          alt="5 star reviews"
+          fill
+          sizes={isDesktop ? '186px' : '164px'}
+          className="object-contain"
+        />
       </div>
       {product.discountedPrice ? (
         <div className="mt-2 flex items-center justify-center gap-3 leading-none">
@@ -745,6 +751,7 @@ function ProductCard({
             src="/product/buynowbutton.svg"
             alt={`Buy ${productName} now`}
             fill
+            sizes={isDesktop ? '350px' : '300px'}
             className="pointer-events-none object-contain transition-opacity duration-200 group-hover/buy:opacity-0 group-focus-visible/buy:opacity-0"
           />
           <Image
@@ -752,6 +759,7 @@ function ProductCard({
             alt=""
             fill
             aria-hidden
+            sizes={isDesktop ? '350px' : '300px'}
             className="pointer-events-none translate-x-[10%] translate-y-[10%] scale-[1.9] object-cover opacity-0 transition-opacity duration-200 group-hover/buy:opacity-100 group-focus-visible/buy:opacity-100 md:translate-x-[13%] md:translate-y-[40%] md:scale-[1.8]"
             style={{ objectPosition: 'center center' }}
           />
@@ -834,6 +842,7 @@ export default async function ProductPage() {
                   src={pageContent.matchIntro.pathImage.src}
                   alt={pageContent.matchIntro.pathImage.alt}
                   fill
+                  sizes="(max-width: 768px) 150px, 200px"
                   className="object-contain"
                 />
               </div>
@@ -852,6 +861,7 @@ export default async function ProductPage() {
                     src={pageContent.primaryMatch.playerImage.src}
                     alt={pageContent.primaryMatch.playerImage.alt}
                     fill
+                    sizes="(max-width: 768px) 130px, 232px"
                     className="object-contain"
                   />
                 </div>
@@ -871,6 +881,7 @@ export default async function ProductPage() {
                   src={pageContent.primaryMatch.pathImage.src}
                   alt={pageContent.primaryMatch.pathImage.alt}
                   fill
+                  sizes="(max-width: 768px) 152px, 210px"
                   className="object-contain"
                 />
               </div>
@@ -880,7 +891,13 @@ export default async function ProductPage() {
               </p>
               <div className="relative mx-auto w-full max-w-[250px] md:max-w-[500px] lg:max-w-[580px]">
                 <div className="pointer-events-none absolute -left-[21%] top-[52%] z-20 h-[178px] w-[136px] -translate-y-1/2 -rotate-[20deg] md:-left-[19%] md:h-[280px] md:w-[210px] lg:-left-[18%] lg:h-[320px] lg:w-[240px]">
-                  <Image src={pageContent.primaryMatch.jarImage.src} alt={pageContent.primaryMatch.jarImage.alt} fill className="object-contain" />
+                  <Image
+                    src={pageContent.primaryMatch.jarImage.src}
+                    alt={pageContent.primaryMatch.jarImage.alt}
+                    fill
+                    sizes="(max-width: 768px) 136px, 240px"
+                    className="object-contain"
+                  />
                 </div>
 
                 <Link
@@ -889,7 +906,14 @@ export default async function ProductPage() {
                   className="group block w-full transition-transform duration-200 hover:scale-[1.015] focus-visible:scale-[1.015]"
                 >
                   <div className="relative w-full aspect-[363/229]">
-                    <Image src={pageContent.primaryMatch.ctaBackgroundImage.src} alt="" fill aria-hidden className="object-contain" />
+                    <Image
+                      src={pageContent.primaryMatch.ctaBackgroundImage.src}
+                      alt=""
+                      fill
+                      aria-hidden
+                      sizes="(max-width: 768px) 250px, (max-width: 1280px) 500px, 580px"
+                      className="object-contain"
+                    />
                     <div className="relative z-10 flex h-full items-center justify-center px-6 py-8 text-center md:px-12 md:py-10">
                       <p className="whitespace-pre-line text-[1.75rem] leading-[1.02] text-[#E61E6E] font-rascal md:text-[clamp(2.3rem,4.8vw,5.6rem)]">
                         {pageContent.primaryMatch.ctaText}
@@ -909,6 +933,7 @@ export default async function ProductPage() {
                     src={pageContent.secondaryMatch.promptPathImage.src}
                     alt={pageContent.secondaryMatch.promptPathImage.alt}
                     fill
+                    sizes="(max-width: 768px) 108px, 232px"
                     className="object-contain"
                   />
                 </div>
@@ -928,6 +953,7 @@ export default async function ProductPage() {
                     src={pageContent.secondaryMatch.playerImage.src}
                     alt={pageContent.secondaryMatch.playerImage.alt}
                     fill
+                    sizes="(max-width: 768px) 170px, 290px"
                     className="object-contain"
                   />
                 </div>
@@ -947,13 +973,20 @@ export default async function ProductPage() {
                   src={pageContent.secondaryMatch.pathImage.src}
                   alt={pageContent.secondaryMatch.pathImage.alt}
                   fill
+                  sizes="(max-width: 768px) 170px, 230px"
                   className="object-contain"
                 />
               </div>
 
               <div className="relative mx-auto mt-4 w-full max-w-[290px] md:mt-6 md:max-w-[520px] lg:max-w-[600px]">
                 <div className="pointer-events-none absolute -right-[20%] top-[66%] z-20 h-[188px] w-[142px] -translate-y-1/2 rotate-[18deg] md:-right-[20%] md:h-[280px] md:w-[212px] lg:-right-[19%] lg:h-[320px] lg:w-[244px]">
-                  <Image src={pageContent.secondaryMatch.jarImage.src} alt={pageContent.secondaryMatch.jarImage.alt} fill className="object-contain" />
+                  <Image
+                    src={pageContent.secondaryMatch.jarImage.src}
+                    alt={pageContent.secondaryMatch.jarImage.alt}
+                    fill
+                    sizes="(max-width: 768px) 142px, 244px"
+                    className="object-contain"
+                  />
                 </div>
 
                 <Link
@@ -962,7 +995,14 @@ export default async function ProductPage() {
                   className="group block w-full transition-transform duration-200 hover:scale-[1.015] focus-visible:scale-[1.015]"
                 >
                   <div className="relative w-full aspect-[390/179]">
-                    <Image src={pageContent.secondaryMatch.ctaBackgroundImage.src} alt="" fill aria-hidden className="object-contain" />
+                    <Image
+                      src={pageContent.secondaryMatch.ctaBackgroundImage.src}
+                      alt=""
+                      fill
+                      aria-hidden
+                      sizes="(max-width: 768px) 290px, (max-width: 1280px) 520px, 600px"
+                      className="object-contain"
+                    />
                     <div className="relative z-10 flex h-full items-center justify-center px-6 py-8 text-center md:px-14 md:py-12">
                       <p className="whitespace-pre-line text-[2rem] leading-[1.02] text-[#E61E6E] font-rascal md:text-[clamp(2.4rem,4.9vw,5.8rem)]">
                         {pageContent.secondaryMatch.ctaText}

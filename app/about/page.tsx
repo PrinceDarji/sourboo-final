@@ -612,6 +612,7 @@ export default async function Home() {
               src={aboutContent.hero.image.src}
               alt={aboutContent.hero.image.alt}
               fill
+              sizes="100vw"
               className="object-cover"
               priority
             />
@@ -663,6 +664,7 @@ export default async function Home() {
               src={aboutContent.section2.image1.src}
               alt={aboutContent.section2.image1.alt}
               fill
+              sizes="(max-width: 768px) 90vw, 44vw"
               className="object-cover object-top"
             />
           </div>
@@ -675,6 +677,7 @@ export default async function Home() {
               src={aboutContent.section2.image2.src}
               alt={aboutContent.section2.image2.alt}
               fill
+              sizes="(max-width: 768px) 98vw, 54vw"
               className="object-cover"
             />
           </div>
@@ -684,6 +687,7 @@ export default async function Home() {
               src={aboutContent.section2.image3.src}
               alt={aboutContent.section2.image3.alt}
               fill
+              sizes="(max-width: 768px) 52vw, 25vw"
               className="object-cover"
             />
           </div>
@@ -712,6 +716,7 @@ export default async function Home() {
               src={aboutContent.section3.tongueImage.src}
               alt={aboutContent.section3.tongueImage.alt}
               fill
+              sizes="(max-width: 768px) 108vw, 68vw"
               className="object-contain z-10"
             />
             <IndiaLovesLines lines={aboutContent.section3.indiaLines} />
@@ -777,6 +782,7 @@ export default async function Home() {
                 src={aboutContent.section4.lemonImage.src}
                 alt={aboutContent.section4.lemonImage.alt}
                 fill
+                sizes="(max-width: 768px) 250px, 300px"
                 className="object-contain"
               />
             </div>
@@ -790,6 +796,7 @@ export default async function Home() {
                 src={aboutContent.section4.spoonImage.src}
                 alt={aboutContent.section4.spoonImage.alt}
                 fill
+                sizes="(max-width: 768px) 250px, 300px"
                 className="object-contain rotate-[8deg]"
               />
             </div>
@@ -812,6 +819,7 @@ export default async function Home() {
             src={aboutContent.section5.tearImage.src}
             alt={aboutContent.section5.tearImage.alt}
             fill
+            sizes="100vw"
             className="object-cover"
           />
         </div>
@@ -826,6 +834,7 @@ export default async function Home() {
               src={aboutContent.section5.logoImage.src}
               alt={aboutContent.section5.logoImage.alt}
               fill
+              sizes="(max-width: 768px) 250px, 360px"
               className="object-contain"
             />
           </div>
@@ -835,6 +844,7 @@ export default async function Home() {
               src={aboutContent.section5.taglineImage.src}
               alt={aboutContent.section5.taglineImage.alt}
               fill
+              sizes="(max-width: 768px) 420px, 900px"
               className="object-contain"
             />
           </div>
@@ -876,6 +886,7 @@ export default async function Home() {
             src={aboutContent.section5.tearImage.src}
             alt={aboutContent.section5.tearImage.alt}
             fill
+            sizes="100vw"
             className="object-cover"
           />
         </div>
@@ -902,6 +913,7 @@ export default async function Home() {
               src={aboutContent.section6.envelopeImage.src}
               alt={aboutContent.section6.envelopeImage.alt}
               fill
+              sizes="(max-width: 768px) 88vw, 76vw"
               className="object-contain"
             />
 

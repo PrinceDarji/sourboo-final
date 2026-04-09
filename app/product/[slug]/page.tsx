@@ -275,7 +275,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <ProductShareButton productName={productName} />
           </div>
           <div className="relative mx-auto mt-2 h-[34px] w-[194px] md:h-[42px] md:w-[240px]">
-            <Image src="/product/reviewstars.svg" alt="5 star reviews" fill className="object-contain" />
+            <Image
+              src="/product/reviewstars.svg"
+              alt="5 star reviews"
+              fill
+              sizes="(max-width: 768px) 194px, 240px"
+              className="object-contain"
+            />
           </div>
           {product.discountedPrice ? (
             <div className="mt-2 flex items-center justify-center gap-3 leading-none">

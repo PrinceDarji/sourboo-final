@@ -44,7 +44,7 @@ function FooterBackground({ imageUrl }: FooterBackgroundProps) {
   if (!imageUrl) {
     return (
       <Image
-        src="/footerbod.svg"
+        src="/footerbod.webp"
         alt=""
         fill
         aria-hidden
@@ -57,7 +57,7 @@ function FooterBackground({ imageUrl }: FooterBackgroundProps) {
   return (
     <>
       <div
-        className="pointer-events-none absolute inset-0 overflow-hidden bg-[#FCE7F3]"
+        className="pointer-events-none absolute inset-0 overflow-hidden bg-[#FCE7F3] [contain:paint]"
         style={footerMaskStyle}
         aria-hidden
       >
