@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 export type FlavorMeter = {
   label: string;
@@ -70,6 +71,13 @@ export default function AnimatedFlavorMeters({
 
     const section = sectionRef.current;
     if (!section) return;
+
+    if (shouldSimplifyMotion()) {
+      const frameId = requestAnimationFrame(() => {
+        setIsActive(true);
+      });
+      return () => cancelAnimationFrame(frameId);
+    }
 
     if (!('IntersectionObserver' in window)) {
       const frameId = requestAnimationFrame(() => {

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 type ReviewBubble = {
   id: string;
@@ -94,12 +95,10 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
     const reveal = () => {
       if (revealed) return;
       revealed = true;
-      window.requestAnimationFrame(() => {
-        setHasEnteredView(true);
-      });
+      setHasEnteredView(true);
     };
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (shouldSimplifyMotion()) {
       reveal();
       return;
     }
@@ -149,7 +148,7 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
               return (
                 <article
                   key={bubble.id}
-                  className={`home-review-bubble absolute rounded-[44%_56%_51%_49%/49%_45%_55%_51%] px-4 py-3 shadow-[0_14px_24px_rgba(44,22,10,0.14)] md:px-7 md:py-5 ${bubble.positionClassName} ${bubble.sizeClassName}`}
+                  className={`home-review-bubble absolute rounded-[44%_56%_51%_49%/49%_45%_55%_51%] px-4 py-3 md:px-7 md:py-5 md:shadow-[0_14px_24px_rgba(44,22,10,0.14)] ${bubble.positionClassName} ${bubble.sizeClassName}`}
                   style={style}
                 >
                   <p
@@ -174,7 +173,7 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
               width={3663}
               height={8227}
               quality={82}
-              className="h-auto w-full object-contain drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)]"
+              className="h-auto w-full object-contain md:drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)]"
               sizes="(max-width: 768px) 40vw, (max-width: 1364px) 22vw, 300px"
             />
           </div>

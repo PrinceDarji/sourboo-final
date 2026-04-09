@@ -131,7 +131,7 @@ const DEFAULT_LEAD_CAPTURE: LandingPopupLeadCaptureContent = {
   ctaLabel: 'unlock my 5%',
   disclaimer: 'no spam, just sour things :)',
   ctaBackgroundImageSrc: '/popup/button-bg-1.svg',
-  successMessage: 'you are in. your 5% unlock is saved.',
+  successMessage: 'you are in! your 5% unlock is saved! happy shopping :)',
 };
 
 export const DEFAULT_LANDING_POPUP_CONTENT: LandingPopupContent = {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 const TARGET_SELECTOR = 'main > section h1, main > section h2, main > section h3, main > section p';
 const LOW_OPACITY_CLASS = 'about-word-reveal-token';
@@ -110,8 +111,7 @@ function revealByScroll(items: RevealItem[]) {
 
 export default function AboutWordByWordReveal() {
   useEffect(() => {
-    const disableAnimatedReveal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (disableAnimatedReveal) return;
+    if (shouldSimplifyMotion()) return;
 
     const targets = Array.from(document.querySelectorAll<HTMLElement>(TARGET_SELECTOR)).filter(
       (element) => !shouldSkipElement(element),

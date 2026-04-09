@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import { isMobilePerformanceMode } from '../clientMotionPreferences';
 
 type GalleryCard = {
   id: string;
@@ -61,7 +62,7 @@ const galleryCardLayouts: GalleryCardLayout[] = [
     fallbackAlt: 'Food collage visual 4',
     frameClass:
       'z-[4] -ml-8 mt-[6vh] h-[200px] w-[200px] overflow-visible md:-ml-10 md:mt-[5vh] md:h-[290px] md:w-[290px] lg:h-[360px] lg:w-[360px]',
-    imageClass: 'object-contain drop-shadow-[0_14px_16px_rgba(0,0,0,0.22)]',
+    imageClass: 'object-contain md:drop-shadow-[0_14px_16px_rgba(0,0,0,0.22)]',
     sizes: '(max-width: 768px) 200px, 360px',
   },
   {
@@ -123,7 +124,7 @@ export default function HomeHorizontalImageScroll({ items }: HomeHorizontalImage
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (isMobilePerformanceMode()) return;
 
     const section = sectionRef.current;
     const viewport = viewportRef.current;
@@ -171,12 +172,12 @@ export default function HomeHorizontalImageScroll({ items }: HomeHorizontalImage
       <div className="mx-auto h-[80vh] w-full max-w-[1500px] px-4 md:h-screen md:px-10">
         <div
           ref={viewportRef}
-          className="flex h-full items-start gap-4 overflow-x-auto overflow-y-hidden pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-6 md:pt-8"
+          className="flex h-full snap-x snap-proximity items-start gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden md:snap-none md:gap-6 md:pt-8"
         >
           {galleryCards.map((card) => (
             <article
               key={card.id}
-              className={`relative shrink-0 ${card.frameClass}`}
+              className={`relative shrink-0 snap-center ${card.frameClass}`}
             >
               <Image
                 src={card.src}

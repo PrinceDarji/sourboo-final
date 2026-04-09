@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 const TARGET_SELECTOR = '.product-word-reveal';
 const TOKEN_CLASS = 'product-word-reveal-token';
@@ -111,8 +112,7 @@ function revealByScroll(items: RevealItem[]) {
 
 export default function ProductWordByWordReveal() {
   useEffect(() => {
-    const disableAnimatedReveal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (disableAnimatedReveal) return;
+    if (shouldSimplifyMotion()) return;
 
     const targets = Array.from(document.querySelectorAll<HTMLElement>(TARGET_SELECTOR));
 

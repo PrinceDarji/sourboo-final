@@ -89,6 +89,7 @@ function sanitizeFooter(value: unknown): FooterContent {
     instagramFallbackCardLabel:
       asNonEmptyString(payload?.instagramFallbackCardLabel) ||
       DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramFallbackCardLabel,
+    backgroundImageUrl: asNonEmptyString(payload?.backgroundImageUrl),
     topText: asNonEmptyString(payload?.topText) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.topText,
     tagline: asNonEmptyString(payload?.tagline) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.tagline,
     primaryLinks: sanitizeFooterLinks(
@@ -165,6 +166,7 @@ export default function SiteFooter() {
         fallbackCardLabel: social.footer.instagramFallbackCardLabel,
       }}
       footer={{
+        backgroundImageUrl: social.footer.backgroundImageUrl,
         topText: social.footer.topText,
         tagline: social.footer.tagline,
         primaryLinks: social.footer.primaryLinks,

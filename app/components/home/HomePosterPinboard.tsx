@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 const REVEAL_RATIO = 0.18;
 const POSTER_STEP_MS = 1800;
@@ -100,7 +101,7 @@ export default function HomePosterPinboard({ items }: HomePosterPinboardProps) {
       });
     };
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (shouldSimplifyMotion()) {
       startSequence(true);
       return;
     }

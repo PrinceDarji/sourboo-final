@@ -641,3 +641,51 @@ body {
     transition: none;
   }
 }
+
+@media (pointer: coarse), (max-width: 767px) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .about-word-reveal-token,
+  .product-word-reveal-token {
+    opacity: 1;
+    transition: none;
+    will-change: auto;
+  }
+
+  .home-review-bubble,
+  .home-review-visible .home-review-bubble {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(var(--review-rotation, 0deg));
+    animation: none;
+    will-change: auto;
+  }
+
+  .home-readmyrant-slide-in-start,
+  .home-readmyrant-slide-in-active {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+
+  .home-poster-card,
+  .home-poster-card-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    filter: none;
+    will-change: auto;
+  }
+
+  .home-poster-pin,
+  .home-poster-pin-visible {
+    opacity: 1;
+    transform: translate3d(-50%, -56%, 0);
+    transition: none;
+    will-change: auto;
+  }
+}

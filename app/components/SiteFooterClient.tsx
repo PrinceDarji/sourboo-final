@@ -16,6 +16,7 @@ type SiteFooterClientProps = {
     fallbackCardLabel: string;
   };
   footer: {
+    backgroundImageUrl?: string;
     topText: string;
     tagline: string;
     primaryLinks: FooterLink[];
@@ -23,6 +24,64 @@ type SiteFooterClientProps = {
     policyLinks: FooterLink[];
   };
 };
+
+const footerMaskStyle = {
+  WebkitMaskImage: "url('/footerbod.svg')",
+  maskImage: "url('/footerbod.svg')",
+  WebkitMaskRepeat: 'no-repeat',
+  maskRepeat: 'no-repeat',
+  WebkitMaskPosition: 'center',
+  maskPosition: 'center',
+  WebkitMaskSize: '100% 100%',
+  maskSize: '100% 100%',
+} as const;
+
+type FooterBackgroundProps = {
+  imageUrl?: string;
+};
+
+function FooterBackground({ imageUrl }: FooterBackgroundProps) {
+  if (!imageUrl) {
+    return (
+      <Image
+        src="/footerbod.svg"
+        alt=""
+        fill
+        aria-hidden
+        className="pointer-events-none object-fill"
+        sizes="100vw"
+      />
+    );
+  }
+
+  return (
+    <>
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden bg-[#FCE7F3]"
+        style={footerMaskStyle}
+        aria-hidden
+      >
+        <Image
+          src={imageUrl}
+          alt=""
+          fill
+          aria-hidden
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+      </div>
+
+      <Image
+        src="/footerbod-overlay.svg"
+        alt=""
+        fill
+        aria-hidden
+        className="pointer-events-none object-fill"
+        sizes="100vw"
+      />
+    </>
+  );
+}
 
 function normalizePath(path: string) {
   if (path === '/') return '/';
@@ -78,13 +137,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
 
       <div className="w-full">
         <div className="relative aspect-[1932/1324] w-full md:hidden">
-          <Image
-            src="/footerbod.svg"
-            alt=""
-            fill
-            aria-hidden
-            className="object-fill"
-          />
+          <FooterBackground imageUrl={footer.backgroundImageUrl} />
 
           <div className="absolute inset-x-[2.8%] bottom-[2.8%] top-[2.4%]">
             <div className="absolute left-1/2 top-[3%] w-[clamp(40px,30vw,150px)] -translate-x-1/2 rounded-[14px] px-2 py-2 text-center">
@@ -154,13 +207,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
         </div>
 
         <div className="relative hidden h-[clamp(440px,64vw,860px)] w-full md:block">
-          <Image
-            src="/footerbod.svg"
-            alt=""
-            fill
-            aria-hidden
-            className="object-fill"
-          />
+          <FooterBackground imageUrl={footer.backgroundImageUrl} />
 
           <div className="absolute inset-x-[2.5%] bottom-[3%] top-[22%] flex flex-col">
             <div className="absolute left-1/2 top-[-12%] w-[180px] -translate-x-1/2 rounded-[14px] bg-[#FCE7F3] px-2 py-3 text-center sm:w-[220px] md:w-[265px]">

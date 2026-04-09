@@ -17,6 +17,8 @@ type SubmitState = {
   message?: string;
 };
 
+const SUCCESS_MESSAGE = 'you are in! your 5% unlock is saved!';
+
 function hasEnoughPhoneDigits(value: string): boolean {
   const digits = value.replace(/\D/g, '');
   return digits.length >= 8;
@@ -83,7 +85,7 @@ export default function LandingPopupLeadCaptureForm({
         return;
       }
 
-      setSubmitState({ status: 'success', message: copy.successMessage });
+      setSubmitState({ status: 'success', message: SUCCESS_MESSAGE });
       setEmail('');
       setPhone('');
     } catch {
@@ -93,6 +95,21 @@ export default function LandingPopupLeadCaptureForm({
       });
     }
   };
+
+  if (submitState.status === 'success') {
+    return (
+      <div className="mx-auto flex w-full max-w-[900px] items-center justify-center text-center">
+        <p
+          className="max-w-[520px] leading-[0.95] font-schoolbell text-[#E61E6E]"
+          style={{
+            fontSize: 'clamp(30px, 4.8vw, 58px)',
+          }}
+        >
+          {submitState.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[900px] text-center">
@@ -197,11 +214,11 @@ export default function LandingPopupLeadCaptureForm({
         className="mt-3 text-center font-schoolbell"
         style={{
           fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
-          color: submitState.status === 'success' ? '#2F6F19' : '#2A2A2A',
+          color: '#2A2A2A',
           lineHeight: 1.05,
         }}
       >
-        {submitState.status === 'success' ? submitState.message : copy.disclaimer}
+        {copy.disclaimer}
       </p>
     </div>
   );

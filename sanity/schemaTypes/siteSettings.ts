@@ -376,6 +376,14 @@ export const siteSettings = defineType({
       validation: (rule) => rule.max(80),
     }),
     defineField({
+      name: 'footerBackgroundImage',
+      title: 'Footer Background Image',
+      type: 'image',
+      options: { hotspot: true },
+      description:
+        'Optional. Upload a footer background image here. If empty, the current default pink background is used.',
+    }),
+    defineField({
       name: 'footerPrimaryLinks',
       title: 'Footer Primary Links',
       type: 'array',

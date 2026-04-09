@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { shouldSimplifyMotion } from '../clientMotionPreferences';
 
 type CrybabyVisualProps = {
   mirrored?: boolean;
@@ -22,12 +23,10 @@ export default function CrybabyVisual({
     if (!node) return;
 
     const reveal = () => {
-      window.requestAnimationFrame(() => {
-        setHasEnteredView(true);
-      });
+      setHasEnteredView(true);
     };
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (shouldSimplifyMotion()) {
       reveal();
       return;
     }

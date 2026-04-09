@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import { shouldSimplifyMotion } from './clientMotionPreferences';
 
 const SECTION_SELECTOR = 'main > section:not([data-scroll-reveal="off"])';
 const BASE_CLASS = 'scroll-reveal';
@@ -22,7 +23,14 @@ export default function SectionScrollReveal() {
     const sections = Array.from(document.querySelectorAll<HTMLElement>(SECTION_SELECTOR));
     if (sections.length === 0) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldSimplifyMotion()) {
+      sections.forEach((section) => {
+        section.classList.remove(BASE_CLASS, VISIBLE_CLASS);
+        section.style.removeProperty('--scroll-reveal-delay');
+      });
+      return;
+    }
+
     sections.forEach((section, index) => {
       section.classList.add(BASE_CLASS);
       section.classList.remove(VISIBLE_CLASS);
@@ -36,15 +44,6 @@ export default function SectionScrollReveal() {
         markVisible(section);
       }
     });
-
-    if (prefersReducedMotion) {
-      sections.forEach((section) => markVisible(section));
-      return () => {
-        sections.forEach((section) => {
-          section.style.removeProperty('--scroll-reveal-delay');
-        });
-      };
-    }
 
     if (!('IntersectionObserver' in window)) {
       sections.forEach((section) => markVisible(section));
