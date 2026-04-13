@@ -47,10 +47,11 @@ export default function Navbar() {
         <div className="relative aspect-[1440/260] w-full overflow-hidden">
           <div className="absolute inset-0 -translate-y-[8%] scale-[1.06] origin-top">
             <Image
-              src="/navbar.webp"
+              src="/navbar.svg"
               alt="Navigation"
               fill
               sizes="(min-width: 1024px) min(100vw, 1320px), 0px"
+              priority
               className="pointer-events-none select-none object-contain object-center"
             />
             <div className="absolute inset-x-[8%] top-[50%] z-20 flex items-center justify-between">
