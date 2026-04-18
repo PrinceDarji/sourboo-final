@@ -74,8 +74,9 @@ export default async function PopupCouponPage({
           alt={config.images.thirdOilDrip.alt}
           width={360}
           height={520}
-          sizes="(max-width: 640px) 190px, 320px"
-          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[24vw] min-w-[130px] max-w-[300px] scale-x-[-1] select-none"
+          sizes="(max-width: 640px) 220px, 380px"
+          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[30vw] min-w-[160px] max-w-[380px] select-none"
+          style={{ transform: 'rotateY(180deg)' }}
         />
         <Image
           src={config.images.bottomLeft.src}
@@ -98,8 +99,12 @@ export default async function PopupCouponPage({
           alt={config.images.center.alt}
           width={860}
           height={620}
-          sizes="(max-width: 640px) 88vw, 760px"
-          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto w-[68vw] min-w-[320px] max-w-[700px] -translate-x-1/2 -translate-y-1/2 select-none"
+          sizes="(max-width: 640px) 42vw, 320px"
+          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none"
+          style={{
+            width: 'clamp(160px, 22vw, 220px)',
+            height: 'auto',
+          }}
         />
         <Image
           src={config.images.topRight.src}

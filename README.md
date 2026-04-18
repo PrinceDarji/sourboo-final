@@ -52,10 +52,12 @@ SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-Run this SQL in Supabase SQL editor:
+Run these SQL files in Supabase SQL editor, in order:
 
 - `supabase/migrations/20260228170000_phonepe_orders.sql`
 - `supabase/migrations/20260228193000_phonepe_refunds.sql`
+- `supabase/migrations/20260405170000_popup_leads.sql`
+- `supabase/migrations/20260416123000_enable_rls_on_backend_tables.sql`
 
 Implemented endpoints:
 

@@ -88,6 +88,10 @@ function normalizePath(path: string) {
   return path.replace(/\/+$/, '');
 }
 
+function scrollToPageTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+}
+
 type FooterLinkProps = {
   href: string;
   className: string;
@@ -114,7 +118,7 @@ function FooterLink({ href, className, children }: FooterLinkProps) {
     }
 
     event.preventDefault();
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    scrollToPageTop();
   }
 
   return (
@@ -180,14 +184,21 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                 className="pointer-events-none absolute left-1/2 top-[58%] h-[24px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#CDD58D]/85"
                 aria-hidden
               />
-              <div className="relative h-[32px] w-[156px]">
-                <Image
-                  src="/logo.svg"
-                  alt="Sourboo logo"
-                  fill
-                  className="object-contain object-center"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={scrollToPageTop}
+                className="relative block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#365914]/40"
+                aria-label="Scroll to top"
+              >
+                <div className="relative h-[32px] w-[156px]">
+                  <Image
+                    src="/logo.svg"
+                    alt="Sourboo logo"
+                    fill
+                    className="object-contain object-center"
+                  />
+                </div>
+              </button>
             </div>
 
             <div className="absolute inset-x-[7%] bottom-[8.5%] top-[82%]">
@@ -252,14 +263,21 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   aria-hidden
                 />
 
-                <div className="relative mx-auto h-[52px] w-[180px] sm:h-[66px] sm:w-[230px] md:h-[84px] md:w-[300px] lg:h-[94px] lg:w-[340px]">
-                  <Image
-                    src="/logo.svg"
-                    alt="Sourboo logo"
-                    fill
-                    className="object-contain object-center"
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={scrollToPageTop}
+                  className="relative mx-auto block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#365914]/40"
+                  aria-label="Scroll to top"
+                >
+                  <div className="relative h-[52px] w-[180px] sm:h-[66px] sm:w-[230px] md:h-[84px] md:w-[300px] lg:h-[94px] lg:w-[340px]">
+                    <Image
+                      src="/logo.svg"
+                      alt="Sourboo logo"
+                      fill
+                      className="object-contain object-center"
+                    />
+                  </div>
+                </button>
               </div>
             </div>
           </div>

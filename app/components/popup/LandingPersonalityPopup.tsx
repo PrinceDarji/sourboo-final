@@ -141,10 +141,10 @@ export default function LandingPersonalityPopup({ config }: LandingPersonalityPo
         <Image
           src={config.images.center.src}
           alt={config.images.center.alt}
-          width={860}
-          height={620}
-          sizes="(max-width: 640px) 88vw, 760px"
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-auto w-[92vw] max-w-[820px] -translate-x-1/2 -translate-y-[28%] select-none"
+          width={520}
+          height={420}
+          sizes="(max-width: 520px) 52vw, 520px"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-auto w-[76vw] max-w-[420px] -translate-x-1/2 -translate-y-[28%] select-none"
         />
 
         <div className="relative z-20 mx-auto flex h-full w-full max-w-[820px] flex-col items-center px-4 pb-12 pt-14 sm:px-8 sm:pt-16 md:px-10 md:pb-16 md:pt-20">

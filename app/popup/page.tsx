@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { CoolRascalText } from '@/app/components/MixedFont';
 import {
   getLandingPopupContent,
   type LandingPopupOption,
@@ -79,6 +80,7 @@ export default async function PopupPage({
   const config = await getLandingPopupContent(0);
   const params = await searchParams;
   const fromPath = asSafeFromPath(params.from);
+  const headingText = `${config.headingStart} ${config.headingMain}`.trim();
 
   if (!config.enabled) {
     redirect('/home');
@@ -111,8 +113,9 @@ export default async function PopupPage({
           alt={config.images.thirdOilDrip.alt}
           width={360}
           height={520}
-          sizes="(max-width: 640px) 190px, 320px"
-          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[24vw] min-w-[130px] max-w-[300px] scale-x-[-1] select-none"
+          sizes="(max-width: 640px) 220px, 380px"
+          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[30vw] min-w-[160px] max-w-[380px] select-none"
+          style={{ transform: 'rotateY(180deg)' }}
         />
         <Image
           src={config.images.bottomLeft.src}
@@ -135,8 +138,12 @@ export default async function PopupPage({
           alt={config.images.center.alt}
           width={860}
           height={620}
-          sizes="(max-width: 640px) 88vw, 760px"
-          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto w-[68vw] min-w-[320px] max-w-[700px] -translate-x-1/2 -translate-y-1/2 select-none"
+          sizes="(max-width: 640px) 42vw, 320px"
+          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none"
+          style={{
+            width: 'clamp(160px, 32vw, 320px)',
+            height: 'auto',
+          }}
         />
 
         <div className="relative z-20 mx-auto h-full w-full max-w-[1220px] px-6 pb-8 pt-8 sm:px-8 md:px-10">
@@ -149,8 +156,14 @@ export default async function PopupPage({
                 color: '#E61E6E',
               }}
             >
-              <span className="font-coolvetica">{config.headingStart} </span>
-              <span className="font-rascal">{config.headingMain}</span>
+              <CoolRascalText
+                as="span"
+                text={headingText}
+                pattern="alternate"
+                startWith="base"
+                baseClassName="text-[#E61E6E]"
+                accentClassName="text-[#E61E6E]"
+              />
             </h1>
 
             <div className="mt-1 flex justify-end">

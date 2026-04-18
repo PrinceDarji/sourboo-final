@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { MouseEvent } from 'react';
 import { useCart } from '@/app/components/cart/CartProvider';
 
 const leftLinks = [
@@ -26,6 +27,7 @@ export default function Navbar() {
   const navItemBlobActiveClass = 'scale-100 opacity-100';
 
   const normalizedPathname = pathname?.replace(/\/+$/, '') || '/';
+  const isHomePath = normalizedPathname === '/' || normalizedPathname === '/home';
 
   function isActivePath(href: string) {
     const normalizedHref = href.replace(/\/+$/, '') || '/';
@@ -41,6 +43,23 @@ export default function Navbar() {
     return normalizedPathname === normalizedHref;
   }
 
+  function handleHomeLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (!isHomePath) return;
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }
+
   return (
     <nav className="pointer-events-none fixed left-0 right-0 -top-4 z-50 w-full px-2 [backface-visibility:hidden] [contain:paint] [transform:translateZ(0)] sm:px-4 md:px-6 lg:-top-10 lg:px-8 xl:px-10">
       <div className="relative mx-auto hidden w-full max-w-[1120px] lg:block xl:max-w-[1240px] 2xl:max-w-[1320px]">
@@ -53,6 +72,12 @@ export default function Navbar() {
               sizes="(min-width: 1024px) min(100vw, 1320px), 0px"
               priority
               className="pointer-events-none select-none object-contain object-center"
+            />
+            <Link
+              href="/"
+              aria-label="Go to home page"
+              onClick={handleHomeLogoClick}
+              className="pointer-events-auto absolute left-1/2 top-[38%] z-30 block h-[74px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E9E6B8]/70 xl:h-[86px] xl:w-[260px] 2xl:h-[94px] 2xl:w-[292px]"
             />
             <div className="absolute inset-x-[8%] top-[50%] z-20 flex items-center justify-between">
               <div className="pointer-events-auto flex items-center gap-5 xl:gap-8">
@@ -106,7 +131,7 @@ export default function Navbar() {
           />
 
           <div className="pointer-events-auto absolute left-1/2 top-[16%] z-20 -translate-x-1/2">
-            <Link href="/" className="block">
+            <Link href="/" onClick={handleHomeLogoClick} className="block" aria-label="Go to home page">
               <div className="relative h-[36px] w-[160px] sm:h-[60px] sm:w-[210px] md:h-[72px] md:w-[252px]">
                 <Image
                   src="/navlogo.svg"
