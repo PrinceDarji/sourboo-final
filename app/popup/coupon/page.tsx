@@ -4,6 +4,7 @@ import { getLandingPopupContent } from '@/src/lib/sanity/landingPopup';
 import LandingPopupCloseButton from '@/app/components/popup/LandingPopupCloseButton';
 import PopupPageViewportLock from '@/app/components/popup/PopupPageViewportLock';
 import LandingPopupLeadCaptureForm from '@/app/components/popup/LandingPopupLeadCaptureForm';
+import LandingPopupTextExitButton from '@/app/components/popup/LandingPopupTextExitButton';
 
 export const revalidate = 0;
 
@@ -59,61 +60,74 @@ export default async function PopupCouponPage({
         <LandingPopupCloseButton
           closeIconSrc={config.closeIcon.src}
           closeIconAlt={config.closeIcon.alt}
+          fromPath={sourcePath}
+        />
+        <LandingPopupTextExitButton
+          fromPath={sourcePath}
+          className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2"
         />
 
-        <Image
-          src={config.images.topLeft.src}
-          alt={config.images.topLeft.alt}
-          width={360}
-          height={520}
-          sizes="(max-width: 640px) 170px, 300px"
-          className="pointer-events-none absolute left-0 top-0 z-10 h-auto w-[22vw] min-w-[110px] max-w-[290px] select-none"
-        />
-        <Image
-          src={config.images.thirdOilDrip.src}
-          alt={config.images.thirdOilDrip.alt}
-          width={360}
-          height={520}
-          sizes="(max-width: 640px) 220px, 380px"
-          className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[30vw] min-w-[160px] max-w-[380px] select-none"
-          style={{ transform: 'rotateY(180deg)' }}
-        />
-        <Image
-          src={config.images.bottomLeft.src}
-          alt={config.images.bottomLeft.alt}
-          width={210}
-          height={90}
-          sizes="(max-width: 640px) 300px, 520px"
-          className="pointer-events-none absolute z-10 select-none"
-          style={{
-            left: '2%',
-            bottom: '3%',
-            width: 'clamp(160px, 34vw, 300px)',
-            height: 'auto',
-            transform: 'scale(1.28)',
-            transformOrigin: 'bottom left',
-          }}
-        />
-        <Image
-          src={config.images.center.src}
-          alt={config.images.center.alt}
-          width={860}
-          height={620}
-          sizes="(max-width: 640px) 42vw, 320px"
-          className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none"
-          style={{
-            width: 'clamp(160px, 22vw, 220px)',
-            height: 'auto',
-          }}
-        />
-        <Image
-          src={config.images.topRight.src}
-          alt={config.images.topRight.alt}
-          width={240}
-          height={280}
-          sizes="(max-width: 640px) 120px, 210px"
-          className="pointer-events-none absolute right-0 top-[17%] z-10 h-auto w-[16vw] min-w-[100px] max-w-[200px] select-none md:right-[1%]"
-        />
+        {config.images.topLeft.src ? (
+          <Image
+            src={config.images.topLeft.src}
+            alt={config.images.topLeft.alt}
+            width={360}
+            height={520}
+            sizes="(max-width: 640px) 170px, 300px"
+            className="pointer-events-none absolute left-0 top-0 z-10 h-auto w-[22vw] min-w-[110px] max-w-[290px] select-none"
+          />
+        ) : null}
+        {config.images.thirdOilDrip.src ? (
+          <Image
+            src={config.images.thirdOilDrip.src}
+            alt={config.images.thirdOilDrip.alt}
+            width={360}
+            height={520}
+            sizes="(max-width: 640px) 220px, 380px"
+            className="pointer-events-none absolute bottom-0 right-0 z-10 h-auto w-[30vw] min-w-[160px] max-w-[380px] select-none"
+            style={{ transform: 'rotateY(180deg)' }}
+          />
+        ) : null}
+        {config.images.bottomLeft.src ? (
+          <Image
+            src={config.images.bottomLeft.src}
+            alt={config.images.bottomLeft.alt}
+            width={210}
+            height={90}
+            sizes="(max-width: 700px) 160px, 100px"
+            className="pointer-events-none absolute z-10 select-none"
+            style={{
+              left: '-2%',
+              bottom: '-1%',
+              width: 'clamp(102px, 18vw, 700px)',
+              height: 'auto',
+            }}
+          />
+        ) : null}
+        {config.images.center.src ? (
+          <Image
+            src={config.images.center.src}
+            alt={config.images.center.alt}
+            width={960}
+            height={620}
+            sizes="(max-width: 640px) 82vw, (max-width: 820px) 72vw, 960px"
+            className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none"
+            style={{
+              width: 'clamp(380px, 72vw, 960px)',
+              height: 'auto',
+            }}
+          />
+        ) : null}
+        {config.images.topRight.src ? (
+          <Image
+            src={config.images.topRight.src}
+            alt={config.images.topRight.alt}
+            width={240}
+            height={280}
+            sizes="(max-width: 640px) 120px, 210px"
+            className="pointer-events-none absolute right-0 top-[17%] z-10 h-auto w-[16vw] min-w-[100px] max-w-[200px] select-none md:right-[1%]"
+          />
+        ) : null}
 
         <div className="relative z-20 mx-auto flex h-full w-full max-w-[1220px] items-center justify-center px-6 pb-8 pt-8 sm:px-8 md:px-10">
           <LandingPopupLeadCaptureForm

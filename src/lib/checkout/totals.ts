@@ -61,6 +61,10 @@ export function calculateShippingPaiseForItems(items: Array<{ slug?: string; nam
   return items.some((item) => shouldApplyShippingForItem(item)) ? SHIPPING_CHARGE_PAISE : 0;
 }
 
-export function calculatePayableTotalPaise(subtotalPaise: number, shippingPaise: number): number {
-  return subtotalPaise + Math.max(0, shippingPaise);
+export function calculatePayableTotalPaise(
+  subtotalPaise: number,
+  shippingPaise: number,
+  discountPaise = 0,
+): number {
+  return Math.max(0, subtotalPaise + Math.max(0, shippingPaise) - Math.max(0, discountPaise));
 }

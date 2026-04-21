@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
+import { calculateDiscountPaise } from '@/src/lib/checkout/discountCodes';
 import { calculatePayableTotalPaise, calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 import {
   createOrderWithItems,
@@ -25,6 +26,7 @@ const checkoutRequestSchema = z.object({
       }),
     )
     .min(1),
+  discountCode: z.string().trim().max(40).optional().default(''),
   customer: z.object({
     fullName: z.string().trim().min(2).max(120),
     email: z.string().trim().email().max(160),
@@ -133,13 +135,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { items, customer, shippingAddress } = parsed.data;
+    const { items, customer, shippingAddress, discountCode } = parsed.data;
     const pricedCart = await priceCheckoutItems(items);
     const shippingPaise = calculateShippingPaiseForItems(pricedCart.items);
-    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise, shippingPaise);
+    const appliedDiscount = calculateDiscountPaise(pricedCart.subtotalPaise, discountCode);
+    const payableTotalPaise = calculatePayableTotalPaise(
+      pricedCart.subtotalPaise,
+      shippingPaise,
+      appliedDiscount.discountPaise,
+    );
     const gatewayAmount = resolveGatewayAmountPaise(payableTotalPaise);
 
-    if (pricedCart.subtotalPaise <= 0) {
+    if (payableTotalPaise <= 0) {
       return NextResponse.json(
         {
           ok: false,
@@ -164,6 +171,10 @@ export async function POST(request: Request) {
         customer,
         shippingAddress,
         catalogSubtotalPaise: pricedCart.subtotalPaise,
+        enteredDiscountCode: discountCode || null,
+        appliedDiscountCode: appliedDiscount.code,
+        discountPaise: appliedDiscount.discountPaise,
+        discountPercent: appliedDiscount.discountPercent,
         shippingPaise,
         payableTotalPaise,
         gatewayAmountPaise: gatewayAmount.amountPaise,
@@ -225,6 +236,9 @@ export async function POST(request: Request) {
       checkoutUrl,
       amountPaise: gatewayAmount.amountPaise,
       catalogSubtotalPaise: pricedCart.subtotalPaise,
+      discountPaise: appliedDiscount.discountPaise,
+      discountPercent: appliedDiscount.discountPercent,
+      appliedDiscountCode: appliedDiscount.code,
       shippingPaise,
       payableTotalPaise,
       testAmountOverrideApplied: gatewayAmount.isTestOverride,

@@ -5,11 +5,11 @@
   "main": "package.json",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "node ./node_modules/sanity/bin/sanity dev",
-    "start": "node ./node_modules/sanity/bin/sanity start",
-    "build": "node ./node_modules/sanity/bin/sanity build",
-    "deploy": "node ./node_modules/sanity/bin/sanity deploy",
-    "deploy-graphql": "node ./node_modules/sanity/bin/sanity graphql deploy"
+    "dev": "node ./scripts/run-sanity.mjs dev",
+    "start": "node ./scripts/run-sanity.mjs start",
+    "build": "node ./scripts/run-sanity.mjs build",
+    "deploy": "node ./scripts/run-sanity.mjs deploy",
+    "deploy-graphql": "node ./scripts/run-sanity.mjs graphql deploy"
   },
   "keywords": [
     "sanity"
@@ -19,12 +19,12 @@
     "@sanity/color-input": "^3.0.2",
     "@sanity/icons": "^2.11.0",
     "@sanity/ui": "^2.0.0",
-    "@sanity/vision": "^5.20.0",
+    "@sanity/vision": "^5.21.0",
     "lodash.get": "^4.4.2",
     "pluralize-esm": "^9.0.2",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "sanity": "^5.20.0",
+    "sanity": "^5.21.0",
     "sanity-plugin-hotspot-array": "^1.0.1",
     "sanity-plugin-media": "^2.0.5",
     "slug": "^8.2.2",

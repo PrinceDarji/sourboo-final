@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
+import { calculateDiscountPaise } from '@/src/lib/checkout/discountCodes';
 import { calculatePayableTotalPaise, calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 
 export const runtime = 'nodejs';
@@ -15,6 +16,7 @@ const quoteRequestSchema = z.object({
       }),
     )
     .min(1),
+  discountCode: z.string().trim().max(40).optional().default(''),
 });
 
 export async function POST(request: Request) {
@@ -35,12 +37,23 @@ export async function POST(request: Request) {
 
     const pricedCart = await priceCheckoutItems(parsed.data.items);
     const shippingPaise = calculateShippingPaiseForItems(pricedCart.items);
-    const payableTotalPaise = calculatePayableTotalPaise(pricedCart.subtotalPaise, shippingPaise);
+    const appliedDiscount = calculateDiscountPaise(
+      pricedCart.subtotalPaise,
+      parsed.data.discountCode,
+    );
+    const payableTotalPaise = calculatePayableTotalPaise(
+      pricedCart.subtotalPaise,
+      shippingPaise,
+      appliedDiscount.discountPaise,
+    );
 
     return NextResponse.json({
       ok: true,
       items: pricedCart.items,
       subtotalPaise: pricedCart.subtotalPaise,
+      discountPaise: appliedDiscount.discountPaise,
+      discountPercent: appliedDiscount.discountPercent,
+      appliedDiscountCode: appliedDiscount.code,
       shippingPaise,
       payableTotalPaise,
     });

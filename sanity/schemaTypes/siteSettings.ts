@@ -195,11 +195,21 @@ export const siteSettings = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'landingPopupLeadSuccessCode',
+      title: 'Landing Popup Lead Step Success Coupon Code',
+      type: 'string',
+      description:
+        'Displayed in the popup after submit. Keep this aligned with the hardcoded cart logic.',
+      initialValue: 'SOURBABE05',
+      validation: (rule) => rule.max(40),
+    }),
+    defineField({
       name: 'landingPopupLeadSuccessMessage',
       title: 'Landing Popup Lead Step Success Message',
       type: 'string',
-      initialValue: 'you are in. your 5% unlock is saved.',
-      validation: (rule) => rule.max(160),
+      initialValue:
+        'you are in! copy the code and use it at checkout to get 5% off your cart total.',
+      validation: (rule) => rule.max(220),
     }),
     defineField({
       name: 'landingPopupOptions',

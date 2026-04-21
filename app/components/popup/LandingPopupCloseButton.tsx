@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { setLandingPopupDismissed } from './landingPopupStorage';
+import useLandingPopupExit from './useLandingPopupExit';
 
 type LandingPopupCloseButtonProps = {
   closeIconSrc?: string;
@@ -14,18 +13,7 @@ export default function LandingPopupCloseButton({
   closeIconAlt,
   fromPath,
 }: LandingPopupCloseButtonProps) {
-  const router = useRouter();
-
-  const handleClose = () => {
-    setLandingPopupDismissed();
-
-    if (fromPath && fromPath.startsWith('/')) {
-      router.replace(fromPath);
-      return;
-    }
-
-    router.back();
-  };
+  const handleClose = useLandingPopupExit(fromPath);
 
   return (
     <button

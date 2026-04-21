@@ -32,6 +32,9 @@ type QuoteResponse = {
     lineTotalPaise: number;
   }>;
   subtotalPaise?: number;
+  discountPaise?: number;
+  discountPercent?: number;
+  appliedDiscountCode?: string | null;
   shippingPaise?: number;
   payableTotalPaise?: number;
   error?: string;
@@ -63,11 +66,14 @@ const initialFormState: CheckoutFormState = {
 const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
 export default function CheckoutPage() {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, discountCode, discountAmount, discountPercent } = useCart();
   const [formState, setFormState] = useState<CheckoutFormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [serverSubtotal, setServerSubtotal] = useState<number | null>(null);
+  const [serverDiscount, setServerDiscount] = useState<number | null>(null);
+  const [serverDiscountPercent, setServerDiscountPercent] = useState<number | null>(null);
+  const [serverAppliedDiscountCode, setServerAppliedDiscountCode] = useState<string | null>(null);
   const [serverShipping, setServerShipping] = useState<number | null>(null);
   const [serverTotal, setServerTotal] = useState<number | null>(null);
   const [serverLineTotalsBySlug, setServerLineTotalsBySlug] = useState<Record<string, number>>({});
@@ -81,9 +87,24 @@ export default function CheckoutPage() {
     () => calculateShippingPaiseForItems(items) / 100,
     [items],
   );
+  const discountForDisplay = useMemo(
+    () => (typeof serverDiscount === 'number' ? serverDiscount : discountAmount),
+    [discountAmount, serverDiscount],
+  );
+  const appliedDiscountCodeForDisplay = useMemo(
+    () => serverAppliedDiscountCode || discountCode,
+    [discountCode, serverAppliedDiscountCode],
+  );
+  const discountPercentForDisplay = useMemo(
+    () => (typeof serverDiscountPercent === 'number' ? serverDiscountPercent : discountPercent),
+    [discountPercent, serverDiscountPercent],
+  );
   const totalPayable = useMemo(
-    () => (typeof serverTotal === 'number' ? serverTotal : subtotal + fallbackShipping),
-    [fallbackShipping, serverTotal, subtotal],
+    () =>
+      typeof serverTotal === 'number'
+        ? serverTotal
+        : Math.max(0, subtotal + fallbackShipping - discountAmount),
+    [discountAmount, fallbackShipping, serverTotal, subtotal],
   );
   const subtotalForDisplay = useMemo(
     () => (typeof serverSubtotal === 'number' ? serverSubtotal : subtotal),
@@ -99,6 +120,9 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (items.length === 0) {
       setServerSubtotal(null);
+      setServerDiscount(null);
+      setServerDiscountPercent(null);
+      setServerAppliedDiscountCode(null);
       setServerShipping(null);
       setServerTotal(null);
       setServerLineTotalsBySlug({});
@@ -121,6 +145,7 @@ export default function CheckoutPage() {
               slug: item.slug,
               quantity: item.quantity,
             })),
+            discountCode,
           }),
         });
 
@@ -133,6 +158,8 @@ export default function CheckoutPage() {
 
         const subtotalRupees =
           typeof result.subtotalPaise === 'number' ? result.subtotalPaise / 100 : null;
+        const discountRupees =
+          typeof result.discountPaise === 'number' ? result.discountPaise / 100 : null;
         const shippingRupees =
           typeof result.shippingPaise === 'number' ? result.shippingPaise / 100 : null;
         const totalRupees =
@@ -147,12 +174,23 @@ export default function CheckoutPage() {
           : {};
 
         setServerSubtotal(subtotalRupees);
+        setServerDiscount(discountRupees);
+        setServerDiscountPercent(
+          typeof result.discountPercent === 'number' ? result.discountPercent : null,
+        );
+        setServerAppliedDiscountCode(result.appliedDiscountCode || null);
         setServerShipping(shippingRupees);
         setServerTotal(totalRupees);
         setServerLineTotalsBySlug(lineTotalsBySlug);
         setQuoteError(null);
       } catch {
         if (cancelled) return;
+        setServerSubtotal(null);
+        setServerDiscount(null);
+        setServerDiscountPercent(null);
+        setServerAppliedDiscountCode(null);
+        setServerShipping(null);
+        setServerTotal(null);
         setServerLineTotalsBySlug({});
         setQuoteError(GENERIC_BACKEND_ERROR);
       }
@@ -163,7 +201,7 @@ export default function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [items]);
+  }, [discountCode, items]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -183,6 +221,7 @@ export default function CheckoutPage() {
             slug: item.slug,
             quantity: item.quantity,
           })),
+          discountCode,
           customer: {
             fullName: formState.fullName,
             email: formState.email,
@@ -393,12 +432,27 @@ export default function CheckoutPage() {
                       {formatInr(shippingForDisplay)}
                     </p>
                   </div>
+                  {appliedDiscountCodeForDisplay ? (
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">
+                        Discount ({appliedDiscountCodeForDisplay})
+                      </p>
+                      <p className="text-[1.1rem] leading-none text-[#365A17] font-schoolbell">
+                        -{formatInr(discountForDisplay)}
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="mt-3 flex items-center justify-between border-t border-[#9FCF41] pt-3">
                     <p className="text-[1.35rem] leading-none text-[#2D5A0D] font-coolvetica">Total payable</p>
                     <p className="text-[1.35rem] leading-none text-[#2D5A0D] font-coolvetica">
                       {formatInr(totalPayable)}
                     </p>
                   </div>
+                  {appliedDiscountCodeForDisplay ? (
+                    <p className="mt-2 text-[0.95rem] leading-[1.2] text-[#365A17] font-schoolbell">
+                      {discountPercentForDisplay}% off applied with {appliedDiscountCodeForDisplay}.
+                    </p>
+                  ) : null}
                   {quoteError ? (
                     <p className="mt-2 text-[0.95rem] leading-[1.2] text-[#9F1C74] font-schoolbell">
                       {quoteError}

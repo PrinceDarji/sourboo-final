@@ -1,6 +1,11 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  calculateDiscountRupees,
+  POPUP_DISCOUNT_PERCENT,
+  resolveDiscountCode,
+} from '@/src/lib/checkout/discountCodes';
 
 export type CartItem = {
   slug: string;
@@ -14,6 +19,10 @@ type CartContextValue = {
   items: CartItem[];
   totalItems: number;
   subtotal: number;
+  discountCode: string | null;
+  discountAmount: number;
+  discountPercent: number;
+  subtotalAfterDiscount: number;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -22,36 +31,41 @@ type CartContextValue = {
   updateQuantity: (slug: string, quantity: number) => void;
   removeItem: (slug: string) => void;
   clearCart: () => void;
+  applyDiscountCode: (value: string) => { ok: true; code: string } | { ok: false; error: string };
+  clearDiscountCode: () => void;
 };
 
 const STORAGE_KEY = 'sourboo_cart_v2';
+const DISCOUNT_CODE_STORAGE_KEY = 'sourboo_cart_discount_code_v1';
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [discountCode, setDiscountCode] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        setHydrated(true);
-        return;
+      if (raw) {
+        const parsed = JSON.parse(raw) as CartItem[];
+        if (Array.isArray(parsed)) {
+          setItems(
+            parsed
+              .filter((item) => item && typeof item.slug === 'string')
+              .map((item) => ({
+                ...item,
+                quantity: Math.max(1, Number(item.quantity) || 1),
+                price: Math.max(0, Number(item.price) || 0),
+              })),
+          );
+        }
       }
-      const parsed = JSON.parse(raw) as CartItem[];
-      if (Array.isArray(parsed)) {
-        setItems(
-          parsed
-            .filter((item) => item && typeof item.slug === 'string')
-            .map((item) => ({
-              ...item,
-              quantity: Math.max(1, Number(item.quantity) || 1),
-              price: Math.max(0, Number(item.price) || 0),
-            })),
-        );
-      }
+
+      const rawDiscountCode = window.localStorage.getItem(DISCOUNT_CODE_STORAGE_KEY);
+      setDiscountCode(resolveDiscountCode(rawDiscountCode));
     } catch {
       // ignore malformed storage
     } finally {
@@ -63,6 +77,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    if (discountCode) {
+      window.localStorage.setItem(DISCOUNT_CODE_STORAGE_KEY, discountCode);
+      return;
+    }
+
+    window.localStorage.removeItem(DISCOUNT_CODE_STORAGE_KEY);
+  }, [discountCode, hydrated]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -119,14 +144,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
+  const clearDiscountCode = useCallback(() => setDiscountCode(null), []);
+
+  const applyDiscountCode = useCallback((value: string) => {
+    const resolvedCode = resolveDiscountCode(value);
+
+    if (!resolvedCode) {
+      return { ok: false as const, error: 'Enter a valid discount code.' };
+    }
+
+    setDiscountCode(resolvedCode);
+    return { ok: true as const, code: resolvedCode };
+  }, []);
 
   const value = useMemo<CartContextValue>(() => {
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discountAmount = calculateDiscountRupees(subtotal, discountCode);
+    const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
+
     return {
       items,
       totalItems,
       subtotal,
+      discountCode,
+      discountAmount,
+      discountPercent: discountCode ? POPUP_DISCOUNT_PERCENT : 0,
+      subtotalAfterDiscount,
       isOpen,
       openCart,
       closeCart,
@@ -135,8 +179,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       updateQuantity,
       removeItem,
       clearCart,
+      applyDiscountCode,
+      clearDiscountCode,
     };
-  }, [items, isOpen, openCart, closeCart, toggleCart, addItem, updateQuantity, removeItem, clearCart]);
+  }, [
+    items,
+    discountCode,
+    isOpen,
+    openCart,
+    closeCart,
+    toggleCart,
+    addItem,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    applyDiscountCode,
+    clearDiscountCode,
+  ]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

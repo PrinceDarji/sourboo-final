@@ -22,13 +22,15 @@ function isExternalHref(href: string): boolean {
 function PopupOptionButton({ option, onSelect }: PopupOptionButtonProps) {
   const content = (
     <>
-      <Image
-        src={option.backgroundImageSrc}
-        alt=""
-        fill
-        sizes="(max-width: 640px) 90vw, 520px"
-        className="pointer-events-none object-contain select-none"
-      />
+      {option.backgroundImageSrc ? (
+        <Image
+          src={option.backgroundImageSrc}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 90vw, 520px"
+          className="pointer-events-none object-contain select-none"
+        />
+      ) : null}
       <span
         className="relative z-10 px-6 text-center text-[clamp(1.8rem,3.4vw,2.9rem)] leading-none font-schoolbell"
         style={{ color: option.textColor }}
@@ -114,38 +116,46 @@ export default function LandingPersonalityPopup({ config }: LandingPersonalityPo
           ×
         </button>
 
-        <Image
-          src={config.images.topLeft.src}
-          alt={config.images.topLeft.alt}
-          width={380}
-          height={440}
-          sizes="(max-width: 640px) 180px, 320px"
-          className="pointer-events-none absolute -left-7 -top-4 z-10 h-auto w-[43vw] max-w-[330px] select-none md:w-[32vw]"
-        />
-        <Image
-          src={config.images.topRight.src}
-          alt={config.images.topRight.alt}
-          width={240}
-          height={280}
-          sizes="(max-width: 640px) 150px, 230px"
-          className="pointer-events-none absolute right-[2%] top-[18%] z-10 h-auto w-[28vw] max-w-[230px] select-none md:right-[6%] md:top-[22%]"
-        />
-        <Image
-          src={config.images.bottomLeft.src}
-          alt={config.images.bottomLeft.alt}
-          width={210}
-          height={90}
-          sizes="(max-width: 640px) 130px, 210px"
-          className="pointer-events-none absolute bottom-6 left-3 z-10 h-auto w-[24vw] min-w-[110px] max-w-[210px] select-none md:bottom-8 md:left-6"
-        />
-        <Image
-          src={config.images.center.src}
-          alt={config.images.center.alt}
-          width={520}
-          height={420}
-          sizes="(max-width: 520px) 52vw, 520px"
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-auto w-[76vw] max-w-[420px] -translate-x-1/2 -translate-y-[28%] select-none"
-        />
+        {config.images.topLeft.src ? (
+          <Image
+            src={config.images.topLeft.src}
+            alt={config.images.topLeft.alt}
+            width={380}
+            height={440}
+            sizes="(max-width: 640px) 180px, 320px"
+            className="pointer-events-none absolute -left-7 -top-4 z-10 h-auto w-[43vw] max-w-[330px] select-none md:w-[32vw]"
+          />
+        ) : null}
+        {config.images.topRight.src ? (
+          <Image
+            src={config.images.topRight.src}
+            alt={config.images.topRight.alt}
+            width={240}
+            height={280}
+            sizes="(max-width: 640px) 150px, 230px"
+            className="pointer-events-none absolute right-[2%] top-[18%] z-10 h-auto w-[28vw] max-w-[230px] select-none md:right-[6%] md:top-[22%]"
+          />
+        ) : null}
+        {config.images.bottomLeft.src ? (
+          <Image
+            src={config.images.bottomLeft.src}
+            alt={config.images.bottomLeft.alt}
+            width={210}
+            height={90}
+            sizes="(max-width: 640px) 130px, 210px"
+            className="pointer-events-none absolute bottom-6 left-3 z-10 h-auto w-[24vw] min-w-[110px] max-w-[210px] select-none md:bottom-8 md:left-6"
+          />
+        ) : null}
+        {config.images.center.src ? (
+          <Image
+            src={config.images.center.src}
+            alt={config.images.center.alt}
+            width={520}
+            height={420}
+            sizes="(max-width: 520px) 72vw, 520px"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-auto w-[76vw] max-w-[420px] -translate-x-1/2 -translate-y-[28%] select-none"
+          />
+        ) : null}
 
         <div className="relative z-20 mx-auto flex h-full w-full max-w-[820px] flex-col items-center px-4 pb-12 pt-14 sm:px-8 sm:pt-16 md:px-10 md:pb-16 md:pt-20">
           <h2 className="text-center leading-[0.92]">
@@ -167,6 +177,14 @@ export default function LandingPersonalityPopup({ config }: LandingPersonalityPo
             ))}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={closePopup}
+          className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 px-4 text-center font-schoolbell text-[clamp(1rem,1.5vw,1.35rem)] leading-none text-[#2A2A2A] transition hover:opacity-70"
+        >
+          no thanks take me to the website
+        </button>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import { sanityClient } from '@/src/lib/sanity/client';
+import { POPUP_DISCOUNT_CODE } from '@/src/lib/checkout/discountCodes';
 import { urlFor } from '@/src/lib/sanity/image';
 
 export type LandingPopupOption = {
   label: string;
   href: string;
-  backgroundImageSrc: string;
+  backgroundImageSrc?: string;
   textColor: string;
   textOffsetX: number;
   textOffsetY: number;
@@ -19,7 +20,8 @@ export type LandingPopupLeadCaptureContent = {
   phonePlaceholder: string;
   ctaLabel: string;
   disclaimer: string;
-  ctaBackgroundImageSrc: string;
+  ctaBackgroundImageSrc?: string;
+  successCode: string;
   successMessage: string;
 };
 
@@ -35,11 +37,11 @@ export type LandingPopupContent = {
     alt: string;
   };
   images: {
-    topLeft: { src: string; alt: string };
-    center: { src: string; alt: string };
-    topRight: { src: string; alt: string };
-    bottomLeft: { src: string; alt: string };
-    thirdOilDrip: { src: string; alt: string };
+    topLeft: { src?: string; alt: string };
+    center: { src?: string; alt: string };
+    topRight: { src?: string; alt: string };
+    bottomLeft: { src?: string; alt: string };
+    thirdOilDrip: { src?: string; alt: string };
   };
   options: LandingPopupOption[];
   leadCapture: LandingPopupLeadCaptureContent;
@@ -83,6 +85,7 @@ type LandingPopupQueryResult = {
   landingPopupLeadCtaLabel?: string;
   landingPopupLeadDisclaimer?: string;
   landingPopupLeadCtaBackgroundImage?: unknown;
+  landingPopupLeadSuccessCode?: string;
   landingPopupLeadSuccessMessage?: string;
 } | null;
 
@@ -130,8 +133,9 @@ const DEFAULT_LEAD_CAPTURE: LandingPopupLeadCaptureContent = {
   phonePlaceholder: 'your phone number',
   ctaLabel: 'unlock my 5%',
   disclaimer: 'no spam, just sour things :)',
-  ctaBackgroundImageSrc: '/popup/button-bg-1.svg',
-  successMessage: 'you are in! your 5% unlock is saved! happy shopping :)',
+  ctaBackgroundImageSrc: '/popup/button1.svg',
+  successCode: POPUP_DISCOUNT_CODE,
+  successMessage: 'you are in! copy the code and use it at checkout to get 5% off your cart total.',
 };
 
 export const DEFAULT_LANDING_POPUP_CONTENT: LandingPopupContent = {
@@ -198,6 +202,7 @@ const LANDING_POPUP_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   landingPopupLeadCtaLabel,
   landingPopupLeadDisclaimer,
   landingPopupLeadCtaBackgroundImage,
+  landingPopupLeadSuccessCode,
   landingPopupLeadSuccessMessage,
   landingPopupOptions[]{
     label,
@@ -261,17 +266,16 @@ function asValidHref(value: unknown, fallback: string): string {
 
 function imageSrc(
   source: unknown,
-  fallback: string,
   options: { width?: number; quality?: number } = {},
-): string {
+): string | undefined {
   const width = options.width ?? 1600;
   const quality = options.quality ?? 80;
 
-  if (!source) return fallback;
+  if (!source) return undefined;
   try {
     return urlFor(source).width(width).quality(quality).url();
   } catch {
-    return fallback;
+    return undefined;
   }
 }
 
@@ -281,7 +285,7 @@ function toPopupOptions(source: LandingPopupOptionQuery[] | undefined): LandingP
     return {
       label: asNonEmptyString(item?.label) || fallback.label,
       href: asValidHref(item?.href, fallback.href),
-      backgroundImageSrc: imageSrc(item?.backgroundImage, fallback.backgroundImageSrc, {
+      backgroundImageSrc: imageSrc(item?.backgroundImage, {
         width: 1200,
         quality: 80,
       }),
@@ -333,66 +337,46 @@ export async function getLandingPopupContent(revalidate = 0): Promise<LandingPop
       },
       images: {
         topLeft: {
-          src: imageSrc(
-            data?.landingPopupTopLeftImage,
-            DEFAULT_LANDING_POPUP_CONTENT.images.topLeft.src,
-            {
-              width: 1200,
-              quality: 80,
-            },
-          ),
+          src: imageSrc(data?.landingPopupTopLeftImage, {
+            width: 1200,
+            quality: 80,
+          }),
           alt:
             asNonEmptyString(data?.landingPopupTopLeftImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.topLeft.alt,
         },
         center: {
-          src: imageSrc(
-            data?.landingPopupCenterImage,
-            DEFAULT_LANDING_POPUP_CONTENT.images.center.src,
-            {
-              width: 1400,
-              quality: 80,
-            },
-          ),
+          src: imageSrc(data?.landingPopupCenterImage, {
+            width: 1400,
+            quality: 80,
+          }),
           alt:
             asNonEmptyString(data?.landingPopupCenterImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.center.alt,
         },
         topRight: {
-          src: imageSrc(
-            data?.landingPopupTopRightImage,
-            DEFAULT_LANDING_POPUP_CONTENT.images.topRight.src,
-            {
-              width: 1200,
-              quality: 80,
-            },
-          ),
+          src: imageSrc(data?.landingPopupTopRightImage, {
+            width: 1200,
+            quality: 80,
+          }),
           alt:
             asNonEmptyString(data?.landingPopupTopRightImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.topRight.alt,
         },
         bottomLeft: {
-          src: imageSrc(
-            data?.landingPopupBottomLeftImage,
-            DEFAULT_LANDING_POPUP_CONTENT.images.bottomLeft.src,
-            {
-              width: 1200,
-              quality: 80,
-            },
-          ),
+          src: imageSrc(data?.landingPopupBottomLeftImage, {
+            width: 1200,
+            quality: 80,
+          }),
           alt:
             asNonEmptyString(data?.landingPopupBottomLeftImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.bottomLeft.alt,
         },
         thirdOilDrip: {
-          src: imageSrc(
-            data?.landingPopupThirdOilDripImage,
-            DEFAULT_LANDING_POPUP_CONTENT.images.thirdOilDrip.src,
-            {
-              width: 1200,
-              quality: 80,
-            },
-          ),
+          src: imageSrc(data?.landingPopupThirdOilDripImage, {
+            width: 1200,
+            quality: 80,
+          }),
           alt:
             asNonEmptyString(data?.landingPopupThirdOilDripImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.thirdOilDrip.alt,
@@ -424,14 +408,14 @@ export async function getLandingPopupContent(revalidate = 0): Promise<LandingPop
         disclaimer:
           asNonEmptyString(data?.landingPopupLeadDisclaimer) ||
           DEFAULT_LANDING_POPUP_CONTENT.leadCapture.disclaimer,
-        ctaBackgroundImageSrc: imageSrc(
-          data?.landingPopupLeadCtaBackgroundImage,
-          DEFAULT_LANDING_POPUP_CONTENT.leadCapture.ctaBackgroundImageSrc,
-          {
+        ctaBackgroundImageSrc:
+          imageSrc(data?.landingPopupLeadCtaBackgroundImage, {
             width: 1200,
             quality: 80,
-          },
-        ),
+          }) || DEFAULT_LANDING_POPUP_CONTENT.leadCapture.ctaBackgroundImageSrc,
+        successCode:
+          asNonEmptyString(data?.landingPopupLeadSuccessCode) ||
+          DEFAULT_LANDING_POPUP_CONTENT.leadCapture.successCode,
         successMessage:
           asNonEmptyString(data?.landingPopupLeadSuccessMessage) ||
           DEFAULT_LANDING_POPUP_CONTENT.leadCapture.successMessage,
