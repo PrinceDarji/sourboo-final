@@ -104,7 +104,7 @@ export default async function PopupPage({
         />
         <LandingPopupTextExitButton
           fromPath={fromPath}
-          className="absolute bottom-[calc(1.75rem+env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))]"
+          className="absolute bottom-[calc(3rem+env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 md:bottom-5"
         />
 
         {config.images.topLeft.src ? (
