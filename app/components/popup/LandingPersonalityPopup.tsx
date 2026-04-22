@@ -181,7 +181,7 @@ export default function LandingPersonalityPopup({ config }: LandingPersonalityPo
         <button
           type="button"
           onClick={closePopup}
-          className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 px-4 text-center font-schoolbell text-[clamp(1rem,1.5vw,1.35rem)] leading-none text-[#2A2A2A] transition hover:opacity-70"
+          className="absolute bottom-[calc(1.75rem+env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 px-4 text-center font-schoolbell text-[clamp(1rem,1.5vw,1.35rem)] leading-none text-[#2A2A2A] transition hover:opacity-70 sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))]"
         >
           no thanks take me to the website
         </button>

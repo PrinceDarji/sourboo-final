@@ -64,7 +64,7 @@ export default async function PopupCouponPage({
         />
         <LandingPopupTextExitButton
           fromPath={sourcePath}
-          className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2"
+          className="absolute bottom-[calc(1.75rem+env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))]"
         />
 
         {config.images.topLeft.src ? (

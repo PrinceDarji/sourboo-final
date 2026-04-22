@@ -302,7 +302,7 @@ export default function LandingPopupLeadCaptureForm({
         <button
           type="submit"
           disabled={submitState.status === 'submitting'}
-          className="relative mx-auto mt-5 flex h-[74px] w-[min(92vw,420px)] items-center justify-center disabled:opacity-70"
+          className="relative mx-auto mt-5 flex h-[84px] w-[min(92vw,420px)] items-center justify-center disabled:opacity-70"
         >
           {copy.ctaBackgroundImageSrc ? (
             <Image

@@ -168,12 +168,13 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
 
           <div className="relative z-20 mx-auto w-[min(40vw,290px)] pt-12 md:w-[min(22vw,300px)] md:pt-0">
             <Image
-              src="/review-phone.webp"
+              src="/review-phone.svg"
               alt="Phone showing what people say about Sourboo"
               width={3663}
-              height={8227}
-              quality={82}
-              className="h-auto w-full object-contain md:drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)]"
+              height={8222}
+              quality={100}
+
+              className="h-auto w-full -rotate-3 object-contain md:-rotate-4 md:drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)] lg:rotate-4"
               sizes="(max-width: 768px) 40vw, (max-width: 1364px) 22vw, 300px"
             />
           </div>
