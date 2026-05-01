@@ -1,5 +1,4 @@
 import { rascal, coolvetica, schoolbell } from "./fonts";
-import "./globals.css";
 import CartRoot from './components/cart/CartRoot';
 import SectionScrollReveal from './components/SectionScrollReveal';
 import LandingPopupRedirect from './components/popup/LandingPopupRedirect';
