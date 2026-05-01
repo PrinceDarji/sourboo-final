@@ -4,6 +4,36 @@ import CartRoot from './components/cart/CartRoot';
 import SectionScrollReveal from './components/SectionScrollReveal';
 import LandingPopupRedirect from './components/popup/LandingPopupRedirect';
 import { getLandingPopupContent } from '@/src/lib/sanity/landingPopup';
+import type { Metadata } from "next";
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.sourboo.com");
+
+const siteName = "Sourboo";
+const siteDescription =
+  "Bold khatta snacks: sour, spicy, loud. Shop Side Eye Sour and Tamarind Tease from Sourboo.";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    title: siteName,
+    description: siteDescription,
+    url: "/",
+    siteName,
+  },
+  twitter: {
+    card: "summary",
+    title: siteName,
+    description: siteDescription,
+  },
+};
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const landingPopup = await getLandingPopupContent(0);
