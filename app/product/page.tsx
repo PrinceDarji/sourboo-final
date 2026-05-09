@@ -649,11 +649,11 @@ function ProductCard({
 
   const cardSizeClass = isDesktop ? 'h-[530px] w-[500px]' : 'h-[420px] w-[360px]';
   const jarSizeClass = isDesktop
-    ? 'h-[455px] w-[350px] scale-[1.06]'
-    : 'h-[385px] w-[285px] scale-[0.9] translate-x-[-6px]';
+    ? 'h-[370px] w-[285px]'
+    : 'h-[335px] w-[248px] translate-x-[-6px]';
   const splashTransform = isDesktop
     ? isSecondary
-      ? 'translate(7%, 5%) scale(1.3)'
+      ? 'translate(7%, 5%) scale(1.6)'
       : 'translate(7%, 9%) scale(1.45)'
     : isSecondary
       ? 'translate(-2%, 4%) scale(1.4)'
@@ -699,7 +699,7 @@ function ProductCard({
               alt={`${product.title} product jar`}
               fill
               loading={isAboveFoldCard ? 'eager' : 'lazy'}
-              sizes={isDesktop ? '350px' : '285px'}
+              sizes={isDesktop ? '285px' : '248px'}
               quality={82}
               className="object-contain"
             />
@@ -890,12 +890,12 @@ export default async function ProductPage() {
                 {pageContent.primaryMatch.selectionHeading}
               </p>
               <div className="relative mx-auto w-full max-w-[250px] md:max-w-[500px] lg:max-w-[580px]">
-                <div className="pointer-events-none absolute -left-[21%] top-[52%] z-20 h-[178px] w-[136px] -translate-y-1/2 -rotate-[20deg] md:-left-[19%] md:h-[280px] md:w-[210px] lg:-left-[18%] lg:h-[320px] lg:w-[240px]">
+                <div className="pointer-events-none absolute -left-[17%] top-[52%] z-20 h-[146px] w-[112px] -translate-y-1/2 -rotate-[20deg] md:-left-[15%] md:h-[230px] md:w-[172px] lg:-left-[14%] lg:h-[230px] lg:w-[175px]">
                   <Image
                     src={pageContent.primaryMatch.jarImage.src}
                     alt={pageContent.primaryMatch.jarImage.alt}
                     fill
-                    sizes="(max-width: 768px) 136px, 240px"
+                    sizes="(max-width: 768px) 112px, 195px"
                     className="object-contain"
                   />
                 </div>
@@ -979,12 +979,12 @@ export default async function ProductPage() {
               </div>
 
               <div className="relative mx-auto mt-4 w-full max-w-[290px] md:mt-6 md:max-w-[520px] lg:max-w-[600px]">
-                <div className="pointer-events-none absolute -right-[20%] top-[66%] z-20 h-[188px] w-[142px] -translate-y-1/2 rotate-[18deg] md:-right-[20%] md:h-[280px] md:w-[212px] lg:-right-[19%] lg:h-[320px] lg:w-[244px]">
+                <div className="pointer-events-none absolute -right-[16%] top-[66%] z-20 h-[150px] w-[106px] -translate-y-1/2 rotate-[18deg] md:-right-[16%] md:h-[230px] md:w-[174px] lg:-right-[15%] lg:h-[230px] lg:w-[178px]">
                   <Image
                     src={pageContent.secondaryMatch.jarImage.src}
                     alt={pageContent.secondaryMatch.jarImage.alt}
                     fill
-                    sizes="(max-width: 768px) 142px, 244px"
+                    sizes="(max-width: 768px) 106px, 138px"
                     className="object-contain"
                   />
                 </div>

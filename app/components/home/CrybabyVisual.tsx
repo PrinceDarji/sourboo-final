@@ -8,12 +8,16 @@ type CrybabyVisualProps = {
   mirrored?: boolean;
   rotateClass: string;
   fluidPositionClass: string;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 export default function CrybabyVisual({
   mirrored = false,
   rotateClass,
   fluidPositionClass,
+  imageSrc = '/home/readmyrant.webp',
+  imageAlt = 'crybaby challenge visual placeholder',
 }: CrybabyVisualProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
@@ -77,8 +81,8 @@ export default function CrybabyVisual({
       <div className={`relative h-full w-full overflow-hidden rounded-[10px]  ${mirrored ? '-scale-x-100' : ''}`}>
         <div className={`absolute inset-0 ${hasEnteredView ? 'home-readmyrant-slide-in-active' : 'home-readmyrant-slide-in-start'}`}>
           <Image
-            src="/home/readmyrant.webp"
-            alt="crybaby challenge visual placeholder"
+            src={imageSrc}
+            alt={imageAlt}
             fill
             sizes="(max-width: 768px) 90vw, 560px"
             quality={78}

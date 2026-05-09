@@ -31,6 +31,7 @@ type HomePageProductBandQuery = {
   variant?: StyleVariant;
   ctaLabel?: string;
   sectionBackgroundImage?: unknown;
+  productLabelImage?: unknown;
   ctaBackgroundImage?: unknown;
 };
 
@@ -53,6 +54,8 @@ type HomePageQueryResult = {
   introHeadlineLine2?: string;
   introBodyLine1?: string;
   introBodyLine2?: string;
+  readRantImage?: unknown;
+  readRantImageAlt?: string;
   readRantCtaLabel?: string;
   posters?: HomePageImageItemQuery[];
   horizontalGallery?: HomePageImageItemQuery[];
@@ -84,6 +87,7 @@ type ProductBandProps = Omit<HomeBand, 'fallbackHref' | 'styleVariant'> & {
 type HomeBandCmsContent = {
   ctaLabel?: string;
   bgImage?: string;
+  packageImage?: string;
   ctaBackgroundImage?: string;
 };
 
@@ -104,6 +108,7 @@ type HomeCmsContent = {
     headlineLine2: string;
     bodyLine1: string;
     bodyLine2: string;
+    readRantImage: HomeCmsImageItem;
     readRantCtaLabel: string;
   };
   bandByVariant: Partial<Record<StyleVariant, HomeBandCmsContent>>;
@@ -163,12 +168,15 @@ const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)
     variant,
     ctaLabel,
     sectionBackgroundImage,
+    productLabelImage,
     ctaBackgroundImage
   },
   introHeadlineLine1,
   introHeadlineLine2,
   introBodyLine1,
   introBodyLine2,
+  readRantImage,
+  readRantImageAlt,
   readRantCtaLabel,
   posters[]{
     image,
@@ -198,6 +206,10 @@ const DEFAULT_HOME_CONTENT: HomeCmsContent = {
     headlineLine2: 'with intent',
     bodyLine1: 'who like flavour loud and immediate',
     bodyLine2: 'food that fits into real moments',
+    readRantImage: {
+      src: '/home/readmyrant.webp',
+      alt: 'crybaby challenge visual placeholder',
+    },
     readRantCtaLabel: 'read my rant →',
   },
   bandByVariant: {},
@@ -316,6 +328,9 @@ async function getHomeCmsContent(): Promise<HomeCmsContent> {
           bgImage: asNonEmptyString(
             imageSrc(band?.sectionBackgroundImage, '', { width: 2400, quality: 76 }),
           ),
+          packageImage: asNonEmptyString(
+            imageSrc(band?.productLabelImage, '', { width: 2400, quality: 80 }),
+          ),
           ctaBackgroundImage: asNonEmptyString(
             imageSrc(band?.ctaBackgroundImage, '', { width: 1400, quality: 80 }),
           ),
@@ -344,6 +359,15 @@ async function getHomeCmsContent(): Promise<HomeCmsContent> {
           asNonEmptyString(data?.introHeadlineLine2) || DEFAULT_HOME_CONTENT.intro.headlineLine2,
         bodyLine1: asNonEmptyString(data?.introBodyLine1) || DEFAULT_HOME_CONTENT.intro.bodyLine1,
         bodyLine2: asNonEmptyString(data?.introBodyLine2) || DEFAULT_HOME_CONTENT.intro.bodyLine2,
+        readRantImage: {
+          src: imageSrc(data?.readRantImage, DEFAULT_HOME_CONTENT.intro.readRantImage.src, {
+            width: 1400,
+            quality: 80,
+          }),
+          alt:
+            asNonEmptyString(data?.readRantImageAlt) ||
+            DEFAULT_HOME_CONTENT.intro.readRantImage.alt,
+        },
         readRantCtaLabel:
           asNonEmptyString(data?.readRantCtaLabel) || DEFAULT_HOME_CONTENT.intro.readRantCtaLabel,
       },
@@ -541,6 +565,7 @@ export default async function HomePage() {
                 discountedPriceLabel={variantPrice?.discountedPriceLabel}
                 ctaLabel={cmsBand?.ctaLabel ?? band.ctaLabel}
                 bgImage={cmsBand?.bgImage ?? band.bgImage}
+                packageImage={cmsBand?.packageImage ?? band.packageImage}
                 ctaBackgroundImage={cmsBand?.ctaBackgroundImage ?? band.ctaBackgroundImage}
               />
             );
@@ -573,7 +598,12 @@ export default async function HomePage() {
         <div className="mt-8 md:mt-12">
           <div className="flex flex-col items-center gap-7 md:flex-row md:items-center md:justify-start md:gap-12 lg:gap-16">
             <div className="w-full md:w-auto md:shrink-0">
-              <CrybabyVisual rotateClass="mx-auto md:mx-0" fluidPositionClass="left-[63%] top-[44%]" />
+              <CrybabyVisual
+                rotateClass="mx-auto md:mx-0"
+                fluidPositionClass="left-[63%] top-[44%]"
+                imageSrc={homeContent.intro.readRantImage.src}
+                imageAlt={homeContent.intro.readRantImage.alt}
+              />
             </div>
 
             <div className="flex w-full max-w-[760px] flex-col items-center gap-6 md:items-center md:gap-8">

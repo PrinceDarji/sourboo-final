@@ -144,13 +144,14 @@ export const productPage = defineType({
     }),
     defineField({
       name: 'primarySelectionJarImage',
-      title: 'Primary Selection Jar Image',
+      title: 'Jar Image beside "get side eye sour" CTA',
       type: 'image',
+      description: 'Controls the jar image overlapping the Side Eye Sour CTA card.',
       options: { hotspot: true },
     }),
     defineField({
       name: 'primarySelectionJarImageAlt',
-      title: 'Primary Selection Jar Image Alt Text',
+      title: 'Jar Image beside "get side eye sour" CTA Alt Text',
       type: 'string',
       validation: (rule) => rule.max(140),
     }),
@@ -275,13 +276,14 @@ export const productPage = defineType({
     }),
     defineField({
       name: 'secondarySelectionJarImage',
-      title: 'Secondary Selection Jar Image',
+      title: 'Jar Image beside "tamarin tease / makes sense" CTA',
       type: 'image',
+      description: 'Controls the jar image overlapping the Tamarin Tease CTA card.',
       options: { hotspot: true },
     }),
     defineField({
       name: 'secondarySelectionJarImageAlt',
-      title: 'Secondary Selection Jar Image Alt Text',
+      title: 'Jar Image beside "tamarin tease / makes sense" CTA Alt Text',
       type: 'string',
       validation: (rule) => rule.max(140),
     }),

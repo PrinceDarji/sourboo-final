@@ -74,6 +74,14 @@ export const homePage = defineType({
               options: { hotspot: true },
             }),
             defineField({
+              name: 'productLabelImage',
+              title: 'Product Label Image',
+              type: 'image',
+              description:
+                'The long product label / packaging strip shown in this product band.',
+              options: { hotspot: true },
+            }),
+            defineField({
               name: 'ctaBackgroundImage',
               title: 'CTA Background Image',
               type: 'image',
@@ -117,6 +125,19 @@ export const homePage = defineType({
       title: 'Intro Body Line 2',
       type: 'string',
       initialValue: 'food that fits into real moments',
+      validation: (rule) => rule.max(140),
+    }),
+    defineField({
+      name: 'readRantImage',
+      title: 'Read Rant Sliding Image',
+      type: 'image',
+      description: 'The sliding image shown beside the Read Rant CTA on the home page.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'readRantImageAlt',
+      title: 'Read Rant Sliding Image Alt Text',
+      type: 'string',
       validation: (rule) => rule.max(140),
     }),
     defineField({
