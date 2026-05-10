@@ -372,13 +372,6 @@ export const siteSettings = defineType({
       validation: (rule) => rule.max(100),
     }),
     defineField({
-      name: 'footerTopText',
-      title: 'Footer Top Text',
-      type: 'string',
-      initialValue: 'DO YOU EVEN REMEMBER HOW IT STARTED',
-      validation: (rule) => rule.max(140),
-    }),
-    defineField({
       name: 'footerTagline',
       title: 'Footer Tagline',
       type: 'string',

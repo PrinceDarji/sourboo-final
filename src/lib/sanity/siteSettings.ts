@@ -7,7 +7,6 @@ const DEFAULT_WHATSAPP_URL = 'https://chat.whatsapp.com/L9YSdLAYGfuEke1zXhvoWN';
 const DEFAULT_INSTAGRAM_CARD_LABEL = 'watch on instagram';
 const DEFAULT_INSTAGRAM_HEADING_PREFIX = 'get to know';
 const DEFAULT_INSTAGRAM_FALLBACK_CARD_LABEL = 'connect instagram feed';
-const DEFAULT_FOOTER_TOP_TEXT = 'DO YOU EVEN REMEMBER HOW IT STARTED';
 const DEFAULT_FOOTER_TAGLINE = 'stay sour';
 
 const DEFAULT_PRIMARY_FOOTER_LINKS = [
@@ -44,7 +43,6 @@ export type FooterContent = {
   instagramHeadingPrefix: string;
   instagramFallbackCardLabel: string;
   backgroundImageUrl?: string;
-  topText: string;
   tagline: string;
   primaryLinks: FooterLink[];
   secondaryLinks: FooterLink[];
@@ -79,7 +77,6 @@ type SiteSettingsQueryResult = {
   instagramHeadingPrefix?: string;
   instagramFallbackCardLabel?: string;
   footerBackgroundImage?: unknown;
-  footerTopText?: string;
   footerTagline?: string;
   footerPrimaryLinks?: SiteSettingsFooterLink[];
   footerSecondaryLinks?: SiteSettingsFooterLink[];
@@ -93,7 +90,6 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   instagramHeadingPrefix,
   instagramFallbackCardLabel,
   footerBackgroundImage,
-  footerTopText,
   footerTagline,
   instagramFeedLinks[]{
     _key,
@@ -233,7 +229,6 @@ export const DEFAULT_SOCIAL_LINKS_CONFIG: SocialLinksConfig = {
     instagramHeadingPrefix: DEFAULT_INSTAGRAM_HEADING_PREFIX,
     instagramFallbackCardLabel: DEFAULT_INSTAGRAM_FALLBACK_CARD_LABEL,
     backgroundImageUrl: undefined,
-    topText: DEFAULT_FOOTER_TOP_TEXT,
     tagline: DEFAULT_FOOTER_TAGLINE,
     primaryLinks: defaultFooterLinks(DEFAULT_PRIMARY_FOOTER_LINKS),
     secondaryLinks: defaultFooterLinks(DEFAULT_SECONDARY_FOOTER_LINKS),
@@ -269,8 +264,6 @@ export async function getSocialLinksConfig(revalidate = 300): Promise<SocialLink
           asNonEmptyString(data?.instagramFallbackCardLabel) ||
           DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramFallbackCardLabel,
         backgroundImageUrl: toFooterBackgroundImageUrl(data?.footerBackgroundImage),
-        topText:
-          asNonEmptyString(data?.footerTopText) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.topText,
         tagline:
           asNonEmptyString(data?.footerTagline) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.tagline,
         primaryLinks: toFooterLinks(

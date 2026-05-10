@@ -17,7 +17,6 @@ type SiteFooterClientProps = {
   };
   footer: {
     backgroundImageUrl?: string;
-    topText: string;
     tagline: string;
     primaryLinks: FooterLink[];
     secondaryLinks: FooterLink[];
@@ -48,7 +47,7 @@ function FooterBackground({ imageUrl }: FooterBackgroundProps) {
         alt=""
         fill
         aria-hidden
-        className="pointer-events-none object-fill"
+        className="pointer-events-none object-fill blur-[3px]"
         sizes="100vw"
       />
     );
@@ -66,7 +65,7 @@ function FooterBackground({ imageUrl }: FooterBackgroundProps) {
           alt=""
           fill
           aria-hidden
-          className="object-cover object-center"
+          className="scale-[1.02] object-cover object-center blur-[3px]"
           sizes="100vw"
         />
       </div>
@@ -144,11 +143,8 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
           <FooterBackground imageUrl={footer.backgroundImageUrl} />
 
           <div className="absolute inset-x-[2.8%] bottom-[2.8%] top-[2.4%]">
-            <div className="absolute left-1/2 top-[3%] w-[clamp(40px,30vw,150px)] -translate-x-1/2 rounded-[14px] px-2 py-2 text-center">
-              <p className="text-[clamp(0.46rem,2.8vw,1.06rem)] leading-[1.05] text-[#232222] font-schoolbell">
-                {footer.topText}
-              </p>
-              <p className="mt-2 text-[clamp(1.06rem,4.8vw,1.5rem)] leading-none text-[#E61E7A] font-rascal">
+            <div className="absolute left-1/2 top-[4%] w-[clamp(40px,30vw,150px)] -translate-x-1/2 rounded-[14px] px-2 py-2 text-center">
+              <p className="text-[clamp(1.06rem,4.8vw,1.5rem)] leading-none text-[#E61E7A] font-rascal">
                 {footer.tagline}
               </p>
             </div>
@@ -222,10 +218,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
 
           <div className="absolute inset-x-[2.5%] bottom-[3%] top-[22%] flex flex-col">
             <div className="absolute left-1/2 top-[-12%] w-[180px] -translate-x-1/2 rounded-[14px] bg-[#FCE7F3] px-2 py-3 text-center sm:w-[220px] md:w-[265px]">
-              <p className="text-[clamp(1.08rem,1.3vw,1.58rem)] leading-[1.05] text-[#232222] font-schoolbell">
-                {footer.topText}
-              </p>
-              <p className="mt-3 text-[clamp(1.16rem,1.65vw,2rem)] leading-none text-[#E61E7A] font-rascal">
+              <p className="text-[clamp(1.16rem,1.65vw,2rem)] leading-none text-[#E61E7A] font-rascal">
                 {footer.tagline}
               </p>
             </div>
