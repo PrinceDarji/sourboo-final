@@ -655,11 +655,11 @@ export default async function Home() {
           {aboutContent.section2.heading}
         </p>
 
-        <div className="relative mx-auto mt-8 h-[530px] w-full md:mt-14 md:h-[760px]">
+        <div className="relative mx-auto mt-8 h-[760px] w-full md:mt-14 md:h-[760px]">
           <p className="absolute right-0 top-12 z-20 rotate-[16deg] text-[24px] text-[#1E1E1E] font-schoolbell md: -right-[4%] md:text-[52px]">
             {aboutContent.section2.mixingLabel}
           </p>
-          <div className="absolute right-2 top-14 h-[210px] w-[90%] overflow-hidden md:top-20 md:h-[340px] md:w-[44%]">
+          <div className="absolute right-2 top-14 h-[310px] w-[90%] overflow-hidden md:top-20 md:h-[340px] md:w-[44%]">
             <Image
               src={aboutContent.section2.image1.src}
               alt={aboutContent.section2.image1.alt}
@@ -669,10 +669,10 @@ export default async function Home() {
             />
           </div>
 
-          <p className="absolute left-[6px] top-[50%] z-20 -rotate-[14deg] text-[24px] text-[#A8AC1A] font-schoolbell md: -left-[32%] md:top-[44%] md:text-[52px]">
+          <p className="absolute left-[6px] top-[47%] z-20 -rotate-[14deg] text-[24px] text-[#A8AC1A] font-schoolbell md: -left-[32%] md:top-[44%] md:text-[52px]">
             {aboutContent.section2.tastingLabel}
           </p>
-          <div className="absolute mt-8 left-0 top-[48%] h-[210px] w-[98%] overflow-hidden md:left-[2%] md:top-[52%] md:h-[380px] md:w-[54%]">
+          <div className="absolute left-0 top-[50%] h-[320px] w-[98%] overflow-hidden md:left-[2%] md:top-[52%] md:h-[380px] md:w-[54%]">
             <Image
               src={aboutContent.section2.image2.src}
               alt={aboutContent.section2.image2.alt}
@@ -682,18 +682,18 @@ export default async function Home() {
             />
           </div>
 
-          <div className="absolute top-[92%] bottom-0 right-0 h-[200px] w-[52%] overflow-hidden md:h-[360px] md:w-[25%]">
+          <div className="absolute top-[82%] right-0 h-[300px] w-[58%] overflow-hidden md:h-[360px] md:w-[25%]">
             <Image
               src={aboutContent.section2.image3.src}
               alt={aboutContent.section2.image3.alt}
               fill
-              sizes="(max-width: 768px) 52vw, 25vw"
+              sizes="(max-width: 768px) 58vw, 25vw"
               className="object-cover"
             />
           </div>
         </div>
 
-        <p className="mt-48 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
+        <p className="mt-28 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
           {aboutContent.section2.spentYearsText}
         </p>
         <p className="mx-auto mt-4 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:max-w-[920px] md:text-[52px]">
