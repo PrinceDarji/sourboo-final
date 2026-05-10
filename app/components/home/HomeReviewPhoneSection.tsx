@@ -49,7 +49,7 @@ const reviewBubbleTemplates: ReviewBubbleTemplate[] = [
     defaultText: 'perfect spicy',
     background: '#E61E6E',
     textColor: '#141414',
-    positionClassName: 'left-[2%] top-[80%] md:left-[6%] md:top-[57%]',
+    positionClassName: 'left-[2%] top-[86%] md:left-[6%] md:top-[57%]',
     sizeClassName: 'w-[min(38vw,242px)] md:w-[300px] lg:w-[355px]',
     tailClassName: 'top-[-12px] right-[12%] rotate-[138deg]',
     delayMs: 840,
@@ -60,7 +60,7 @@ const reviewBubbleTemplates: ReviewBubbleTemplate[] = [
     defaultText: 'instant fav',
     background: '#BFEA5A',
     textColor: '#141414',
-    positionClassName: 'right-[1%] top-[64%] md:right-[4%] md:top-[63%]',
+    positionClassName: 'right-[1%] top-[78%] md:right-[4%] md:top-[63%]',
     sizeClassName: 'w-[min(37vw,236px)] md:w-[280px] lg:w-[340px]',
     tailClassName: 'top-[-12px] left-[14%] rotate-[-138deg]',
     delayMs: 1180,
@@ -136,7 +136,7 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
       className={`home-review-bubbles w-full px-4  pt-3 md:px-10 md:pb-10 md:pt-12 ${hasEnteredView ? 'home-review-visible' : ''}`}
     >
       <div className="mx-auto w-full max-w-[1500px]">
-        <div className="relative mx-auto min-h-[480px] w-full max-w-[1240px] md:min-h-[700px]">
+        <div className="relative mx-auto min-h-[560px] w-full max-w-[1240px] md:min-h-[700px]">
           <div className="absolute inset-0">
             {reviewBubbles.map((bubble) => {
               const style = {
