@@ -39,7 +39,7 @@ export default function InstagramPostsStrip({
           {handle}
         </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-3 md:gap-7">
+        <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [touch-action:pan-x] md:mx-0 md:mt-10 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 md:[touch-action:auto]">
           {hasPosts
             ? visiblePosts.map((item, index) => (
                 <a
@@ -47,7 +47,7 @@ export default function InstagramPostsStrip({
                   href={item.permalink}
                   target="_blank"
                   rel="noreferrer"
-                  className="group block overflow-hidden rounded-[20px] border-[3px] border-[#171717] bg-[#E6D8CA] transition-transform hover:scale-[1.01]"
+                  className="group block min-w-[78vw] max-w-[360px] shrink-0 snap-start overflow-hidden rounded-[20px] border-[3px] border-[#171717] bg-[#E6D8CA] transition-transform hover:scale-[1.01] md:min-w-0 md:max-w-none"
                   aria-label={`Open Instagram post ${index + 1}`}
                 >
                   <div className="relative aspect-[4/5] w-full">
@@ -77,7 +77,7 @@ export default function InstagramPostsStrip({
                   href={profileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="block overflow-hidden rounded-[20px] border-[3px] border-[#171717] bg-[#E6D8CA]"
+                  className="block min-w-[78vw] max-w-[360px] shrink-0 snap-start overflow-hidden rounded-[20px] border-[3px] border-[#171717] bg-[#E6D8CA] md:min-w-0 md:max-w-none"
                   aria-label="Open Instagram profile"
                 >
                   <div className="flex aspect-[4/5] w-full items-center justify-center px-8 text-center text-[clamp(1.5rem,2.4vw,2.8rem)] leading-[1.04] text-[#201A17] font-schoolbell">
