@@ -387,6 +387,20 @@ export const siteSettings = defineType({
         'Optional. Upload a footer background image here. If empty, the current default pink background is used.',
     }),
     defineField({
+      name: 'footerLogoImage',
+      title: 'Footer Logo Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Optional. Upload the logo used in the center of the footer.',
+    }),
+    defineField({
+      name: 'footerLogoAlt',
+      title: 'Footer Logo Alt Text',
+      type: 'string',
+      initialValue: 'Sourboo logo',
+      validation: (rule) => rule.max(140),
+    }),
+    defineField({
       name: 'footerPrimaryLinks',
       title: 'Footer Primary Links',
       type: 'array',

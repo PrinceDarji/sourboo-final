@@ -43,6 +43,8 @@ export type FooterContent = {
   instagramHeadingPrefix: string;
   instagramFallbackCardLabel: string;
   backgroundImageUrl?: string;
+  logoImageUrl: string;
+  logoAlt: string;
   tagline: string;
   primaryLinks: FooterLink[];
   secondaryLinks: FooterLink[];
@@ -77,6 +79,8 @@ type SiteSettingsQueryResult = {
   instagramHeadingPrefix?: string;
   instagramFallbackCardLabel?: string;
   footerBackgroundImage?: unknown;
+  footerLogoImage?: unknown;
+  footerLogoAlt?: string;
   footerTagline?: string;
   footerPrimaryLinks?: SiteSettingsFooterLink[];
   footerSecondaryLinks?: SiteSettingsFooterLink[];
@@ -90,6 +94,8 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   instagramHeadingPrefix,
   instagramFallbackCardLabel,
   footerBackgroundImage,
+  footerLogoImage,
+  footerLogoAlt,
   footerTagline,
   instagramFeedLinks[]{
     _key,
@@ -163,6 +169,15 @@ function toFooterBackgroundImageUrl(source: unknown): string | undefined {
   }
 }
 
+function toFooterLogoImageUrl(source: unknown): string | undefined {
+  if (!source) return undefined;
+  try {
+    return urlFor(source).width(900).quality(90).url();
+  } catch {
+    return undefined;
+  }
+}
+
 function toInstagramPosts(links: unknown): InstagramPostLink[] {
   if (!Array.isArray(links)) return [];
 
@@ -229,6 +244,8 @@ export const DEFAULT_SOCIAL_LINKS_CONFIG: SocialLinksConfig = {
     instagramHeadingPrefix: DEFAULT_INSTAGRAM_HEADING_PREFIX,
     instagramFallbackCardLabel: DEFAULT_INSTAGRAM_FALLBACK_CARD_LABEL,
     backgroundImageUrl: undefined,
+    logoImageUrl: '/logo.svg',
+    logoAlt: 'Sourboo logo',
     tagline: DEFAULT_FOOTER_TAGLINE,
     primaryLinks: defaultFooterLinks(DEFAULT_PRIMARY_FOOTER_LINKS),
     secondaryLinks: defaultFooterLinks(DEFAULT_SECONDARY_FOOTER_LINKS),
@@ -264,6 +281,11 @@ export async function getSocialLinksConfig(revalidate = 300): Promise<SocialLink
           asNonEmptyString(data?.instagramFallbackCardLabel) ||
           DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramFallbackCardLabel,
         backgroundImageUrl: toFooterBackgroundImageUrl(data?.footerBackgroundImage),
+        logoImageUrl:
+          toFooterLogoImageUrl(data?.footerLogoImage) ||
+          DEFAULT_SOCIAL_LINKS_CONFIG.footer.logoImageUrl,
+        logoAlt:
+          asNonEmptyString(data?.footerLogoAlt) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.logoAlt,
         tagline:
           asNonEmptyString(data?.footerTagline) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.tagline,
         primaryLinks: toFooterLinks(

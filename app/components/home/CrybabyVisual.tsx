@@ -77,14 +77,14 @@ export default function CrybabyVisual({
   }, []);
 
   return (
-    <div ref={rootRef} className={`relative w-[min(90vw,560px)] aspect-[4/5] ${rotateClass}`}>
+    <div ref={rootRef} className={`relative w-[min(74vw,420px)] aspect-[4/5] md:w-[min(90vw,560px)] ${rotateClass}`}>
       <div className={`relative h-full w-full overflow-hidden rounded-[10px]  ${mirrored ? '-scale-x-100' : ''}`}>
         <div className={`absolute inset-0 ${hasEnteredView ? 'home-readmyrant-slide-in-active' : 'home-readmyrant-slide-in-start'}`}>
           <Image
             src={imageSrc}
             alt={imageAlt}
             fill
-            sizes="(max-width: 768px) 90vw, 560px"
+            sizes="(max-width: 768px) 74vw, 560px"
             quality={78}
             className="object-cover"
           />

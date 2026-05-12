@@ -17,6 +17,8 @@ type SiteFooterClientProps = {
   };
   footer: {
     backgroundImageUrl?: string;
+    logoImageUrl: string;
+    logoAlt: string;
     tagline: string;
     primaryLinks: FooterLink[];
     secondaryLinks: FooterLink[];
@@ -176,10 +178,6 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
             </div>
 
             <div className="absolute left-1/2 top-[53%] -translate-x-1/2 -translate-y-1/2">
-              <div
-                className="pointer-events-none absolute left-1/2 top-[58%] h-[24px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#CDD58D]/85"
-                aria-hidden
-              />
               <button
                 type="button"
                 onClick={scrollToPageTop}
@@ -188,8 +186,8 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
               >
                 <div className="relative h-[32px] w-[156px]">
                   <Image
-                    src="/logo.svg"
-                    alt="Sourboo logo"
+                    src={footer.logoImageUrl}
+                    alt={footer.logoAlt}
                     fill
                     className="object-contain object-center"
                   />
@@ -251,11 +249,6 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
 
             <div className="relative mt-auto pb-[0.8%]">
               <div className="relative -translate-y-[10%] px-[6%] pb-[4.4%] pt-[2.6%] sm:-translate-y-[9%] md:-translate-y-[80%]">
-                <div
-                  className="pointer-events-none absolute left-1/2 top-[34%] h-[42%] w-[45%] -translate-x-1/2 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#CDD58D]/85"
-                  aria-hidden
-                />
-
                 <button
                   type="button"
                   onClick={scrollToPageTop}
@@ -264,8 +257,8 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                 >
                   <div className="relative h-[52px] w-[180px] sm:h-[66px] sm:w-[230px] md:h-[84px] md:w-[300px] lg:h-[94px] lg:w-[340px]">
                     <Image
-                      src="/logo.svg"
-                      alt="Sourboo logo"
+                      src={footer.logoImageUrl}
+                      alt={footer.logoAlt}
                       fill
                       className="object-contain object-center"
                     />

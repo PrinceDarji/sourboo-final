@@ -90,6 +90,9 @@ function sanitizeFooter(value: unknown): FooterContent {
       asNonEmptyString(payload?.instagramFallbackCardLabel) ||
       DEFAULT_SOCIAL_LINKS_CONFIG.footer.instagramFallbackCardLabel,
     backgroundImageUrl: asNonEmptyString(payload?.backgroundImageUrl),
+    logoImageUrl:
+      asNonEmptyString(payload?.logoImageUrl) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.logoImageUrl,
+    logoAlt: asNonEmptyString(payload?.logoAlt) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.logoAlt,
     tagline: asNonEmptyString(payload?.tagline) || DEFAULT_SOCIAL_LINKS_CONFIG.footer.tagline,
     primaryLinks: sanitizeFooterLinks(
       payload?.primaryLinks,
@@ -166,6 +169,8 @@ export default function SiteFooter() {
       }}
       footer={{
         backgroundImageUrl: social.footer.backgroundImageUrl,
+        logoImageUrl: social.footer.logoImageUrl,
+        logoAlt: social.footer.logoAlt,
         tagline: social.footer.tagline,
         primaryLinks: social.footer.primaryLinks,
         secondaryLinks: social.footer.secondaryLinks,

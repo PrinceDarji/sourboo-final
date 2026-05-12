@@ -447,14 +447,14 @@ function ProductBand({
 
         <div className="absolute inset-x-0 top-1/2 z-10 -translate-y-1/2">
           <div
-            className="relative mx-auto w-[min(88vw,1120px)] md:w-[min(78vw,1160px)] lg:w-[min(72vw,1220px)]"
+            className="relative mx-auto w-[min(96vw,1280px)] md:w-[min(86vw,1360px)] lg:w-[min(80vw,1420px)]"
             style={{ aspectRatio: packageAspectRatio }}
           >
             <Image
               src={packageImage}
               alt="product packaging strip"
               fill
-              sizes="(max-width: 768px) 88vw, (max-width: 1024px) 78vw, 72vw"
+              sizes="(max-width: 768px) 96vw, (max-width: 1024px) 86vw, 80vw"
               quality={78}
               className="object-contain object-center"
             />
@@ -507,7 +507,7 @@ export default async function HomePage() {
       <Navbar />
 
       <section className="relative mx-auto w-full max-w-[1600px]">
-        <div className="relative h-[64vh] min-h-[460px] w-full md:h-[78vh] md:min-h-[660px]">
+        <div className="relative aspect-video w-full md:aspect-auto md:h-[78vh] md:min-h-[660px]">
           <div className="absolute inset-0 overflow-hidden">
             <Image
               src={homeContent.hero.src}
@@ -516,7 +516,7 @@ export default async function HomePage() {
               priority
               sizes="100vw"
               quality={78}
-              className="object-cover object-center"
+              className="object-contain object-center md:object-cover"
             />
             <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/5 via-transparent to-black/25" />
           </div>
@@ -527,7 +527,7 @@ export default async function HomePage() {
                 <CoolRascalText
                   as="span"
                   text={homeContent.hero.titleLine1}
-                  className="block text-[clamp(2rem,5vw,4.8rem)]"
+                  className="block text-[clamp(2.55rem,9vw,3.7rem)] md:text-[clamp(2rem,5vw,4.8rem)]"
                   pattern="alternate"
                   startWith="base"
                   baseClassName="text-[#4C8B1D]"
@@ -536,7 +536,7 @@ export default async function HomePage() {
                 <CoolRascalText
                   as="span"
                   text={homeContent.hero.titleLine2}
-                  className="block text-[clamp(2.2rem,6vw,5.6rem)]"
+                  className="block text-[clamp(2.95rem,10.5vw,3.95rem)] md:text-[clamp(2.2rem,6vw,5.6rem)]"
                   pattern="everyThird"
                   offset={1}
                   baseClassName="text-[#4C8B1D]"
