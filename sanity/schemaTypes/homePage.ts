@@ -1,5 +1,23 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
+const svgImageOptions = {
+  hotspot: true,
+  accept: 'image/png,image/jpeg,image/webp,image/gif',
+} as const;
+const svgFileOptions = {
+  accept: '.svg,image/svg+xml',
+} as const;
+
+function svgFileField(name: string, title: string) {
+  return defineField({
+    name,
+    title,
+    type: 'file',
+    description: 'Use this for SVG files. It overrides the image field above on the website.',
+    options: svgFileOptions,
+  });
+}
+
 export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
@@ -15,8 +33,9 @@ export const homePage = defineType({
       name: 'heroImage',
       title: 'Hero / Cover Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('heroImageSvg', 'Hero / Cover Image SVG'),
     defineField({
       name: 'heroImageAlt',
       title: 'Hero Image Alt Text',
@@ -71,22 +90,25 @@ export const homePage = defineType({
               name: 'sectionBackgroundImage',
               title: 'Section Background Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('sectionBackgroundImageSvg', 'Section Background Image SVG'),
             defineField({
               name: 'productLabelImage',
               title: 'Product Label Image',
               type: 'image',
               description:
                 'The long product label / packaging strip shown in this product band.',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('productLabelImageSvg', 'Product Label Image SVG'),
             defineField({
               name: 'ctaBackgroundImage',
               title: 'CTA Background Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('ctaBackgroundImageSvg', 'CTA Background Image SVG'),
           ],
           preview: {
             select: {
@@ -132,8 +154,9 @@ export const homePage = defineType({
       title: 'Read Rant Sliding Image',
       type: 'image',
       description: 'The sliding image shown beside the Read Rant CTA on the home page.',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('readRantImageSvg', 'Read Rant Sliding Image SVG'),
     defineField({
       name: 'readRantImageAlt',
       title: 'Read Rant Sliding Image Alt Text',
@@ -161,8 +184,9 @@ export const homePage = defineType({
               name: 'image',
               title: 'Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('imageSvg', 'Image SVG'),
             defineField({
               name: 'alt',
               title: 'Alt Text',
@@ -194,8 +218,9 @@ export const homePage = defineType({
               name: 'image',
               title: 'Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('imageSvg', 'Image SVG'),
             defineField({
               name: 'alt',
               title: 'Alt Text',

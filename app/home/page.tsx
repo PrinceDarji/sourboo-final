@@ -8,7 +8,7 @@ import HomePosterPinboard from '../components/home/HomePosterPinboard';
 import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 
 export const revalidate = 0;
@@ -160,30 +160,30 @@ const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _c
 }`;
 
 const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)[0]{
-  heroImage,
+  "heroImage": coalesce(heroImageSvg.asset->url, heroImage),
   heroImageAlt,
   heroTitleLine1,
   heroTitleLine2,
   productBands[]{
     variant,
     ctaLabel,
-    sectionBackgroundImage,
-    productLabelImage,
-    ctaBackgroundImage
+    "sectionBackgroundImage": coalesce(sectionBackgroundImageSvg.asset->url, sectionBackgroundImage),
+    "productLabelImage": coalesce(productLabelImageSvg.asset->url, productLabelImage),
+    "ctaBackgroundImage": coalesce(ctaBackgroundImageSvg.asset->url, ctaBackgroundImage)
   },
   introHeadlineLine1,
   introHeadlineLine2,
   introBodyLine1,
   introBodyLine2,
-  readRantImage,
+  "readRantImage": coalesce(readRantImageSvg.asset->url, readRantImage),
   readRantImageAlt,
   readRantCtaLabel,
   posters[]{
-    image,
+    "image": coalesce(imageSvg.asset->url, image),
     alt
   },
   horizontalGallery[]{
-    image,
+    "image": coalesce(imageSvg.asset->url, image),
     alt
   },
   reviewBubbles[]{
@@ -232,11 +232,7 @@ function imageSrc(
   const width = options?.width ?? 1600;
   const quality = options?.quality ?? 78;
 
-  try {
-    return source ? urlFor(source).width(width).quality(quality).url() : fallback;
-  } catch {
-    return fallback;
-  }
+  return sanityImageOrFileUrl(source, fallback, { width, quality });
 }
 
 function toCmsImageItems(

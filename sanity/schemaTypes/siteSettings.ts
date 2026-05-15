@@ -1,5 +1,23 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
+const svgImageOptions = {
+  hotspot: true,
+  accept: 'image/png,image/jpeg,image/webp,image/gif',
+} as const;
+const svgFileOptions = {
+  accept: '.svg,image/svg+xml',
+} as const;
+
+function svgFileField(name: string, title: string) {
+  return defineField({
+    name,
+    title,
+    type: 'file',
+    description: 'Use this for SVG files. It overrides the image field above on the website.',
+    options: svgFileOptions,
+  });
+}
+
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
@@ -76,8 +94,9 @@ export const siteSettings = defineType({
       name: 'landingPopupTopLeftImage',
       title: 'Landing Popup Top Left Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupTopLeftImageSvg', 'Landing Popup Top Left Image SVG'),
     defineField({
       name: 'landingPopupTopLeftImageAlt',
       title: 'Landing Popup Top Left Image Alt Text',
@@ -88,8 +107,9 @@ export const siteSettings = defineType({
       name: 'landingPopupCenterImage',
       title: 'Landing Popup Center Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupCenterImageSvg', 'Landing Popup Center Image SVG'),
     defineField({
       name: 'landingPopupCenterImageAlt',
       title: 'Landing Popup Center Image Alt Text',
@@ -100,8 +120,9 @@ export const siteSettings = defineType({
       name: 'landingPopupTopRightImage',
       title: 'Landing Popup Top Right Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupTopRightImageSvg', 'Landing Popup Top Right Image SVG'),
     defineField({
       name: 'landingPopupTopRightImageAlt',
       title: 'Landing Popup Top Right Image Alt Text',
@@ -112,8 +133,9 @@ export const siteSettings = defineType({
       name: 'landingPopupBottomLeftImage',
       title: 'Landing Popup Bottom Left Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupBottomLeftImageSvg', 'Landing Popup Bottom Left Image SVG'),
     defineField({
       name: 'landingPopupBottomLeftImageAlt',
       title: 'Landing Popup Bottom Left Image Alt Text',
@@ -124,8 +146,9 @@ export const siteSettings = defineType({
       name: 'landingPopupThirdOilDripImage',
       title: 'Landing Popup Third Oil Drip Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupThirdOilDripImageSvg', 'Landing Popup Third Oil Drip Image SVG'),
     defineField({
       name: 'landingPopupThirdOilDripImageAlt',
       title: 'Landing Popup Third Oil Drip Image Alt Text',
@@ -192,8 +215,9 @@ export const siteSettings = defineType({
       name: 'landingPopupLeadCtaBackgroundImage',
       title: 'Landing Popup Lead Step CTA Background Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('landingPopupLeadCtaBackgroundImageSvg', 'Landing Popup Lead Step CTA Background Image SVG'),
     defineField({
       name: 'landingPopupLeadSuccessCode',
       title: 'Landing Popup Lead Step Success Coupon Code',
@@ -239,8 +263,9 @@ export const siteSettings = defineType({
               name: 'backgroundImage',
               title: 'Button Background Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('backgroundImageSvg', 'Button Background Image SVG'),
             defineField({
               name: 'textColor',
               title: 'Text Color (HEX)',
@@ -340,9 +365,10 @@ export const siteSettings = defineType({
               name: 'backgroundImage',
               title: 'Card Background Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
               description: 'Optional. If empty, the card falls back to a gradient background.',
             }),
+            svgFileField('backgroundImageSvg', 'Card Background Image SVG'),
           ],
           preview: {
             select: {
@@ -382,17 +408,19 @@ export const siteSettings = defineType({
       name: 'footerBackgroundImage',
       title: 'Footer Background Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
       description:
         'Optional. Upload a footer background image here. If empty, the current default pink background is used.',
     }),
+    svgFileField('footerBackgroundImageSvg', 'Footer Background Image SVG'),
     defineField({
       name: 'footerLogoImage',
       title: 'Footer Logo Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
       description: 'Optional. Upload the logo used in the center of the footer.',
     }),
+    svgFileField('footerLogoImageSvg', 'Footer Logo Image SVG'),
     defineField({
       name: 'footerLogoAlt',
       title: 'Footer Logo Alt Text',

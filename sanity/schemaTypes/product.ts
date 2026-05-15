@@ -1,6 +1,13 @@
 import { defineField, defineType } from "sanity";
 
 const hexColorRule = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+const svgImageOptions = {
+  hotspot: true,
+  accept: "image/png,image/jpeg,image/webp,image/gif",
+} as const;
+const svgFileOptions = {
+  accept: ".svg,image/svg+xml",
+} as const;
 
 export const product = defineType({
   name: "product",
@@ -104,16 +111,30 @@ export const product = defineType({
       name: "splashImage",
       title: "Splash Image",
       type: "image",
-      options: { hotspot: true },
+      options: svgImageOptions,
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "splashImageSvg",
+      title: "Splash Image SVG",
+      type: "file",
+      description: "Use this for SVG files. It overrides Splash Image on the website.",
+      options: svgFileOptions,
     }),
 
     defineField({
       name: "jarImage",
       title: "Jar Image",
       type: "image",
-      options: { hotspot: true },
+      options: svgImageOptions,
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "jarImageSvg",
+      title: "Jar Image SVG",
+      type: "file",
+      description: "Use this for SVG files. It overrides Jar Image on the website.",
+      options: svgFileOptions,
     }),
 
     defineField({
@@ -124,7 +145,7 @@ export const product = defineType({
       of: [
         {
           type: "image",
-          options: { hotspot: true },
+          options: svgImageOptions,
         },
       ],
     }),
@@ -133,7 +154,14 @@ export const product = defineType({
       name: "leafImage",
       title: "Leaf Illustration (optional)",
       type: "image",
-      options: { hotspot: true },
+      options: svgImageOptions,
+    }),
+    defineField({
+      name: "leafImageSvg",
+      title: "Leaf Illustration SVG (optional)",
+      type: "file",
+      description: "Use this for SVG files. It overrides Leaf Illustration on the website.",
+      options: svgFileOptions,
     }),
 
     defineField({

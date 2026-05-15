@@ -1,5 +1,23 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
+const svgImageOptions = {
+  hotspot: true,
+  accept: 'image/png,image/jpeg,image/webp,image/gif',
+} as const;
+const svgFileOptions = {
+  accept: '.svg,image/svg+xml',
+} as const;
+
+function svgFileField(name: string, title: string) {
+  return defineField({
+    name,
+    title,
+    type: 'file',
+    description: 'Use this for SVG files. It overrides the image field above on the website.',
+    options: svgFileOptions,
+  });
+}
+
 export const productPage = defineType({
   name: 'productPage',
   title: 'Product Page',
@@ -47,8 +65,9 @@ export const productPage = defineType({
       name: 'matchIntroPathImage',
       title: 'Match Intro Path Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('matchIntroPathImageSvg', 'Match Intro Path Image SVG'),
     defineField({
       name: 'matchIntroPathImageAlt',
       title: 'Match Intro Path Image Alt Text',
@@ -68,8 +87,9 @@ export const productPage = defineType({
       name: 'primaryPlayerImage',
       title: 'Primary Match Player Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('primaryPlayerImageSvg', 'Primary Match Player Image SVG'),
     defineField({
       name: 'primaryPlayerImageAlt',
       title: 'Primary Match Player Image Alt Text',
@@ -127,8 +147,9 @@ export const productPage = defineType({
       name: 'primarySelectionPathImage',
       title: 'Primary Selection Path Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('primarySelectionPathImageSvg', 'Primary Selection Path Image SVG'),
     defineField({
       name: 'primarySelectionPathImageAlt',
       title: 'Primary Selection Path Image Alt Text',
@@ -147,8 +168,9 @@ export const productPage = defineType({
       title: 'Jar Image beside "get side eye sour" CTA',
       type: 'image',
       description: 'Controls the jar image overlapping the Side Eye Sour CTA card.',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('primarySelectionJarImageSvg', 'Jar Image beside "get side eye sour" CTA SVG'),
     defineField({
       name: 'primarySelectionJarImageAlt',
       title: 'Jar Image beside "get side eye sour" CTA Alt Text',
@@ -159,8 +181,9 @@ export const productPage = defineType({
       name: 'primarySelectionCtaBackgroundImage',
       title: 'Primary Selection CTA Background Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('primarySelectionCtaBackgroundImageSvg', 'Primary Selection CTA Background Image SVG'),
     defineField({
       name: 'primarySelectionCtaBackgroundImageAlt',
       title: 'Primary Selection CTA Background Image Alt Text',
@@ -187,8 +210,9 @@ export const productPage = defineType({
       name: 'secondaryPromptPathImage',
       title: 'Secondary Prompt Path Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('secondaryPromptPathImageSvg', 'Secondary Prompt Path Image SVG'),
     defineField({
       name: 'secondaryPromptPathImageAlt',
       title: 'Secondary Prompt Path Image Alt Text',
@@ -207,8 +231,9 @@ export const productPage = defineType({
       name: 'secondaryPlayerImage',
       title: 'Secondary Match Player Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('secondaryPlayerImageSvg', 'Secondary Match Player Image SVG'),
     defineField({
       name: 'secondaryPlayerImageAlt',
       title: 'Secondary Match Player Image Alt Text',
@@ -266,8 +291,9 @@ export const productPage = defineType({
       name: 'secondarySelectionPathImage',
       title: 'Secondary Selection Path Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('secondarySelectionPathImageSvg', 'Secondary Selection Path Image SVG'),
     defineField({
       name: 'secondarySelectionPathImageAlt',
       title: 'Secondary Selection Path Image Alt Text',
@@ -279,8 +305,9 @@ export const productPage = defineType({
       title: 'Jar Image beside "tamarin tease / makes sense" CTA',
       type: 'image',
       description: 'Controls the jar image overlapping the Tamarin Tease CTA card.',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('secondarySelectionJarImageSvg', 'Jar Image beside "tamarin tease / makes sense" CTA SVG'),
     defineField({
       name: 'secondarySelectionJarImageAlt',
       title: 'Jar Image beside "tamarin tease / makes sense" CTA Alt Text',
@@ -291,8 +318,9 @@ export const productPage = defineType({
       name: 'secondarySelectionCtaBackgroundImage',
       title: 'Secondary Selection CTA Background Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('secondarySelectionCtaBackgroundImageSvg', 'Secondary Selection CTA Background Image SVG'),
     defineField({
       name: 'secondarySelectionCtaBackgroundImageAlt',
       title: 'Secondary Selection CTA Background Image Alt Text',

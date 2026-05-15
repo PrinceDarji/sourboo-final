@@ -8,7 +8,7 @@ import ProductImageCarousel from '@/app/components/product/ProductImageCarousel'
 import ProductDetailSections from '@/app/components/product/ProductDetailSections';
 import ProductShareButton from '@/app/components/product/ProductShareButton';
 import { sanityClient } from '@/src/lib/sanity/client';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 
 export const revalidate = 300;
@@ -67,7 +67,7 @@ const PRODUCT_DETAIL_QUERY = `*[_type == "product" && slug.current == $slug][0]{
   suffixWord,
   price,
   discountPercent,
-  jarImage,
+  "jarImage": coalesce(jarImageSvg.asset->url, jarImage),
   galleryImages,
   titleColor,
   accentColor,
@@ -97,11 +97,7 @@ function asNonEmptyString(value: unknown): string | undefined {
 }
 
 function imageSrc(source: unknown, fallback: string) {
-  try {
-    return source ? urlFor(source).width(1400).quality(80).url() : fallback;
-  } catch {
-    return fallback;
-  }
+  return sanityImageOrFileUrl(source, fallback, { width: 1400, quality: 80 });
 }
 
 function defaultDetailContent(styleVariant: StyleVariant) {

@@ -1,5 +1,5 @@
 import { sanityClient } from '@/src/lib/sanity/client';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
 const DEFAULT_INSTAGRAM_PROFILE_URL = 'https://www.instagram.com/eatsourboo/';
 const DEFAULT_INSTAGRAM_HANDLE = '@sourboosnacks';
@@ -93,15 +93,15 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   whatsappUrl,
   instagramHeadingPrefix,
   instagramFallbackCardLabel,
-  footerBackgroundImage,
-  footerLogoImage,
+  "footerBackgroundImage": coalesce(footerBackgroundImageSvg.asset->url, footerBackgroundImage),
+  "footerLogoImage": coalesce(footerLogoImageSvg.asset->url, footerLogoImage),
   footerLogoAlt,
   footerTagline,
   instagramFeedLinks[]{
     _key,
     label,
     url,
-    backgroundImage
+    "backgroundImage": coalesce(backgroundImageSvg.asset->url, backgroundImage)
   },
   footerPrimaryLinks[]{
     label,
@@ -153,29 +153,22 @@ function asValidHref(value: unknown): string | undefined {
 
 function toBackgroundImageUrl(source: unknown): string | undefined {
   if (!source) return undefined;
-  try {
-    return urlFor(source).width(960).height(1200).fit('crop').quality(80).url();
-  } catch {
-    return undefined;
-  }
+  return sanityImageOrFileUrl(source, '', {
+    width: 960,
+    height: 1200,
+    fit: 'crop',
+    quality: 80,
+  }) || undefined;
 }
 
 function toFooterBackgroundImageUrl(source: unknown): string | undefined {
   if (!source) return undefined;
-  try {
-    return urlFor(source).width(2400).quality(82).url();
-  } catch {
-    return undefined;
-  }
+  return sanityImageOrFileUrl(source, '', { width: 2400, quality: 82 }) || undefined;
 }
 
 function toFooterLogoImageUrl(source: unknown): string | undefined {
   if (!source) return undefined;
-  try {
-    return urlFor(source).width(900).quality(90).url();
-  } catch {
-    return undefined;
-  }
+  return sanityImageOrFileUrl(source, '', { width: 900, quality: 90 }) || undefined;
 }
 
 function toInstagramPosts(links: unknown): InstagramPostLink[] {

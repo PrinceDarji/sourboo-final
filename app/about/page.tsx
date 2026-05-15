@@ -9,7 +9,7 @@ import AboutFlavorWords from '../components/about/AboutFlavorWords';
 import AboutWordByWordReveal from '../components/about/AboutWordByWordReveal';
 import AboutEnvelopeText from '../components/about/AboutEnvelopeText';
 import SectionThreeEyesSequence from '../components/about/SectionThreeEyesSequence';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
 export const revalidate = 0;
 
@@ -162,7 +162,7 @@ type AboutPageContent = {
 };
 
 const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
-  heroImage,
+  "heroImage": coalesce(heroImageSvg.asset->url, heroImage),
   heroImageAlt,
   heroHeading,
   heroSubheading,
@@ -171,21 +171,21 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
   section2Heading,
   section2MixingLabel,
   section2TastingLabel,
-  section2Image1,
+  "section2Image1": coalesce(section2Image1Svg.asset->url, section2Image1),
   section2Image1Alt,
-  section2Image2,
+  "section2Image2": coalesce(section2Image2Svg.asset->url, section2Image2),
   section2Image2Alt,
-  section2Image3,
+  "section2Image3": coalesce(section2Image3Svg.asset->url, section2Image3),
   section2Image3Alt,
   section2SpentYearsText,
   section2JourneyText,
 
   section3Heading,
   section3EyesSequence[]{
-    image,
+    "image": coalesce(imageSvg.asset->url, image),
     alt
   },
-  section3TongueImage,
+  "section3TongueImage": coalesce(section3TongueImageSvg.asset->url, section3TongueImage),
   section3TongueImageAlt,
   section3IndiaCallout1,
   section3IndiaCallout2,
@@ -194,24 +194,24 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
 
   section4FlavorWords[]{
     label,
-    backgroundImage
+    "backgroundImage": coalesce(backgroundImageSvg.asset->url, backgroundImage)
   },
   section4BodyText,
   section4IssueHeading,
   section4SideText,
-  section4LemonImage,
+  "section4LemonImage": coalesce(section4LemonImageSvg.asset->url, section4LemonImage),
   section4LemonImageAlt,
   section4LemonCaption,
-  section4SpoonImage,
+  "section4SpoonImage": coalesce(section4SpoonImageSvg.asset->url, section4SpoonImage),
   section4SpoonImageAlt,
   section4SpoonCaption,
 
-  section5TearImage,
+  "section5TearImage": coalesce(section5TearImageSvg.asset->url, section5TearImage),
   section5TearImageAlt,
   section5IntroducingText,
-  section5LogoImage,
+  "section5LogoImage": coalesce(section5LogoImageSvg.asset->url, section5LogoImage),
   section5LogoImageAlt,
-  section5TaglineImage,
+  "section5TaglineImage": coalesce(section5TaglineImageSvg.asset->url, section5TaglineImage),
   section5TaglineImageAlt,
   section5Paragraph1,
   section5Paragraph2Prefix,
@@ -221,13 +221,13 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
   section5ClosingText,
 
   section6TopStripImages[]{
-    image,
+    "image": coalesce(imageSvg.asset->url, image),
     alt
   },
   section6HeadingLine1,
   section6HeadingLine2,
   section6JoinMoreText,
-  section6EnvelopeImage,
+  "section6EnvelopeImage": coalesce(section6EnvelopeImageSvg.asset->url, section6EnvelopeImage),
   section6EnvelopeImageAlt,
 
   envelopeHeading,
@@ -338,11 +338,7 @@ function imageSrc(
   const width = options?.width ?? 1800;
   const quality = options?.quality ?? 78;
 
-  try {
-    return source ? urlFor(source).width(width).quality(quality).url() : fallback;
-  } catch {
-    return fallback;
-  }
+  return sanityImageOrFileUrl(source, fallback, { width, quality });
 }
 
 function toImage(

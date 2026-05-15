@@ -1,5 +1,23 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
+const svgImageOptions = {
+  hotspot: true,
+  accept: 'image/png,image/jpeg,image/webp,image/gif',
+} as const;
+const svgFileOptions = {
+  accept: '.svg,image/svg+xml',
+} as const;
+
+function svgFileField(name: string, title: string) {
+  return defineField({
+    name,
+    title,
+    type: 'file',
+    description: 'Use this for SVG files. It overrides the image field above on the website.',
+    options: svgFileOptions,
+  });
+}
+
 export const aboutPage = defineType({
   name: 'aboutPage',
   title: 'About Page',
@@ -16,15 +34,16 @@ export const aboutPage = defineType({
       name: 'navPickleImage',
       title: 'Navbar Pickle Image (Legacy)',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
 
     defineField({
       name: 'heroImage',
       title: 'Hero / Cover Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('heroImageSvg', 'Hero / Cover Image SVG'),
     defineField({
       name: 'heroImageAlt',
       title: 'Hero Image Alt Text',
@@ -80,8 +99,9 @@ export const aboutPage = defineType({
       name: 'section2Image1',
       title: 'Section 2 Image 1',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section2Image1Svg', 'Section 2 Image 1 SVG'),
     defineField({
       name: 'section2Image1Alt',
       title: 'Section 2 Image 1 Alt Text',
@@ -92,8 +112,9 @@ export const aboutPage = defineType({
       name: 'section2Image2',
       title: 'Section 2 Image 2',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section2Image2Svg', 'Section 2 Image 2 SVG'),
     defineField({
       name: 'section2Image2Alt',
       title: 'Section 2 Image 2 Alt Text',
@@ -104,8 +125,9 @@ export const aboutPage = defineType({
       name: 'section2Image3',
       title: 'Section 2 Image 3',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section2Image3Svg', 'Section 2 Image 3 SVG'),
     defineField({
       name: 'section2Image3Alt',
       title: 'Section 2 Image 3 Alt Text',
@@ -150,8 +172,9 @@ export const aboutPage = defineType({
               name: 'image',
               title: 'Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('imageSvg', 'Image SVG'),
             defineField({
               name: 'alt',
               title: 'Alt Text',
@@ -173,8 +196,9 @@ export const aboutPage = defineType({
       name: 'section3TongueImage',
       title: 'Section 3 Tongue Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section3TongueImageSvg', 'Section 3 Tongue Image SVG'),
     defineField({
       name: 'section3TongueImageAlt',
       title: 'Section 3 Tongue Image Alt Text',
@@ -231,8 +255,9 @@ export const aboutPage = defineType({
               name: 'backgroundImage',
               title: 'Background Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('backgroundImageSvg', 'Background Image SVG'),
           ],
           preview: {
             select: {
@@ -270,8 +295,9 @@ export const aboutPage = defineType({
       name: 'section4LemonImage',
       title: 'Section 4 Lemon Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section4LemonImageSvg', 'Section 4 Lemon Image SVG'),
     defineField({
       name: 'section4LemonImageAlt',
       title: 'Section 4 Lemon Image Alt Text',
@@ -289,8 +315,9 @@ export const aboutPage = defineType({
       name: 'section4SpoonImage',
       title: 'Section 4 Spoon Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section4SpoonImageSvg', 'Section 4 Spoon Image SVG'),
     defineField({
       name: 'section4SpoonImageAlt',
       title: 'Section 4 Spoon Image Alt Text',
@@ -309,8 +336,9 @@ export const aboutPage = defineType({
       name: 'section5TearImage',
       title: 'Section 5 Tear Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section5TearImageSvg', 'Section 5 Tear Image SVG'),
     defineField({
       name: 'section5TearImageAlt',
       title: 'Section 5 Tear Image Alt Text',
@@ -328,8 +356,9 @@ export const aboutPage = defineType({
       name: 'section5LogoImage',
       title: 'Section 5 Logo Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section5LogoImageSvg', 'Section 5 Logo Image SVG'),
     defineField({
       name: 'section5LogoImageAlt',
       title: 'Section 5 Logo Image Alt Text',
@@ -340,8 +369,9 @@ export const aboutPage = defineType({
       name: 'section5TaglineImage',
       title: 'Section 5 Tagline Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section5TaglineImageSvg', 'Section 5 Tagline Image SVG'),
     defineField({
       name: 'section5TaglineImageAlt',
       title: 'Section 5 Tagline Image Alt Text',
@@ -408,8 +438,9 @@ export const aboutPage = defineType({
               name: 'image',
               title: 'Image',
               type: 'image',
-              options: { hotspot: true },
+              options: svgImageOptions,
             }),
+            svgFileField('imageSvg', 'Image SVG'),
             defineField({
               name: 'alt',
               title: 'Alt Text',
@@ -452,8 +483,9 @@ export const aboutPage = defineType({
       name: 'section6EnvelopeImage',
       title: 'Section 6 Envelope Image',
       type: 'image',
-      options: { hotspot: true },
+      options: svgImageOptions,
     }),
+    svgFileField('section6EnvelopeImageSvg', 'Section 6 Envelope Image SVG'),
     defineField({
       name: 'section6EnvelopeImageAlt',
       title: 'Section 6 Envelope Image Alt Text',

@@ -1,6 +1,6 @@
 import { sanityClient } from '@/src/lib/sanity/client';
 import { POPUP_DISCOUNT_CODE } from '@/src/lib/checkout/discountCodes';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
 export type LandingPopupOption = {
   label: string;
@@ -183,15 +183,15 @@ const LANDING_POPUP_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   landingPopupBackgroundColor,
   "landingPopupCloseIconUrl": landingPopupCloseIcon.asset->url,
   landingPopupCloseIconAlt,
-  landingPopupTopLeftImage,
+  "landingPopupTopLeftImage": coalesce(landingPopupTopLeftImageSvg.asset->url, landingPopupTopLeftImage),
   landingPopupTopLeftImageAlt,
-  landingPopupCenterImage,
+  "landingPopupCenterImage": coalesce(landingPopupCenterImageSvg.asset->url, landingPopupCenterImage),
   landingPopupCenterImageAlt,
-  landingPopupTopRightImage,
+  "landingPopupTopRightImage": coalesce(landingPopupTopRightImageSvg.asset->url, landingPopupTopRightImage),
   landingPopupTopRightImageAlt,
-  landingPopupBottomLeftImage,
+  "landingPopupBottomLeftImage": coalesce(landingPopupBottomLeftImageSvg.asset->url, landingPopupBottomLeftImage),
   landingPopupBottomLeftImageAlt,
-  landingPopupThirdOilDripImage,
+  "landingPopupThirdOilDripImage": coalesce(landingPopupThirdOilDripImageSvg.asset->url, landingPopupThirdOilDripImage),
   landingPopupThirdOilDripImageAlt,
   landingPopupLeadHeadingPrefix,
   landingPopupLeadDiscountPrefix,
@@ -201,13 +201,13 @@ const LANDING_POPUP_QUERY = `*[_type == "siteSettings"] | order(_updatedAt desc)
   landingPopupLeadPhonePlaceholder,
   landingPopupLeadCtaLabel,
   landingPopupLeadDisclaimer,
-  landingPopupLeadCtaBackgroundImage,
+  "landingPopupLeadCtaBackgroundImage": coalesce(landingPopupLeadCtaBackgroundImageSvg.asset->url, landingPopupLeadCtaBackgroundImage),
   landingPopupLeadSuccessCode,
   landingPopupLeadSuccessMessage,
   landingPopupOptions[]{
     label,
     href,
-    backgroundImage,
+    "backgroundImage": coalesce(backgroundImageSvg.asset->url, backgroundImage),
     textColor,
     textOffsetX,
     textOffsetY
@@ -272,11 +272,7 @@ function imageSrc(
   const quality = options.quality ?? 80;
 
   if (!source) return undefined;
-  try {
-    return urlFor(source).width(width).quality(quality).url();
-  } catch {
-    return undefined;
-  }
+  return sanityImageOrFileUrl(source, '', { width, quality }) || undefined;
 }
 
 function toPopupOptions(source: LandingPopupOptionQuery[] | undefined): LandingPopupOption[] {

@@ -5,7 +5,7 @@ import SiteFooter from '../components/SiteFooter';
 import { CoolRascalText } from '../components/MixedFont';
 import QuickBuyButton from '../components/cart/QuickBuyButton';
 import { sanityClient } from '@/src/lib/sanity/client';
-import { urlFor } from '@/src/lib/sanity/image';
+import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 import AnimatedFlavorMeters, { type FlavorMeter } from '../components/product/AnimatedFlavorMeters';
 import ProductWordByWordReveal from '../components/product/ProductWordByWordReveal';
@@ -173,9 +173,9 @@ const PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt 
   hoverLabel,
   alwaysShowLabel,
   styleVariant,
-  splashImage,
-  jarImage,
-  leafImage,
+  "splashImage": coalesce(splashImageSvg.asset->url, splashImage),
+  "jarImage": coalesce(jarImageSvg.asset->url, jarImage),
+  "leafImage": coalesce(leafImageSvg.asset->url, leafImage),
   titleColor,
   accentColor
 }`;
@@ -185,42 +185,42 @@ const PRODUCT_PAGE_CONTENT_QUERY = `*[_type == "productPage"] | order(_updatedAt
   showFlavorMatchSection,
   matchIntroHeadingTop,
   matchIntroHeadingBottom,
-  matchIntroPathImage,
+  "matchIntroPathImage": coalesce(matchIntroPathImageSvg.asset->url, matchIntroPathImage),
   matchIntroPathImageAlt,
   matchIntroBody,
 
-  primaryPlayerImage,
+  "primaryPlayerImage": coalesce(primaryPlayerImageSvg.asset->url, primaryPlayerImage),
   primaryPlayerImageAlt,
   primaryMeters[]{
     label,
     fill,
     showTail
   },
-  primarySelectionPathImage,
+  "primarySelectionPathImage": coalesce(primarySelectionPathImageSvg.asset->url, primarySelectionPathImage),
   primarySelectionPathImageAlt,
   primarySelectionHeading,
-  primarySelectionJarImage,
+  "primarySelectionJarImage": coalesce(primarySelectionJarImageSvg.asset->url, primarySelectionJarImage),
   primarySelectionJarImageAlt,
-  primarySelectionCtaBackgroundImage,
+  "primarySelectionCtaBackgroundImage": coalesce(primarySelectionCtaBackgroundImageSvg.asset->url, primarySelectionCtaBackgroundImage),
   primarySelectionCtaBackgroundImageAlt,
   primarySelectionCtaText,
   primarySelectionCtaAriaLabel,
 
-  secondaryPromptPathImage,
+  "secondaryPromptPathImage": coalesce(secondaryPromptPathImageSvg.asset->url, secondaryPromptPathImage),
   secondaryPromptPathImageAlt,
   secondaryPromptText,
-  secondaryPlayerImage,
+  "secondaryPlayerImage": coalesce(secondaryPlayerImageSvg.asset->url, secondaryPlayerImage),
   secondaryPlayerImageAlt,
   secondaryMeters[]{
     label,
     fill,
     showTail
   },
-  secondarySelectionPathImage,
+  "secondarySelectionPathImage": coalesce(secondarySelectionPathImageSvg.asset->url, secondarySelectionPathImage),
   secondarySelectionPathImageAlt,
-  secondarySelectionJarImage,
+  "secondarySelectionJarImage": coalesce(secondarySelectionJarImageSvg.asset->url, secondarySelectionJarImage),
   secondarySelectionJarImageAlt,
-  secondarySelectionCtaBackgroundImage,
+  "secondarySelectionCtaBackgroundImage": coalesce(secondarySelectionCtaBackgroundImageSvg.asset->url, secondarySelectionCtaBackgroundImage),
   secondarySelectionCtaBackgroundImageAlt,
   secondarySelectionCtaText,
   secondarySelectionCtaAriaLabel,
@@ -368,11 +368,7 @@ function imageSrc(
   const width = options?.width ?? 1600;
   const quality = options?.quality ?? 78;
 
-  try {
-    return source ? urlFor(source).width(width).quality(quality).url() : fallback;
-  } catch {
-    return fallback;
-  }
+  return sanityImageOrFileUrl(source, fallback, { width, quality });
 }
 
 function toImage(
