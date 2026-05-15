@@ -595,7 +595,7 @@ export default async function HomePage() {
           <div className="flex flex-col items-center gap-7 md:flex-row md:items-center md:justify-start md:gap-12 lg:gap-16">
             <div className="w-full md:w-auto md:shrink-0">
               <CrybabyVisual
-                rotateClass="mx-auto md:mx-0"
+                rotateClass="home-readmyrant-edge-align"
                 fluidPositionClass="left-[63%] top-[44%]"
                 imageSrc={homeContent.intro.readRantImage.src}
                 imageAlt={homeContent.intro.readRantImage.alt}

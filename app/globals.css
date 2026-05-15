@@ -478,6 +478,11 @@ body {
   will-change: transform;
 }
 
+.home-readmyrant-edge-align {
+  margin-left: -1rem;
+  margin-right: auto;
+}
+
 .home-poster-card {
   opacity: 0;
   transform: translate3d(0, -140px, 0) scale(0.84);
@@ -577,6 +582,18 @@ body {
 @media (min-width: 1024px) {
   .india-callout-text {
     font-size: clamp(22px, 1.8vw, 44px);
+  }
+}
+
+@media (min-width: 768px) {
+  .home-readmyrant-edge-align {
+    margin-left: -2.5rem;
+  }
+}
+
+@media (min-width: 1501px) {
+  .home-readmyrant-edge-align {
+    margin-left: calc(750px - 50vw - 2.5rem);
   }
 }
 

@@ -52,7 +52,7 @@ const galleryCardLayouts: GalleryCardLayout[] = [
     fallbackSrc: '/home/girldinner.webp',
     fallbackAlt: 'Food collage visual 3',
     frameClass:
-      'z-[3] -ml-10 mt-[38vh] h-[190px] w-[190px] overflow-hidden rounded-full md:-ml-14 md:mt-[40vh] md:h-[280px] md:w-[280px] lg:h-[340px] lg:w-[380px]',
+      'z-[3] -ml-20 mt-[38vh] h-[190px] w-[190px] overflow-hidden rounded-full md:-ml-28 md:mt-[40vh] md:h-[280px] md:w-[280px] lg:-ml-32 lg:h-[340px] lg:w-[380px]',
     imageClass: 'object-cover',
     sizes: '(max-width: 768px) 190px, 400px',
   },
@@ -61,7 +61,7 @@ const galleryCardLayouts: GalleryCardLayout[] = [
     fallbackSrc: '/home/hangoverdetox.webp',
     fallbackAlt: 'Food collage visual 4',
     frameClass:
-      'z-[4] -ml-2 mt-[6vh] h-[200px] w-[200px] overflow-visible md:-ml-10 md:mt-[5vh] md:h-[290px] md:w-[290px] lg:h-[390px] lg:w-[440px]',
+      'z-[4] -ml-20 mt-[6vh] h-[200px] w-[200px] overflow-visible md:-ml-28 md:mt-[5vh] md:h-[290px] md:w-[290px] lg:-ml-32 lg:h-[390px] lg:w-[440px]',
     imageClass: 'object-contain md:drop-shadow-[0_14px_16px_rgba(0,0,0,0.22)]',
     sizes: '(max-width: 768px) 200px, 390px',
   },
@@ -79,7 +79,7 @@ const galleryCardLayouts: GalleryCardLayout[] = [
     fallbackSrc: '/home/recipe-2.webp',
     fallbackAlt: 'Food collage visual 6',
     frameClass:
-      'z-[2] -ml-12 mt-[10vh] h-[160px] w-[220px] overflow-hidden rounded-[30px] rotate-[2deg] md:-ml-16 md:mt-[9vh] md:h-[240px] md:w-[330px] lg:h-[300px] lg:w-[410px]',
+      'z-[2] -ml-24 mt-[10vh] h-[160px] w-[220px] overflow-hidden rounded-[30px] rotate-[2deg] md:-ml-32 md:mt-[9vh] md:h-[240px] md:w-[330px] lg:-ml-40 lg:h-[300px] lg:w-[410px]',
     imageClass: 'object-cover',
     sizes: '(max-width: 800px) 400px, 520px',
   },
@@ -172,7 +172,7 @@ export default function HomeHorizontalImageScroll({ items }: HomeHorizontalImage
       <div className="mx-auto h-[80vh] w-full max-w-[1500px] px-4 md:h-screen md:px-10">
         <div
           ref={viewportRef}
-          className="flex h-full snap-x snap-proximity items-start gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden md:snap-none md:gap-6 md:pt-8"
+          className="flex h-full snap-x snap-proximity items-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden md:snap-none md:gap-1 md:pt-8"
         >
           {galleryCards.map((card) => (
             <article
