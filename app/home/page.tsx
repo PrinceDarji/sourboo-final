@@ -521,7 +521,7 @@ export default async function HomePage() {
       <Navbar />
 
       <section className="relative mx-auto w-full max-w-[1600px]">
-        <div className="relative h-[62vh] min-h-[430px] w-full md:aspect-auto md:h-[78vh] md:min-h-[660px]">
+        <div className="relative aspect-video w-full md:aspect-auto md:h-[78vh] md:min-h-[660px]">
           <div className="absolute inset-0 overflow-hidden">
             <Image
               src={homeContent.hero.src}
