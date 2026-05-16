@@ -659,8 +659,8 @@ function ProductCard({
       : 'translate(7%, 9%) scale(1.45)'
     : shouldShiftMobileSplashRight
       ? isSecondary
-        ? 'translate(40%, 4%) scale(1.55)'
-        : 'translate(40%, 8%) scale(1.82)'
+        ? 'translate(20%, 4%) scale(1.55)'
+        : 'translate(20%, 8%) scale(1.82)'
     : isSecondary
       ? 'translate(0%, 4%) scale(1.4)'
       : 'translate(0%, 8%) scale(1.65)';
@@ -966,7 +966,7 @@ export default async function ProductPage() {
           <section className="w-full pb-10 pt-2 md:pb-14 md:pt-4">
             <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
               <div className="relative mx-auto w-full max-w-[920px]">
-                <div className="pointer-events-none absolute -right-8 -top-8 z-20 h-[285px] w-[254px] md:-right-16 md:-top-10 md:h-[390px] md:w-[343px] ">
+                <div className="pointer-events-none absolute right-[-5%] -top-8 z-20 h-[285px] w-[254px] md:-right-16 md:-top-10 md:h-[390px] md:w-[343px] ">
                   <Image
                     src={pageContent.secondaryMatch.playerImage.src}
                     alt={pageContent.secondaryMatch.playerImage.alt}
