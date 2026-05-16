@@ -20,7 +20,7 @@ export default function LandingPopupCloseButton({
       type="button"
       onClick={handleClose}
       aria-label="Close popup"
-      className="absolute right-3 top-2 z-30 flex h-12 w-12 items-center justify-center transition hover:opacity-80 sm:right-4 md:right-7 md:top-3 md:h-14 md:w-14"
+      className="absolute right-3 top-2 z-30 flex h-10 w-10 items-center justify-center transition hover:opacity-80 sm:right-4 md:right-7 md:top-3 md:h-14 md:w-14"
     >
       {closeIconSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -30,7 +30,7 @@ export default function LandingPopupCloseButton({
           className="h-full w-full object-contain"
         />
       ) : (
-        <span className="text-[62px] leading-none text-[#EC1B79] font-coolvetica md:text-[72px]">
+        <span className="text-[52px] leading-none text-[#EC1B79] font-coolvetica md:text-[72px]">
           ×
         </span>
       )}

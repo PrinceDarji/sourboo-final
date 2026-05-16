@@ -32,6 +32,7 @@ type HomePageProductBandQuery = {
   ctaLabel?: string;
   sectionBackgroundImage?: unknown;
   productLabelImage?: unknown;
+  productLabelMobileImage?: unknown;
   ctaBackgroundImage?: unknown;
 };
 
@@ -82,12 +83,14 @@ type HomeBand = {
 type ProductBandProps = Omit<HomeBand, 'fallbackHref' | 'styleVariant'> & {
   href: string;
   discountedPriceLabel?: string;
+  mobilePackageImage?: string;
 };
 
 type HomeBandCmsContent = {
   ctaLabel?: string;
   bgImage?: string;
   packageImage?: string;
+  mobilePackageImage?: string;
   ctaBackgroundImage?: string;
 };
 
@@ -169,6 +172,7 @@ const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)
     ctaLabel,
     "sectionBackgroundImage": coalesce(sectionBackgroundImageSvg.asset->url, sectionBackgroundImage),
     "productLabelImage": coalesce(productLabelImageSvg.asset->url, productLabelImage),
+    "productLabelMobileImage": coalesce(productLabelMobileImageSvg.asset->url, productLabelMobileImage),
     "ctaBackgroundImage": coalesce(ctaBackgroundImageSvg.asset->url, ctaBackgroundImage)
   },
   introHeadlineLine1,
@@ -327,6 +331,9 @@ async function getHomeCmsContent(): Promise<HomeCmsContent> {
           packageImage: asNonEmptyString(
             imageSrc(band?.productLabelImage, '', { width: 2400, quality: 80 }),
           ),
+          mobilePackageImage: asNonEmptyString(
+            imageSrc(band?.productLabelMobileImage, '', { width: 1800, quality: 80 }),
+          ),
           ctaBackgroundImage: asNonEmptyString(
             imageSrc(band?.ctaBackgroundImage, '', { width: 1400, quality: 80 }),
           ),
@@ -415,6 +422,7 @@ function BottomWave() {
 function ProductBand({
   bgImage,
   packageImage,
+  mobilePackageImage,
   packageAspectRatio,
   priceLabel,
   discountedPriceLabel,
@@ -427,6 +435,8 @@ function ProductBand({
   showTopWave,
   showBottomWave,
 }: ProductBandProps) {
+  const mobileImage = mobilePackageImage || packageImage;
+
   return (
     <article className="relative w-full overflow-hidden">
       <div className="relative h-[560px] w-full sm:h-[620px] md:h-[760px] lg:h-[840px]">
@@ -443,7 +453,7 @@ function ProductBand({
 
         <div className="absolute inset-x-0 top-1/2 z-10 -translate-y-1/2">
           <div
-            className="relative mx-auto w-[min(96vw,1280px)] md:w-[min(86vw,1360px)] lg:w-[min(80vw,1420px)]"
+            className="relative mx-auto w-[min(112vw,1280px)] md:w-[min(86vw,1360px)] lg:w-[min(80vw,1420px)]"
             style={{ aspectRatio: packageAspectRatio }}
           >
             <Image
@@ -452,7 +462,15 @@ function ProductBand({
               fill
               sizes="(max-width: 768px) 96vw, (max-width: 1024px) 86vw, 80vw"
               quality={78}
-              className="object-contain object-center"
+              className="hidden object-contain object-center md:block"
+            />
+            <Image
+              src={mobileImage}
+              alt="product packaging strip"
+              fill
+              sizes="112vw"
+              quality={78}
+              className="object-contain object-center md:hidden"
             />
           </div>
 
@@ -503,7 +521,7 @@ export default async function HomePage() {
       <Navbar />
 
       <section className="relative mx-auto w-full max-w-[1600px]">
-        <div className="relative aspect-video w-full md:aspect-auto md:h-[78vh] md:min-h-[660px]">
+        <div className="relative h-[62vh] min-h-[430px] w-full md:aspect-auto md:h-[78vh] md:min-h-[660px]">
           <div className="absolute inset-0 overflow-hidden">
             <Image
               src={homeContent.hero.src}
@@ -523,7 +541,7 @@ export default async function HomePage() {
                 <CoolRascalText
                   as="span"
                   text={homeContent.hero.titleLine1}
-                  className="block text-[clamp(2.55rem,9vw,3.7rem)] md:text-[clamp(2rem,5vw,4.8rem)]"
+                  className="block text-[clamp(2.25rem,8vw,3.25rem)] md:text-[clamp(2rem,5vw,4.8rem)]"
                   pattern="alternate"
                   startWith="base"
                   baseClassName="text-[#4C8B1D]"
@@ -532,7 +550,7 @@ export default async function HomePage() {
                 <CoolRascalText
                   as="span"
                   text={homeContent.hero.titleLine2}
-                  className="block text-[clamp(2.95rem,10.5vw,3.95rem)] md:text-[clamp(2.2rem,6vw,5.6rem)]"
+                  className="block text-[clamp(2.55rem,9vw,3.45rem)] md:text-[clamp(2.2rem,6vw,5.6rem)]"
                   pattern="everyThird"
                   offset={1}
                   baseClassName="text-[#4C8B1D]"
@@ -562,6 +580,7 @@ export default async function HomePage() {
                 ctaLabel={cmsBand?.ctaLabel ?? band.ctaLabel}
                 bgImage={cmsBand?.bgImage ?? band.bgImage}
                 packageImage={cmsBand?.packageImage ?? band.packageImage}
+                mobilePackageImage={cmsBand?.mobilePackageImage}
                 ctaBackgroundImage={cmsBand?.ctaBackgroundImage ?? band.ctaBackgroundImage}
               />
             );

@@ -29,7 +29,7 @@ function toChoiceIndex(
 }
 
 function cleanOptionLabel(value: string): string {
-  return value.replace(/\s*→\s*$/, '').trim();
+  return value.replace(/\s*(?:→|->|-\s*>|›|»)+\s*$/, '').trim();
 }
 
 export default async function PopupCouponPage({
@@ -111,7 +111,7 @@ export default async function PopupCouponPage({
             width={960}
             height={620}
             sizes="(max-width: 640px) 82vw, (max-width: 820px) 72vw, 960px"
-            className="pointer-events-none absolute left-1/2 top-[57%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none"
+            className="pointer-events-none absolute left-1/2 top-[53%] z-0 h-auto -translate-x-1/2 -translate-y-1/2 select-none md:top-[57%]"
             style={{
               width: 'clamp(380px, 72vw, 960px)',
               height: 'auto',

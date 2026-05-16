@@ -623,6 +623,9 @@ export default async function Home() {
               className="object-cover object-center"
               style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
               priority
+              loading="eager"
+              fetchPriority="high"
+              quality={74}
             />
           </div>
 
@@ -701,7 +704,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <p className="mt-28 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
+        <p className="mt-44 text-center text-[42px] leading-[0.95] text-[#E61E6E] font-schoolbell md:mt-14 md:text-[72px]">
           {aboutContent.section2.spentYearsText}
         </p>
         <p className="mx-auto mt-4 max-w-[360px] text-center text-[32px] leading-[1.03] text-[#E61E6E] font-schoolbell md:max-w-[920px] md:text-[52px]">

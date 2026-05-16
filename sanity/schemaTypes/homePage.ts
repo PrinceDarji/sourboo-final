@@ -98,10 +98,19 @@ export const homePage = defineType({
               title: 'Product Label Image',
               type: 'image',
               description:
-                'The long product label / packaging strip shown in this product band.',
+                'The long product label / packaging strip shown in this product band on tablet and desktop.',
               options: svgImageOptions,
             }),
             svgFileField('productLabelImageSvg', 'Product Label Image SVG'),
+            defineField({
+              name: 'productLabelMobileImage',
+              title: 'Product Label Image (Mobile)',
+              type: 'image',
+              description:
+                'Optional smaller-screen product label / packaging strip. Falls back to Product Label Image.',
+              options: svgImageOptions,
+            }),
+            svgFileField('productLabelMobileImageSvg', 'Product Label Image SVG (Mobile)'),
             defineField({
               name: 'ctaBackgroundImage',
               title: 'CTA Background Image',

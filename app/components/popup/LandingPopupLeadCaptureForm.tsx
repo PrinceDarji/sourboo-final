@@ -314,7 +314,7 @@ export default function LandingPopupLeadCaptureForm({
             />
           ) : null}
           <span
-            className="relative z-10 px-6 text-center leading-none font-schoolbell"
+            className="relative z-10 -translate-x-2 -translate-y-1 px-6 text-center leading-none font-schoolbell md:translate-x-0 md:translate-y-0"
             style={{
               fontSize: 'clamp(1.5rem, 3vw, 2.3rem)',
               color: '#FFF9D5',
