@@ -2,7 +2,7 @@ import { defineArrayMember, defineField, defineType } from 'sanity';
 
 const svgImageOptions = {
   hotspot: true,
-  accept: 'image/png,image/jpeg,image/webp,image/gif',
+  accept: 'image/*',
 } as const;
 const svgFileOptions = {
   accept: '.svg,image/svg+xml',
@@ -410,7 +410,7 @@ export const siteSettings = defineType({
       type: 'image',
       options: svgImageOptions,
       description:
-        'Optional. Upload a footer background image here. If empty, the current default pink background is used.',
+        'Optional. Upload a raster footer background image here. Use the SVG field below for SVG files. If empty, the current default pink background is used.',
     }),
     svgFileField('footerBackgroundImageSvg', 'Footer Background Image SVG'),
     defineField({
@@ -418,7 +418,7 @@ export const siteSettings = defineType({
       title: 'Footer Logo Image',
       type: 'image',
       options: svgImageOptions,
-      description: 'Optional. Upload the logo used in the center of the footer.',
+      description: 'Optional. Upload the raster logo used in the center of the footer. Use the SVG field below for SVG files.',
     }),
     svgFileField('footerLogoImageSvg', 'Footer Logo Image SVG'),
     defineField({

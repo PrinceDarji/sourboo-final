@@ -37,6 +37,18 @@ const footerMaskStyle = {
   maskSize: '100% 100%',
 } as const;
 
+const footerLinkClassName =
+  'text-[clamp(0.75rem,3.7vw,1.12rem)] leading-none text-[#D7F557] font-coolvetica transition hover:opacity-80';
+
+const footerDesktopLinkClassName =
+  'text-[clamp(1.1rem,2vw,2.2rem)] leading-none text-[#D7F557] font-coolvetica transition hover:opacity-80';
+
+const footerPolicyLinkClassName =
+  'text-center text-[clamp(0.52rem,1.9vw,0.7rem)] leading-[0.9] text-[#D7F557] font-coolvetica transition hover:opacity-75';
+
+const footerDesktopPolicyLinkClassName =
+  'text-center text-[clamp(0.62rem,0.95vw,1.05rem)] leading-[0.95] text-[#D7F557] font-coolvetica transition hover:opacity-75';
+
 type FooterBackgroundProps = {
   imageUrl?: string;
 };
@@ -157,7 +169,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   <FooterLink
                     key={item.label}
                     href={item.href}
-                    className="text-[clamp(0.75rem,3.7vw,1.12rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                    className={footerLinkClassName}
                   >
                     {item.label}
                   </FooterLink>
@@ -169,7 +181,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   <FooterLink
                     key={item.label}
                     href={item.href}
-                    className="text-[clamp(0.75rem,3.7vw,1.12rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                    className={footerLinkClassName}
                   >
                     {item.label}
                   </FooterLink>
@@ -201,7 +213,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   <FooterLink
                     key={item.label}
                     href={item.href}
-                    className="text-center text-[clamp(0.52rem,1.9vw,0.7rem)] leading-[0.9] text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
+                    className={footerPolicyLinkClassName}
                   >
                     {item.label}
                   </FooterLink>
@@ -227,7 +239,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   <FooterLink
                     key={item.label}
                     href={item.href}
-                    className="text-[clamp(1.1rem,2vw,2.2rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                    className={footerDesktopLinkClassName}
                   >
                     {item.label}
                   </FooterLink>
@@ -239,7 +251,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                   <FooterLink
                     key={item.label}
                     href={item.href}
-                    className="text-[clamp(1.1rem,2vw,2.2rem)] leading-none text-[#365914] font-coolvetica transition hover:opacity-80"
+                    className={footerDesktopLinkClassName}
                   >
                     {item.label}
                   </FooterLink>
@@ -274,7 +286,7 @@ export default function SiteFooterClient({ instagram, footer }: SiteFooterClient
                 <FooterLink
                   key={item.label}
                   href={item.href}
-                  className="text-center text-[clamp(0.62rem,0.95vw,1.05rem)] leading-[0.95] text-[#1F1F1F] font-coolvetica transition hover:opacity-75"
+                  className={footerDesktopPolicyLinkClassName}
                 >
                   {item.label}
                 </FooterLink>

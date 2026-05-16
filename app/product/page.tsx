@@ -621,10 +621,12 @@ function ProductTitle({ product }: { product: ProductCard }) {
 function ProductCard({
   product,
   index,
+  productCount,
   mode,
 }: {
   product: ProductCard;
   index: number;
+  productCount: number;
   mode: 'mobile' | 'desktop';
 }) {
   const isDesktop = mode === 'desktop';
@@ -647,10 +649,15 @@ function ProductCard({
   const jarSizeClass = isDesktop
     ? 'h-[300px] w-[231px]'
     : 'h-[305px] w-[226px]';
+  const shouldShiftMobileSplashRight = !isDesktop && productCount > 2 && index >= productCount - 2;
   const splashTransform = isDesktop
     ? isSecondary
       ? 'translate(7%, 5%) scale(1.6)'
       : 'translate(7%, 9%) scale(1.45)'
+    : shouldShiftMobileSplashRight
+      ? isSecondary
+        ? 'translate(8%, 4%) scale(1.4)'
+        : 'translate(8%, 8%) scale(1.65)'
     : isSecondary
       ? 'translate(0%, 4%) scale(1.4)'
       : 'translate(0%, 8%) scale(1.65)';
@@ -783,7 +790,13 @@ export default async function ProductPage() {
         {hasProducts ? (
           <div className="mt-4 grid grid-cols-1 gap-12">
             {products.map((product, index) => (
-              <ProductCard key={product.slug} product={product} index={index} mode="mobile" />
+              <ProductCard
+                key={product.slug}
+                product={product}
+                index={index}
+                productCount={products.length}
+                mode="mobile"
+              />
             ))}
           </div>
         ) : (
@@ -798,7 +811,13 @@ export default async function ProductPage() {
           {hasProducts ? (
             <div className="grid grid-cols-2 items-start gap-8 pt-4">
               {products.map((product, index) => (
-                <ProductCard key={product.slug} product={product} index={index} mode="desktop" />
+                <ProductCard
+                  key={product.slug}
+                  product={product}
+                  index={index}
+                  productCount={products.length}
+                  mode="desktop"
+                />
               ))}
             </div>
           ) : (

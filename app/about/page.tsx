@@ -601,15 +601,27 @@ export default async function Home() {
       <Navbar />
       <AboutWordByWordReveal />
 
-      <section className="relative w-full">
-        <div className="relative h-[72vh] w-full md:h-[82vh]">
-          <div className="absolute inset-0">
+      <section
+        className="relative max-w-none"
+        style={{
+          width: '100vw',
+          maxWidth: '100vw',
+          marginLeft: 'calc(50% - 50vw)',
+          marginRight: 'calc(50% - 50vw)',
+        }}
+      >
+        <div
+          className="relative aspect-video max-w-none md:aspect-auto md:h-[82vh] md:min-h-[760px]"
+          style={{ width: '100vw', maxWidth: '100vw' }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
             <Image
               src={aboutContent.hero.image.src}
               alt={aboutContent.hero.image.alt}
               fill
               sizes="100vw"
-              className="object-cover"
+              className="object-cover object-center"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
               priority
             />
           </div>
