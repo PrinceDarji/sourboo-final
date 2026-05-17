@@ -245,6 +245,7 @@ export async function POST(request: Request) {
       state: phonePeStateRaw,
     });
   } catch (error) {
+    console.error('PhonePe checkout create failed', error);
     if (merchantOrderId) {
       try {
         await updateOrderFromStatus({

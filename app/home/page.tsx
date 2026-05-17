@@ -453,7 +453,7 @@ function ProductBand({
 
         <div className="absolute inset-x-0 top-1/2 z-10 -translate-y-1/2">
           <div
-            className="relative mx-auto w-[min(112vw,1280px)] md:w-[min(86vw,1360px)] lg:w-[min(80vw,1420px)]"
+            className="relative left-1/2 w-[138vw] max-w-none -translate-x-1/2 md:left-auto md:mx-auto md:w-[min(86vw,1360px)] md:translate-x-0 lg:w-[min(80vw,1420px)]"
             style={{ aspectRatio: packageAspectRatio }}
           >
             <Image
@@ -468,7 +468,7 @@ function ProductBand({
               src={mobileImage}
               alt="product packaging strip"
               fill
-              sizes="112vw"
+              sizes="138vw"
               quality={78}
               className="object-contain object-center md:hidden"
             />

@@ -37,10 +37,20 @@ const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] |
   discountPercent
 }`;
 
+const PRODUCT_SLUG_ALIASES: Record<string, string> = {
+  'side-eye-sour': 'sideeyesour',
+  'tamarin-tease': 'tamarintease',
+  'tamarind-tease': 'tamarintease',
+};
+
 function toCleanSlug(value: unknown): string | null {
   if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
+  const trimmed = value.trim().toLowerCase();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function toCanonicalProductSlug(slug: string): string {
+  return PRODUCT_SLUG_ALIASES[slug] || slug;
 }
 
 function toPositiveQuantity(value: unknown): number | null {
@@ -90,7 +100,8 @@ function normalizeItems(items: CheckoutItemInput[]): CheckoutItemInput[] {
       throw new Error('Invalid item payload. Each item must include slug and quantity (1-99).');
     }
 
-    quantitiesBySlug.set(slug, (quantitiesBySlug.get(slug) || 0) + quantity);
+    const canonicalSlug = toCanonicalProductSlug(slug);
+    quantitiesBySlug.set(canonicalSlug, (quantitiesBySlug.get(canonicalSlug) || 0) + quantity);
   }
 
   return Array.from(quantitiesBySlug.entries()).map(([slug, quantity]) => ({ slug, quantity }));

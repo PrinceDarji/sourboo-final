@@ -57,7 +57,8 @@ export async function POST(request: Request) {
       shippingPaise,
       payableTotalPaise,
     });
-  } catch {
+  } catch (error) {
+    console.error('Checkout quote failed', error);
     return NextResponse.json(
       {
         ok: false,

@@ -966,7 +966,7 @@ export default async function ProductPage() {
           <section className="w-full pb-10 pt-2 md:pb-14 md:pt-4">
             <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
               <div className="relative mx-auto w-full max-w-[920px]">
-                <div className="pointer-events-none absolute right-[-5%] -top-8 z-20 h-[285px] w-[254px] md:-right-16 md:-top-10 md:h-[390px] md:w-[343px] ">
+                <div className="pointer-events-none absolute right-[-25%] -top-8 z-20 h-[285px] w-[254px] md:-right-16 md:-top-10 md:h-[390px] md:w-[343px] ">
                   <Image
                     src={pageContent.secondaryMatch.playerImage.src}
                     alt={pageContent.secondaryMatch.playerImage.alt}
@@ -978,7 +978,7 @@ export default async function ProductPage() {
 
                 <AnimatedFlavorMeters
                   meters={pageContent.secondaryMatch.meters}
-                  className="w-[235px] space-y-4 md:w-auto md:space-y-5 md:pr-[210px]"
+                  className="w-[205px] space-y-3 [&>div>div]:h-3 [&>div>p]:mb-0.5 [&>div>p]:text-[1.45rem] md:w-auto md:space-y-5 md:pr-[210px] md:[&>div>div]:h-5 md:[&>div>p]:mb-1 md:[&>div>p]:text-[clamp(1.65rem,2.4vw,2.6rem)]"
                 />
               </div>
             </div>
