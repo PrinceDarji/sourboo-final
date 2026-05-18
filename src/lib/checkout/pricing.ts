@@ -3,6 +3,7 @@ import { calculateDiscountedRupees, normalizeDiscountPercent, parsePriceLabel } 
 
 export type CheckoutItemInput = {
   slug: string;
+  name?: string;
   quantity: number;
 };
 
@@ -28,7 +29,7 @@ type ProductPricingDoc = {
   discountPercent?: number;
 };
 
-const PRODUCT_PRICING_QUERY = `*[_type == "product" && slug.current in $slugs] | order(sortOrder asc, _createdAt asc) {
+const PRODUCT_PRICING_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
   "slug": slug.current,
   titleWord,
   accentWord,
@@ -51,6 +52,14 @@ function toCleanSlug(value: unknown): string | null {
 
 function toCanonicalProductSlug(slug: string): string {
   return PRODUCT_SLUG_ALIASES[slug] || slug;
+}
+
+function toLookupKey(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 }
 
 function toPositiveQuantity(value: unknown): number | null {
@@ -90,7 +99,7 @@ function toUnitPricePaise(doc: ProductPricingDoc, slug: string): number {
 }
 
 function normalizeItems(items: CheckoutItemInput[]): CheckoutItemInput[] {
-  const quantitiesBySlug = new Map<string, number>();
+  const itemsByCanonicalSlug = new Map<string, CheckoutItemInput>();
 
   for (const item of items) {
     const slug = toCleanSlug(item.slug);
@@ -101,10 +110,15 @@ function normalizeItems(items: CheckoutItemInput[]): CheckoutItemInput[] {
     }
 
     const canonicalSlug = toCanonicalProductSlug(slug);
-    quantitiesBySlug.set(canonicalSlug, (quantitiesBySlug.get(canonicalSlug) || 0) + quantity);
+    const existing = itemsByCanonicalSlug.get(canonicalSlug);
+    itemsByCanonicalSlug.set(canonicalSlug, {
+      slug: canonicalSlug,
+      name: existing?.name || item.name,
+      quantity: (existing?.quantity || 0) + quantity,
+    });
   }
 
-  return Array.from(quantitiesBySlug.entries()).map(([slug, quantity]) => ({ slug, quantity }));
+  return Array.from(itemsByCanonicalSlug.values());
 }
 
 export async function priceCheckoutItems(items: CheckoutItemInput[]): Promise<PricedCart> {
@@ -113,24 +127,32 @@ export async function priceCheckoutItems(items: CheckoutItemInput[]): Promise<Pr
   }
 
   const normalized = normalizeItems(items);
-  const slugs = normalized.map((item) => item.slug);
-
   const docs = await sanityClient.fetch<ProductPricingDoc[]>(
     PRODUCT_PRICING_QUERY,
-    { slugs },
+    {},
     { next: { revalidate: 60 } },
   );
 
   const bySlug = new Map<string, ProductPricingDoc>();
+  const byLookupKey = new Map<string, ProductPricingDoc>();
   for (const doc of docs || []) {
     const slug = toCleanSlug(doc.slug);
     if (!slug) continue;
     if (bySlug.has(slug)) continue;
     bySlug.set(slug, doc);
+
+    const lookupKeys = new Set([toLookupKey(slug), toLookupKey(toProductName(doc))]);
+    for (const key of lookupKeys) {
+      if (!key || byLookupKey.has(key)) continue;
+      byLookupKey.set(key, doc);
+    }
   }
 
   const pricedItems: PricedCheckoutItem[] = normalized.map((item) => {
-    const productDoc = bySlug.get(item.slug);
+    const productDoc =
+      bySlug.get(item.slug) ||
+      byLookupKey.get(toLookupKey(item.slug)) ||
+      byLookupKey.get(toLookupKey(item.name));
     if (!productDoc) {
       throw new Error(`Product not found for slug: ${item.slug}`);
     }

@@ -143,6 +143,7 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             items: items.map((item) => ({
               slug: item.slug,
+              name: item.name,
               quantity: item.quantity,
             })),
             discountCode,
@@ -219,6 +220,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({
             slug: item.slug,
+            name: item.name,
             quantity: item.quantity,
           })),
           discountCode,

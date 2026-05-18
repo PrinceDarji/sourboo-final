@@ -17,16 +17,22 @@ import { mapPhonePeStateToOrderStatus } from '@/src/lib/payments/phonepe/types';
 export const runtime = 'nodejs';
 const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
+const discountCodeSchema = z.preprocess(
+  (value) => (value == null ? '' : value),
+  z.string().trim().max(40),
+);
+
 const checkoutRequestSchema = z.object({
   items: z
     .array(
       z.object({
         slug: z.string().trim().min(1).max(120),
+        name: z.string().trim().max(160).optional(),
         quantity: z.number().int().min(1).max(99),
       }),
     )
     .min(1),
-  discountCode: z.string().trim().max(40).optional().default(''),
+  discountCode: discountCodeSchema,
   customer: z.object({
     fullName: z.string().trim().min(2).max(120),
     email: z.string().trim().email().max(160),

@@ -68,6 +68,8 @@ type HomeBand = {
   bgImage: string;
   packageImage: string;
   packageAspectRatio: number;
+  mobilePackageWidthClass: string;
+  mobilePackageSizes: string;
   priceLabel: string;
   ctaLabel: string;
   fallbackHref: string;
@@ -126,6 +128,8 @@ const homeBands: HomeBand[] = [
     bgImage: '/home/packagingbg.webp',
     packageImage: '/home/sideeyepackage.png',
     packageAspectRatio: 1210 / 274,
+    mobilePackageWidthClass: 'w-[138vw]',
+    mobilePackageSizes: '138vw',
     priceLabel: '₹399',
     ctaLabel: 'side eye sour →',
     fallbackHref: '/product/side-eye-sour',
@@ -142,6 +146,8 @@ const homeBands: HomeBand[] = [
     bgImage: '/home/packagingbg.webp',
     packageImage: '/home/tamarinpackage.png',
     packageAspectRatio: 2314 / 408,
+    mobilePackageWidthClass: 'w-[172vw]',
+    mobilePackageSizes: '172vw',
     priceLabel: '₹399',
     ctaLabel: 'tamarind tease →',
     fallbackHref: '/product/tamarin-tease',
@@ -432,6 +438,8 @@ function ProductBand({
   ctaClassName,
   ctaAlignClass,
   ctaOffsetClass,
+  mobilePackageWidthClass,
+  mobilePackageSizes,
   showTopWave,
   showBottomWave,
 }: ProductBandProps) {
@@ -453,7 +461,7 @@ function ProductBand({
 
         <div className="absolute inset-x-0 top-1/2 z-10 -translate-y-1/2">
           <div
-            className="relative left-1/2 w-[138vw] max-w-none -translate-x-1/2 md:left-auto md:mx-auto md:w-[min(86vw,1360px)] md:translate-x-0 lg:w-[min(80vw,1420px)]"
+            className={`relative left-1/2 max-w-none -translate-x-1/2 md:left-auto md:mx-auto md:w-[min(86vw,1360px)] md:translate-x-0 lg:w-[min(80vw,1420px)] ${mobilePackageWidthClass}`}
             style={{ aspectRatio: packageAspectRatio }}
           >
             <Image
@@ -468,7 +476,7 @@ function ProductBand({
               src={mobileImage}
               alt="product packaging strip"
               fill
-              sizes="138vw"
+              sizes={mobilePackageSizes}
               quality={78}
               className="object-contain object-center md:hidden"
             />
