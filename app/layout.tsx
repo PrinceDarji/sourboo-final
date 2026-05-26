@@ -4,11 +4,8 @@ import CartRoot from './components/cart/CartRoot';
 import SectionScrollReveal from './components/SectionScrollReveal';
 import LandingPopupRedirect from './components/popup/LandingPopupRedirect';
 import { getLandingPopupContent } from '@/src/lib/sanity/landingPopup';
+import { siteUrl } from '@/src/lib/siteUrl';
 import type { Metadata } from "next";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.sourboo.com");
 
 const siteName = "Sourboo";
 const siteDescription =
