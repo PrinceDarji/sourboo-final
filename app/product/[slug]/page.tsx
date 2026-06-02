@@ -10,6 +10,7 @@ import ProductShareButton from '@/app/components/product/ProductShareButton';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
+import type { Metadata } from 'next';
 
 export const revalidate = 300;
 
@@ -88,6 +89,34 @@ const PRODUCT_SLUGS_QUERY = `*[_type == "product" && defined(slug.current)]{
 
 type ProductSlugRow = {
   slug?: string;
+};
+
+const PRODUCT_SEO_BY_SLUG: Record<string, { title: string; description: string }> = {
+  'side-eye-sour': {
+    title: 'Side Eye Sour | Spicy Sour Pickled Gherkins by Sourboo',
+    description:
+      'Crunchy sliced gherkins with lemon, chaat masala and bold spicy-sour flavour. Perfect for burgers, sandwiches,cocktail garnishes and party snacking',
+  },
+  sideeyesour: {
+    title: 'Side Eye Sour | Spicy Sour Pickled Gherkins by Sourboo',
+    description:
+      'Crunchy sliced gherkins with lemon, chaat masala and bold spicy-sour flavour. Perfect for burgers, sandwiches,cocktail garnishes and party snacking',
+  },
+  'tamarin-tease': {
+    title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
+    description:
+      'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
+  },
+  tamarintease: {
+    title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
+    description:
+      'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
+  },
+  'tamarind-tease': {
+    title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
+    description:
+      'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
+  },
 };
 
 function asNonEmptyString(value: unknown): string | undefined {
@@ -196,6 +225,42 @@ async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   } catch {
     return null;
   }
+}
+
+function getProductSeo(slug: string, product?: ProductDetail | null) {
+  const slugSeo = PRODUCT_SEO_BY_SLUG[slug];
+  if (slugSeo) return slugSeo;
+
+  if (product?.styleVariant === 'secondary') return PRODUCT_SEO_BY_SLUG['tamarin-tease'];
+  if (product?.styleVariant === 'primary') return PRODUCT_SEO_BY_SLUG['side-eye-sour'];
+
+  return {
+    title: 'Sourboo | Spicy Sour Gherkin Snacks & Pickled Snacks',
+    description:
+      'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.',
+  };
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  const seo = getProductSeo(slug, product);
+
+  return {
+    title: {
+      absolute: seo.title,
+    },
+    description: seo.description,
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: `/product/${slug}`,
+    },
+    twitter: {
+      title: seo.title,
+      description: seo.description,
+    },
+  };
 }
 
 export async function generateStaticParams() {

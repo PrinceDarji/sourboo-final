@@ -10,8 +10,29 @@ import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
+import type { Metadata } from 'next';
 
 export const revalidate = 0;
+
+const homeTitle = 'Sourboo | Spicy Sour Gherkin Snacks & Pickled Snacks';
+const homeDescription =
+  'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: homeTitle,
+  },
+  description: homeDescription,
+  openGraph: {
+    title: homeTitle,
+    description: homeDescription,
+    url: '/home',
+  },
+  twitter: {
+    title: homeTitle,
+    description: homeDescription,
+  },
+};
 
 type StyleVariant = 'primary' | 'secondary';
 
