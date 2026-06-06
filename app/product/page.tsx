@@ -10,8 +10,29 @@ import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePr
 import AnimatedFlavorMeters, { type FlavorMeter } from '../components/product/AnimatedFlavorMeters';
 import ProductWordByWordReveal from '../components/product/ProductWordByWordReveal';
 import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
+import type { Metadata } from 'next';
 
 export const revalidate = 0;
+
+const productPageTitle = 'Sourboo | Spicy Sour Gherkin Snacks & Pickled Snacks';
+const productPageDescription =
+  'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: productPageTitle,
+  },
+  description: productPageDescription,
+  openGraph: {
+    title: productPageTitle,
+    description: productPageDescription,
+    url: '/product',
+  },
+  twitter: {
+    title: productPageTitle,
+    description: productPageDescription,
+  },
+};
 
 type StyleVariant = 'primary' | 'secondary';
 
@@ -258,7 +279,7 @@ const DEFAULT_FAQ_ITEMS: ProductFaqItem[] = [
   {
     question: '1. what is it made of?',
     answer:
-      'sourboo is made using Cucumis a type of small cucumber (similar to gherkins), sliced and flavoured for that sharp, mouth-watering hit.',
+      'sourboo is made using sliced gherkins, flavoured for that sharp, mouth-watering hit.',
   },
   {
     question: '2. is sourboo vegetarian?',

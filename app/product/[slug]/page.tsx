@@ -97,6 +97,11 @@ const PRODUCT_SEO_BY_SLUG: Record<string, { title: string; description: string }
     description:
       'Crunchy sliced gherkins with lemon, chaat masala and bold spicy-sour flavour. Perfect for burgers, sandwiches,cocktail garnishes and party snacking',
   },
+  'side-eye-sour-spicy-pickled-gherkins': {
+    title: 'Side Eye Sour | Spicy Sour Pickled Gherkins by Sourboo',
+    description:
+      'Crunchy sliced gherkins with lemon, chaat masala and bold spicy-sour flavour. Perfect for burgers, sandwiches,cocktail garnishes and party snacking',
+  },
   sideeyesour: {
     title: 'Side Eye Sour | Spicy Sour Pickled Gherkins by Sourboo',
     description:
@@ -107,12 +112,22 @@ const PRODUCT_SEO_BY_SLUG: Record<string, { title: string; description: string }
     description:
       'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
   },
+  'tamarin-tease-tangy-tamarind-pickled-gherkins': {
+    title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
+    description:
+      'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
+  },
   tamarintease: {
     title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
     description:
       'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
   },
   'tamarind-tease': {
+    title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
+    description:
+      'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
+  },
+  'tamarin-twins-tangy-tamarind-pickled-gherkins': {
     title: 'Tamarin Tease | Spicy Tamarind Gherkins by Sourboo',
     description:
       'Bold tamarind-spiced gherkins with sweet, tangy and spicy flavour. Made for burgers, sandwiches, cocktails, garnish and party snacking',
