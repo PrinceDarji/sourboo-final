@@ -87,7 +87,7 @@ const termsSections = [
       'For any questions regarding these Terms of Service, you may contact:',
       'Sourboo Snacks LLP',
       '705, Tower 4&5, The Amaryllis - Phase 1, Central Delhi, Kishanganj, Delhi, 110007',
-      'Email: Sourboosnacks@gmail.com',
+      'Email: cravings@sourboo.com',
     ],
   },
 ];

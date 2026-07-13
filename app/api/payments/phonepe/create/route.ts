@@ -131,10 +131,14 @@ export async function POST(request: Request) {
     const parsed = checkoutRequestSchema.safeParse(json);
 
     if (!parsed.success) {
+      const issueSummary = parsed.error.issues
+        .map((issue) => `${issue.path.join('.') || 'payload'}: ${issue.message}`)
+        .join('; ');
+      console.error('Invalid PhonePe checkout payload', issueSummary, parsed.error.issues);
       return NextResponse.json(
         {
           ok: false,
-          error: 'Invalid checkout payload.',
+          error: `Invalid checkout payload: ${issueSummary}`,
           issues: parsed.error.issues,
         },
         { status: 400 },
@@ -153,6 +157,12 @@ export async function POST(request: Request) {
     const gatewayAmount = resolveGatewayAmountPaise(payableTotalPaise);
 
     if (payableTotalPaise <= 0) {
+      console.error('Invalid PhonePe checkout payable amount', {
+        catalogSubtotalPaise: pricedCart.subtotalPaise,
+        shippingPaise,
+        discountPaise: appliedDiscount.discountPaise,
+        payableTotalPaise,
+      });
       return NextResponse.json(
         {
           ok: false,

@@ -9,7 +9,7 @@ export default async function ContactPage() {
   return (
     <ReachUsPageTemplate
       title="Contact"
-      email="sourboosnacks@gmail.com"
+      email="cravings@sourboo.com"
       phoneNumber="+91 8120202060"
       socialLinks={[
         { label: 'Instagram', href: social.instagramProfileUrl, platform: 'instagram' },

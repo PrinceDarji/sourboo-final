@@ -11,7 +11,7 @@ const refundSections = [
   {
     title: 'DAMAGED PRODUCT CLAIMS',
     paragraphs: [
-      'If you receive a damaged product, please email us within 48 hours of delivery at sourboosnacks@gmail.com with the following details:',
+      'If you receive a damaged product, please email us within 48 hours of delivery at cravings@sourboo.com with the following details:',
       '- Your order number',
       '- Clear photographs of the damaged jar and outer packaging',
       '- A brief description of the issue',
@@ -38,7 +38,7 @@ const refundSections = [
     title: 'CONTACT',
     paragraphs: [
       'For any general questions regarding your order or these policies, please reach out to us at:',
-      'Email: sourboosnacks@gmail.com',
+      'Email: cravings@sourboo.com',
     ],
   },
 ];

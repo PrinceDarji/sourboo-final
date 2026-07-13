@@ -38,6 +38,26 @@ type CartContextValue = {
 const STORAGE_KEY = 'sourboo_cart_v2';
 const DISCOUNT_CODE_STORAGE_KEY = 'sourboo_cart_discount_code_v1';
 
+function normalizeCartItem(item: Partial<CartItem>): CartItem | null {
+  const slug = typeof item.slug === 'string' ? item.slug.trim() : '';
+  const name = typeof item.name === 'string' ? item.name.trim() : '';
+  const image = typeof item.image === 'string' ? item.image : '';
+  const price = Math.max(0, Number(item.price) || 0);
+  const quantity = Math.max(1, Number(item.quantity) || 1);
+
+  if (!slug || !name) {
+    return null;
+  }
+
+  return {
+    slug,
+    name,
+    image,
+    price,
+    quantity,
+  };
+}
+
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -52,15 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw) as CartItem[];
         if (Array.isArray(parsed)) {
-          setItems(
-            parsed
-              .filter((item) => item && typeof item.slug === 'string')
-              .map((item) => ({
-                ...item,
-                quantity: Math.max(1, Number(item.quantity) || 1),
-                price: Math.max(0, Number(item.price) || 0),
-              })),
-          );
+          setItems(parsed.map((item) => normalizeCartItem(item)).filter(Boolean) as CartItem[]);
         }
       }
 

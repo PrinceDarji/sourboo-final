@@ -10,7 +10,7 @@ export default async function JoinPage() {
     <ReachUsPageTemplate
       title="Join Us"
       intro="For collabs, stockists, events, and all things Sourboo."
-      email="sourboosnacks@gmail.com"
+      email="cravings@sourboo.com"
       phoneNumber="+91 8120202060"
       socialLinks={[
         { label: 'Instagram', href: social.instagramProfileUrl, platform: 'instagram' },

@@ -65,6 +65,36 @@ const initialFormState: CheckoutFormState = {
 
 const GENERIC_BACKEND_ERROR = 'oops the backend isnt working';
 
+function toTrimmedCheckoutForm(formState: CheckoutFormState): CheckoutFormState {
+  return {
+    fullName: formState.fullName.trim(),
+    email: formState.email.trim(),
+    phone: formState.phone.trim(),
+    line1: formState.line1.trim(),
+    line2: formState.line2.trim(),
+    city: formState.city.trim(),
+    state: formState.state.trim(),
+    postalCode: formState.postalCode.trim(),
+  };
+}
+
+function getCheckoutValidationError(
+  formState: CheckoutFormState,
+  items: Array<{ slug: string; quantity: number }>,
+): string | null {
+  if (items.length === 0) return 'Your cart is empty.';
+  if (items.some((item) => !item.slug?.trim() || !Number.isInteger(item.quantity) || item.quantity < 1)) {
+    return 'Your cart has an invalid item. Please remove it and add it again.';
+  }
+  if (formState.fullName.length < 2) return 'Please enter your full name.';
+  if (formState.phone.length < 8) return 'Please enter a valid phone number.';
+  if (formState.line1.length < 3) return 'Please enter your address.';
+  if (formState.city.length < 2) return 'Please enter your city.';
+  if (formState.state.length < 2) return 'Please enter your state.';
+  if (formState.postalCode.length < 3) return 'Please enter your postal code.';
+  return null;
+}
+
 export default function CheckoutPage() {
   const { items, subtotal, discountCode, discountAmount, discountPercent } = useCart();
   const [formState, setFormState] = useState<CheckoutFormState>(initialFormState);
@@ -209,6 +239,14 @@ export default function CheckoutPage() {
     if (!canSubmit) return;
 
     setErrorMessage(null);
+    const checkoutForm = toTrimmedCheckoutForm(formState);
+    const validationError = getCheckoutValidationError(checkoutForm, items);
+
+    if (validationError) {
+      setErrorMessage(validationError);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -225,16 +263,16 @@ export default function CheckoutPage() {
           })),
           discountCode,
           customer: {
-            fullName: formState.fullName,
-            email: formState.email,
-            phone: formState.phone,
+            fullName: checkoutForm.fullName,
+            email: checkoutForm.email,
+            phone: checkoutForm.phone,
           },
           shippingAddress: {
-            line1: formState.line1,
-            line2: formState.line2,
-            city: formState.city,
-            state: formState.state,
-            postalCode: formState.postalCode,
+            line1: checkoutForm.line1,
+            line2: checkoutForm.line2,
+            city: checkoutForm.city,
+            state: checkoutForm.state,
+            postalCode: checkoutForm.postalCode,
           },
         }),
       });
@@ -245,8 +283,8 @@ export default function CheckoutPage() {
       }
 
       window.location.assign(result.checkoutUrl);
-    } catch {
-      setErrorMessage(GENERIC_BACKEND_ERROR);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : GENERIC_BACKEND_ERROR);
       setIsSubmitting(false);
     }
   }
@@ -278,6 +316,8 @@ export default function CheckoutPage() {
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">Full Name</span>
                 <input
                   required
+                  minLength={2}
+                  maxLength={120}
                   value={formState.fullName}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, fullName: event.target.value }))
@@ -291,6 +331,7 @@ export default function CheckoutPage() {
                 <input
                   required
                   type="email"
+                  maxLength={160}
                   value={formState.email}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, email: event.target.value }))
@@ -304,6 +345,8 @@ export default function CheckoutPage() {
                 <input
                   required
                   type="tel"
+                  minLength={8}
+                  maxLength={18}
                   value={formState.phone}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, phone: event.target.value }))
@@ -316,6 +359,8 @@ export default function CheckoutPage() {
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">Address Line 1</span>
                 <input
                   required
+                  minLength={3}
+                  maxLength={200}
                   value={formState.line1}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, line1: event.target.value }))
@@ -327,6 +372,7 @@ export default function CheckoutPage() {
               <label className="flex flex-col gap-1 md:col-span-2">
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">Address Line 2 (optional)</span>
                 <input
+                  maxLength={200}
                   value={formState.line2}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, line2: event.target.value }))
@@ -339,6 +385,8 @@ export default function CheckoutPage() {
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">City</span>
                 <input
                   required
+                  minLength={2}
+                  maxLength={80}
                   value={formState.city}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, city: event.target.value }))
@@ -351,6 +399,8 @@ export default function CheckoutPage() {
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">State</span>
                 <input
                   required
+                  minLength={2}
+                  maxLength={80}
                   value={formState.state}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, state: event.target.value }))
@@ -363,6 +413,8 @@ export default function CheckoutPage() {
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">Postal Code</span>
                 <input
                   required
+                  minLength={3}
+                  maxLength={12}
                   value={formState.postalCode}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, postalCode: event.target.value }))

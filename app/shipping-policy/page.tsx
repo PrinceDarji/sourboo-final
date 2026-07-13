@@ -41,7 +41,7 @@ const shippingSections = [
     title: 'CONTACT',
     paragraphs: [
       'For any shipping-related queries, please contact us at:',
-      'sourboosnacks@gmail.com',
+      'cravings@sourboo.com',
     ],
   },
 ];
