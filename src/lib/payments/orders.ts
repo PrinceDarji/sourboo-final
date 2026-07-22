@@ -2,6 +2,11 @@ import {
   sendOrderConfirmationEmail,
   type OrderConfirmationItem,
 } from '@/src/lib/email/orderConfirmation';
+import {
+  createPaidZohoInvoice,
+  downloadExistingZohoInvoicePdf,
+  type ZohoInvoicePdf,
+} from '@/src/lib/invoices/zoho';
 import { getSupabaseAdminClient } from '@/src/lib/supabase/admin';
 import type { InternalOrderStatus } from './phonepe/types';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -28,6 +33,14 @@ export type CheckoutOrderItem = {
   lineTotalPaise: number;
 };
 
+export type StoredOrderItem = {
+  product_slug: string;
+  product_name: string;
+  unit_price_paise: number;
+  quantity: number;
+  line_total_paise: number;
+};
+
 export type OrderRecord = {
   id: string;
   merchant_order_id: string;
@@ -40,11 +53,19 @@ export type OrderRecord = {
   customer_email: string;
   customer_phone: string;
   shipping_address: CheckoutShippingAddress | null;
+  cart_snapshot_json?: unknown;
   phonepe_redirect_url: string | null;
   created_at: string;
   updated_at: string;
   paid_at: string | null;
   confirmation_email_sent_at?: string | null;
+  zoho_contact_id?: string | null;
+  zoho_invoice_id?: string | null;
+  zoho_invoice_number?: string | null;
+  zoho_payment_id?: string | null;
+  zoho_invoice_created_at?: string | null;
+  zoho_invoice_pdf_fetched_at?: string | null;
+  zoho_invoice_error_context?: unknown;
 };
 
 type OrderAmountColumns = {
@@ -267,25 +288,125 @@ export async function updateOrderFromStatus(input: {
   }
 }
 
-async function fetchOrderItemsForEmail(
+async function fetchStoredOrderItems(
   supabase: SupabaseClient,
   orderId: string,
-): Promise<OrderConfirmationItem[]> {
+): Promise<StoredOrderItem[]> {
   const { data, error } = await supabase
     .from('order_items')
-    .select('product_name, quantity, line_total_paise')
+    .select('product_slug, product_name, unit_price_paise, quantity, line_total_paise')
     .eq('order_id', orderId)
     .order('created_at', { ascending: true });
 
   if (error) {
-    throw toOrderInsertError('Failed to fetch order items for confirmation email.', error);
+    throw toOrderInsertError('Failed to fetch order items.', error);
   }
 
   return (data || []).map((item) => ({
-    name: String(item.product_name || 'Sourboo item'),
+    product_slug: String(item.product_slug || ''),
+    product_name: String(item.product_name || 'Sourboo item'),
+    unit_price_paise: Number(item.unit_price_paise || 0),
     quantity: Number(item.quantity || 0),
-    lineTotalPaise: Number(item.line_total_paise || 0),
+    line_total_paise: Number(item.line_total_paise || 0),
   }));
+}
+
+function toOrderConfirmationItems(items: StoredOrderItem[]): OrderConfirmationItem[] {
+  return items.map((item) => ({
+    name: item.product_name,
+    quantity: item.quantity,
+    lineTotalPaise: item.line_total_paise,
+  }));
+}
+
+function getCartSnapshotNumber(snapshot: unknown, key: string): number {
+  if (!snapshot || typeof snapshot !== 'object') {
+    return 0;
+  }
+
+  const value = (snapshot as Record<string, unknown>)[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+function appendOrderChargesFromSnapshot(order: OrderRecord, items: StoredOrderItem[]): StoredOrderItem[] {
+  const shippingPaise = getCartSnapshotNumber(order.cart_snapshot_json, 'shippingPaise');
+
+  if (shippingPaise <= 0) {
+    return items;
+  }
+
+  return [
+    ...items,
+    {
+      product_slug: 'shipping',
+      product_name: 'Shipping',
+      unit_price_paise: shippingPaise,
+      quantity: 1,
+      line_total_paise: shippingPaise,
+    },
+  ];
+}
+
+async function ensureZohoInvoiceForOrder(input: {
+  supabase: SupabaseClient;
+  order: OrderRecord;
+  items: StoredOrderItem[];
+}): Promise<ZohoInvoicePdf> {
+  const nowIso = new Date().toISOString();
+
+  try {
+    if (input.order.zoho_invoice_id) {
+      const pdf = await downloadExistingZohoInvoicePdf({
+        invoiceId: input.order.zoho_invoice_id,
+        invoiceNumber: input.order.zoho_invoice_number || null,
+      });
+
+      await input.supabase
+        .from('orders')
+        .update({
+          zoho_invoice_pdf_fetched_at: nowIso,
+          zoho_invoice_error_context: null,
+          updated_at: nowIso,
+        })
+        .eq('id', input.order.id);
+
+      return pdf;
+    }
+
+    const invoice = await createPaidZohoInvoice({
+      order: input.order,
+      items: appendOrderChargesFromSnapshot(input.order, input.items),
+    });
+
+    await input.supabase
+      .from('orders')
+      .update({
+        zoho_contact_id: invoice.contactId,
+        zoho_invoice_id: invoice.invoiceId,
+        zoho_invoice_number: invoice.invoiceNumber,
+        zoho_payment_id: invoice.paymentId,
+        zoho_invoice_created_at: nowIso,
+        zoho_invoice_pdf_fetched_at: nowIso,
+        zoho_invoice_error_context: null,
+        updated_at: nowIso,
+      })
+      .eq('id', input.order.id);
+
+    return invoice.pdf;
+  } catch (error) {
+    await input.supabase
+      .from('orders')
+      .update({
+        zoho_invoice_error_context: {
+          source: 'zoho_invoice_creation',
+          message: error instanceof Error ? error.message : 'Unknown Zoho invoice failure',
+        },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', input.order.id);
+
+    throw error;
+  }
 }
 
 async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<void> {
@@ -301,7 +422,7 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
     .eq('merchant_order_id', merchantOrderId)
     .is('confirmation_email_sent_at', null)
     .select(
-      'id, merchant_order_id, amount_paise, rupees, currency, customer_name, customer_email, customer_phone, shipping_address, phonepe_redirect_url, created_at, updated_at, paid_at, confirmation_email_sent_at',
+      'id, merchant_order_id, phonepe_order_id, amount_paise, rupees, currency, customer_name, customer_email, customer_phone, shipping_address, cart_snapshot_json, phonepe_redirect_url, created_at, updated_at, paid_at, confirmation_email_sent_at, zoho_contact_id, zoho_invoice_id, zoho_invoice_number, zoho_payment_id, zoho_invoice_created_at, zoho_invoice_pdf_fetched_at, zoho_invoice_error_context',
     )
     .maybeSingle();
 
@@ -315,11 +436,24 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
 
   try {
     const normalizedOrder = normalizeOrderRecord(order as OrderRecord);
-    const items = await fetchOrderItemsForEmail(supabase, normalizedOrder.id);
+    const storedItems = await fetchStoredOrderItems(supabase, normalizedOrder.id);
+    const invoiceItems = appendOrderChargesFromSnapshot(normalizedOrder, storedItems);
+    const invoicePdf = await ensureZohoInvoiceForOrder({
+      supabase,
+      order: normalizedOrder,
+      items: storedItems,
+    });
 
     await sendOrderConfirmationEmail({
       order: normalizedOrder,
-      items,
+      items: toOrderConfirmationItems(invoiceItems),
+      attachments: [
+        {
+          filename: invoicePdf.filename,
+          content: invoicePdf.content,
+          contentType: 'application/pdf',
+        },
+      ],
     });
   } catch (error) {
     await supabase
