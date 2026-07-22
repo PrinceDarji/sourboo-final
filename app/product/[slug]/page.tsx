@@ -140,6 +140,14 @@ function asNonEmptyString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function decodeRouteSlug(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 function imageSrc(source: unknown, fallback: string) {
   return sanityImageOrFileUrl(source, fallback, { width: 1400, quality: 80 });
 }
@@ -230,9 +238,10 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
 
 async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
   try {
+    const decodedSlug = decodeRouteSlug(slug);
     const doc = await sanityClient.fetch<SanityProductDetail | null>(
       PRODUCT_DETAIL_QUERY,
-      { slug },
+      { slug: decodedSlug },
       { next: { revalidate } },
     );
     if (!doc) return null;
@@ -259,7 +268,8 @@ function getProductSeo(slug: string, product?: ProductDetail | null) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  const seo = getProductSeo(slug, product);
+  const decodedSlug = decodeRouteSlug(slug);
+  const seo = getProductSeo(decodedSlug, product);
 
   return {
     title: {
@@ -269,7 +279,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: seo.title,
       description: seo.description,
-      url: `/product/${slug}`,
+      url: `/product/${decodedSlug}`,
     },
     twitter: {
       title: seo.title,
