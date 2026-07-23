@@ -320,6 +320,14 @@ function toOrderConfirmationItems(items: StoredOrderItem[]): OrderConfirmationIt
   }));
 }
 
+function toInvoiceAttachment(invoicePdf: ZohoInvoicePdf): OrderConfirmationAttachment {
+  return {
+    filename: invoicePdf.filename,
+    content: invoicePdf.content,
+    contentType: 'application/pdf',
+  };
+}
+
 function getCartSnapshotNumber(snapshot: unknown, key: string): number {
   if (!snapshot || typeof snapshot !== 'object') {
     return 0;
@@ -449,13 +457,7 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
         items: storedItems,
       });
 
-      attachments = [
-        {
-          filename: invoicePdf.filename,
-          content: invoicePdf.content,
-          contentType: 'application/pdf',
-        },
-      ];
+      attachments = [toInvoiceAttachment(invoicePdf)];
     } catch (invoiceError) {
       console.error('Failed to create Zoho invoice for order confirmation email', invoiceError);
     }
@@ -502,11 +504,17 @@ async function ensureMissingZohoInvoiceForPaidOrder(merchantOrderId: string): Pr
 
   try {
     const storedItems = await fetchStoredOrderItems(supabase, order.id);
-
-    await ensureZohoInvoiceForOrder({
+    const invoiceItems = appendOrderChargesFromSnapshot(order, storedItems);
+    const invoicePdf = await ensureZohoInvoiceForOrder({
       supabase,
       order,
       items: storedItems,
+    });
+
+    await sendOrderConfirmationEmail({
+      order,
+      items: toOrderConfirmationItems(invoiceItems),
+      attachments: [toInvoiceAttachment(invoicePdf)],
     });
   } catch (invoiceError) {
     console.error('Failed to retry missing Zoho invoice', invoiceError);
