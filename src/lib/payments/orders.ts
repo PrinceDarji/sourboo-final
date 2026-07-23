@@ -1,5 +1,6 @@
 import {
   sendOrderConfirmationEmail,
+  type OrderConfirmationAttachment,
   type OrderConfirmationItem,
 } from '@/src/lib/email/orderConfirmation';
 import {
@@ -438,23 +439,40 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
     const normalizedOrder = normalizeOrderRecord(order as OrderRecord);
     const storedItems = await fetchStoredOrderItems(supabase, normalizedOrder.id);
     const invoiceItems = appendOrderChargesFromSnapshot(normalizedOrder, storedItems);
-    const invoicePdf = await ensureZohoInvoiceForOrder({
-      supabase,
-      order: normalizedOrder,
-      items: storedItems,
-    });
+    let attachments: OrderConfirmationAttachment[] | undefined;
 
-    await sendOrderConfirmationEmail({
-      order: normalizedOrder,
-      items: toOrderConfirmationItems(invoiceItems),
-      attachments: [
+    try {
+      const invoicePdf = await ensureZohoInvoiceForOrder({
+        supabase,
+        order: normalizedOrder,
+        items: storedItems,
+      });
+
+      attachments = [
         {
           filename: invoicePdf.filename,
           content: invoicePdf.content,
           contentType: 'application/pdf',
         },
-      ],
+      ];
+    } catch (invoiceError) {
+      console.error('Failed to create Zoho invoice for order confirmation email', invoiceError);
+    }
+
+    await sendOrderConfirmationEmail({
+      order: normalizedOrder,
+      items: toOrderConfirmationItems(invoiceItems),
+      attachments,
     });
+
+    await supabase
+      .from('orders')
+      .update({
+        error_context: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('merchant_order_id', merchantOrderId)
+      .eq('confirmation_email_sent_at', sentAt);
   } catch (error) {
     await supabase
       .from('orders')
