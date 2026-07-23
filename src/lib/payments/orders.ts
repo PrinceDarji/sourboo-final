@@ -432,6 +432,7 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
   }
 
   if (!order) {
+    await ensureMissingZohoInvoiceForPaidOrder(merchantOrderId);
     return;
   }
 
@@ -488,6 +489,27 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
       .eq('confirmation_email_sent_at', sentAt);
 
     throw error;
+  }
+}
+
+async function ensureMissingZohoInvoiceForPaidOrder(merchantOrderId: string): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  const order = await getOrderByMerchantOrderId(merchantOrderId);
+
+  if (!order || order.status !== 'SUCCESS' || order.zoho_invoice_id) {
+    return;
+  }
+
+  try {
+    const storedItems = await fetchStoredOrderItems(supabase, order.id);
+
+    await ensureZohoInvoiceForOrder({
+      supabase,
+      order,
+      items: storedItems,
+    });
+  } catch (invoiceError) {
+    console.error('Failed to retry missing Zoho invoice', invoiceError);
   }
 }
 

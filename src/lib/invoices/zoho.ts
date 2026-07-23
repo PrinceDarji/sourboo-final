@@ -34,9 +34,11 @@ type ZohoConfig = {
   apiDomain: string;
   paymentAccountId?: string;
   defaultTaxId?: string;
+  interStateTaxId?: string;
   shippingTaxId?: string;
   taxExemptionId?: string;
   itemIdBySlug: Record<string, string>;
+  originStateCode: string;
 };
 
 type ZohoApiResponse = {
@@ -137,6 +139,9 @@ function toZohoNumericId(value: string | undefined): string | undefined {
 
 function getZohoConfig(): ZohoConfig {
   const defaultTaxId = toZohoNumericId(process.env.ZOHO_DEFAULT_TAX_ID);
+  const interStateTaxId =
+    toZohoNumericId(process.env.ZOHO_INTER_STATE_TAX_ID) ||
+    toZohoNumericId(process.env.ZOHO_IGST_TAX_ID);
 
   return {
     clientId: getRequiredEnv('ZOHO_CLIENT_ID'),
@@ -147,9 +152,11 @@ function getZohoConfig(): ZohoConfig {
     apiDomain: trimTrailingSlash(process.env.ZOHO_API_DOMAIN?.trim() || 'https://www.zohoapis.in'),
     paymentAccountId: toZohoNumericId(process.env.ZOHO_PAYMENT_ACCOUNT_ID),
     defaultTaxId,
+    interStateTaxId,
     shippingTaxId: toZohoNumericId(process.env.ZOHO_SHIPPING_TAX_ID) || defaultTaxId,
     taxExemptionId: toZohoNumericId(process.env.ZOHO_TAX_EXEMPTION_ID),
     itemIdBySlug: parseItemMap(),
+    originStateCode: (process.env.ZOHO_ORIGIN_STATE_CODE?.trim() || 'DL').toUpperCase(),
   };
 }
 
@@ -426,7 +433,21 @@ function getZohoItemId(item: StoredOrderItem, itemIdBySlug: Record<string, strin
   );
 }
 
-function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig) {
+function getInvoiceTaxId(config: ZohoConfig, placeOfSupply: string | undefined): string | undefined {
+  if (!placeOfSupply || placeOfSupply === config.originStateCode) {
+    return config.defaultTaxId;
+  }
+
+  if (!config.interStateTaxId) {
+    throw new Error(
+      `ZOHO_INTER_STATE_TAX_ID is required because place_of_supply ${placeOfSupply} differs from origin ${config.originStateCode}.`,
+    );
+  }
+
+  return config.interStateTaxId;
+}
+
+function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig, taxId: string | undefined) {
   const lineItem: {
     item_id?: string;
     name: string;
@@ -448,10 +469,10 @@ function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig) {
     lineItem.item_id = itemId;
   }
 
-  const taxId = item.product_slug === 'shipping' ? config.shippingTaxId : config.defaultTaxId;
+  const lineTaxId = taxId || (item.product_slug === 'shipping' ? config.shippingTaxId : undefined);
 
-  if (taxId) {
-    lineItem.tax_id = taxId;
+  if (lineTaxId) {
+    lineItem.tax_id = lineTaxId;
   } else if (config.taxExemptionId) {
     lineItem.tax_exemption_id = config.taxExemptionId;
   }
@@ -467,6 +488,7 @@ async function createZohoInvoice(input: {
   const config = getZohoConfig();
   const discountPaise = getCartSnapshotNumber(input.order.cart_snapshot_json, 'discountPaise');
   const placeOfSupply = getIndiaStateCode(input.order.shipping_address?.state);
+  const taxId = getInvoiceTaxId(config, placeOfSupply);
   const payload = {
     customer_id: input.contactId,
     date: toIsoDate(input.order.paid_at || input.order.created_at),
@@ -475,7 +497,7 @@ async function createZohoInvoice(input: {
     gst_treatment: 'consumer',
     ...(placeOfSupply ? { place_of_supply: placeOfSupply } : {}),
     is_inclusive_tax: true,
-    line_items: input.items.map((item) => toZohoLineItem(item, config)),
+    line_items: input.items.map((item) => toZohoLineItem(item, config, taxId)),
     ...(discountPaise > 0
       ? {
           adjustment: -toZohoAmount(discountPaise),
