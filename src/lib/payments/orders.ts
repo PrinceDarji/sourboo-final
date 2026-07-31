@@ -448,19 +448,14 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
     const normalizedOrder = normalizeOrderRecord(order as OrderRecord);
     const storedItems = await fetchStoredOrderItems(supabase, normalizedOrder.id);
     const invoiceItems = appendOrderChargesFromSnapshot(normalizedOrder, storedItems);
-    let attachments: OrderConfirmationAttachment[] | undefined;
-
-    try {
-      const invoicePdf = await ensureZohoInvoiceForOrder({
-        supabase,
-        order: normalizedOrder,
-        items: storedItems,
-      });
-
-      attachments = [toInvoiceAttachment(invoicePdf)];
-    } catch (invoiceError) {
-      console.error('Failed to create Zoho invoice for order confirmation email', invoiceError);
-    }
+    // A confirmation is only complete when its Zoho invoice PDF is attached.
+    // Let invoice failures reach the retry path instead of sending a partial email.
+    const invoicePdf = await ensureZohoInvoiceForOrder({
+      supabase,
+      order: normalizedOrder,
+      items: storedItems,
+    });
+    const attachments = [toInvoiceAttachment(invoicePdf)];
 
     await sendOrderConfirmationEmail({
       order: normalizedOrder,
