@@ -296,6 +296,11 @@ async function refreshZohoAccessToken(config: ZohoConfig): Promise<string> {
   return cachedAccessToken.token;
 }
 
+/** Verifies that the deployed Zoho OAuth credentials can obtain an access token. */
+export async function verifyZohoBooksConnection(): Promise<void> {
+  await refreshZohoAccessToken(getZohoConfig());
+}
+
 async function requestZohoJson<T extends ZohoApiResponse>(
   path: string,
   options: RequestInit = {},

@@ -494,6 +494,76 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
   }
 }
 
+export async function resendOrderConfirmationEmail(merchantOrderId: string): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  const order = await getOrderByMerchantOrderId(merchantOrderId);
+
+  if (!order) {
+    throw new Error(`Order ${merchantOrderId} was not found.`);
+  }
+
+  if (order.status !== 'SUCCESS') {
+    throw new Error(`Order ${merchantOrderId} is not a successful payment.`);
+  }
+
+  // This is intentionally an explicit operator action. Normal delivery remains idempotent.
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      confirmation_email_sent_at: null,
+      error_context: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('merchant_order_id', merchantOrderId);
+
+  if (error) {
+    throw toOrderInsertError('Failed to queue order confirmation resend.', error);
+  }
+
+  await sendOrderConfirmationEmailOnce(merchantOrderId);
+}
+
+export async function retryRecentFailedOrderConfirmations(limit = 10): Promise<{
+  retried: string[];
+  failed: Array<{ merchantOrderId: string; error: string }>;
+}> {
+  const supabase = getSupabaseAdminClient();
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from('orders')
+    .select('merchant_order_id')
+    .eq('status', 'SUCCESS')
+    .is('confirmation_email_sent_at', null)
+    .eq('error_context->>source', 'order_confirmation_email')
+    .gte('paid_at', since)
+    .order('paid_at', { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    throw toOrderInsertError('Failed to find failed order confirmation emails.', error);
+  }
+
+  const retried: string[] = [];
+  const failed: Array<{ merchantOrderId: string; error: string }> = [];
+
+  for (const row of data || []) {
+    const merchantOrderId = String(row.merchant_order_id || '');
+    if (!merchantOrderId) continue;
+
+    try {
+      await sendOrderConfirmationEmailOnce(merchantOrderId);
+      retried.push(merchantOrderId);
+    } catch (retryError) {
+      failed.push({
+        merchantOrderId,
+        error: retryError instanceof Error ? retryError.message : 'Unknown email retry failure',
+      });
+    }
+  }
+
+  return { retried, failed };
+}
+
 async function ensureMissingZohoInvoiceForPaidOrder(merchantOrderId: string): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const order = await getOrderByMerchantOrderId(merchantOrderId);

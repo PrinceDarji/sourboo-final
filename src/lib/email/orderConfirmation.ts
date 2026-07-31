@@ -27,6 +27,13 @@ type OrderConfirmationInput = {
 
 let cachedTransporter: Transporter | null = null;
 
+const REQUIRED_EMAIL_ENV_VARS = [
+  'GOOGLE_WORKSPACE_SMTP_USER',
+  'GOOGLE_WORKSPACE_SMTP_APP_PASSWORD',
+  'ORDER_EMAIL_FROM',
+  'ORDER_EMAIL_REPLY_TO',
+] as const;
+
 function getRequiredEnv(name: string): string {
   const value = process.env[name]?.trim();
 
@@ -53,6 +60,17 @@ function getGoogleWorkspaceTransporter(): Transporter {
   });
 
   return cachedTransporter;
+}
+
+export function getOrderConfirmationEmailConfiguration() {
+  return REQUIRED_EMAIL_ENV_VARS.map((name) => ({
+    name,
+    configured: Boolean(process.env[name]?.trim()),
+  }));
+}
+
+export async function verifyOrderConfirmationEmailTransport(): Promise<void> {
+  await getGoogleWorkspaceTransporter().verify();
 }
 
 function formatMoney(amountPaise: number, currency: string): string {
