@@ -518,19 +518,26 @@ export async function resendOrderConfirmationEmail(merchantOrderId: string): Pro
   await sendOrderConfirmationEmailOnce(merchantOrderId);
 }
 
-export async function retryRecentFailedOrderConfirmations(limit = 10): Promise<{
+/**
+ * Retries paid orders that are still missing their complete confirmation.
+ *
+ * This deliberately has no age cutoff: an outage in Zoho or SMTP can last
+ * longer than a week, and a paid customer must not be silently abandoned
+ * once that window has passed. Sending remains safe to retry because an
+ * order is claimed atomically and `confirmation_email_sent_at` is only kept
+ * after the invoice PDF and email have both succeeded.
+ */
+export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
   retried: string[];
   failed: Array<{ merchantOrderId: string; error: string }>;
 }> {
   const supabase = getSupabaseAdminClient();
-  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from('orders')
     .select('merchant_order_id')
     .eq('status', 'SUCCESS')
     .is('confirmation_email_sent_at', null)
     .eq('error_context->>source', 'order_confirmation_email')
-    .gte('paid_at', since)
     .order('paid_at', { ascending: true })
     .limit(limit);
 
