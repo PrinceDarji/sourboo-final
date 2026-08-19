@@ -67,6 +67,54 @@ type ZohoPayment = {
 
 let cachedAccessToken: { token: string; expiresAt: number } | null = null;
 
+function cleanZohoText(value: unknown, maxLength: number): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  const cleaned = value
+    .normalize('NFKC')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return Array.from(cleaned).slice(0, maxLength).join('');
+}
+
+function cleanZohoEmail(value: unknown): string | undefined {
+  const email = cleanZohoText(value, 100).toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined;
+}
+
+function cleanZohoPhone(value: unknown): string | undefined {
+  const phone = cleanZohoText(value, 50).replace(/[^0-9+().\- ]/g, '');
+  const digitCount = phone.replace(/\D/g, '').length;
+  return digitCount >= 7 && digitCount <= 15 ? phone : undefined;
+}
+
+function cleanZohoCurrency(value: unknown): string {
+  const currency = cleanZohoText(value, 3).toUpperCase();
+  return /^[A-Z]{3}$/.test(currency) ? currency : 'INR';
+}
+
+function requireZohoAmount(
+  amountPaise: number,
+  field: string,
+  allowZero = false,
+): number {
+  if (
+    !Number.isSafeInteger(amountPaise) ||
+    amountPaise < 0 ||
+    (!allowZero && amountPaise === 0)
+  ) {
+    throw new Error(
+      `${field} must be ${allowZero ? 'a non-negative' : 'a positive'} integer amount in paise.`,
+    );
+  }
+
+  return toZohoAmount(amountPaise);
+}
+
 function getRequiredEnv(name: string): string {
   const value = process.env[name]?.trim();
 
@@ -97,7 +145,9 @@ function parseItemMap(): Record<string, string> {
 
     const entries: Array<[string, string]> = [];
 
-    for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(
+      parsed as Record<string, unknown>,
+    )) {
       if (typeof value !== 'string' || !value.trim()) {
         continue;
       }
@@ -126,7 +176,10 @@ function toLookupKey(value: string): string {
 function toZohoNumericId(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
 
-  if (!trimmed || /^(placeholder|example|none|null|undefined|exemption_id)$/i.test(trimmed)) {
+  if (
+    !trimmed ||
+    /^(placeholder|example|none|null|undefined|exemption_id)$/i.test(trimmed)
+  ) {
     return undefined;
   }
 
@@ -148,15 +201,21 @@ function getZohoConfig(): ZohoConfig {
     clientSecret: getRequiredEnv('ZOHO_CLIENT_SECRET'),
     refreshToken: getRequiredEnv('ZOHO_REFRESH_TOKEN'),
     organizationId: getRequiredEnv('ZOHO_ORGANIZATION_ID'),
-    accountsUrl: trimTrailingSlash(process.env.ZOHO_ACCOUNTS_URL?.trim() || 'https://accounts.zoho.in'),
-    apiDomain: trimTrailingSlash(process.env.ZOHO_API_DOMAIN?.trim() || 'https://www.zohoapis.in'),
+    accountsUrl: trimTrailingSlash(
+      process.env.ZOHO_ACCOUNTS_URL?.trim() || 'https://accounts.zoho.in',
+    ),
+    apiDomain: trimTrailingSlash(
+      process.env.ZOHO_API_DOMAIN?.trim() || 'https://www.zohoapis.in',
+    ),
     paymentAccountId: toZohoNumericId(process.env.ZOHO_PAYMENT_ACCOUNT_ID),
     defaultTaxId,
     interStateTaxId,
-    shippingTaxId: toZohoNumericId(process.env.ZOHO_SHIPPING_TAX_ID) || defaultTaxId,
+    shippingTaxId:
+      toZohoNumericId(process.env.ZOHO_SHIPPING_TAX_ID) || defaultTaxId,
     taxExemptionId: toZohoNumericId(process.env.ZOHO_TAX_EXEMPTION_ID),
     itemIdBySlug: parseItemMap(),
-    originStateCode: (process.env.ZOHO_ORIGIN_STATE_CODE?.trim() || 'DL').toUpperCase(),
+    originStateCode:
+      getIndiaStateCode(process.env.ZOHO_ORIGIN_STATE_CODE) || 'DL',
   };
 }
 
@@ -174,12 +233,16 @@ function getCartSnapshotNumber(snapshot: unknown, key: string): number {
 }
 
 function toIsoDate(value: string | null | undefined): string {
-  const date = value ? new Date(value) : new Date();
+  const parsed = value ? new Date(value) : new Date();
+  const date = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
   return date.toISOString().slice(0, 10);
 }
 
-function getFirstAndLastName(fullName: string): { firstName: string; lastName: string } {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+function getFirstAndLastName(fullName: string): {
+  firstName: string;
+  lastName: string;
+} {
+  const parts = cleanZohoText(fullName, 200).split(/\s+/).filter(Boolean);
 
   if (parts.length === 0) {
     return { firstName: 'Sourboo', lastName: 'Customer' };
@@ -187,13 +250,21 @@ function getFirstAndLastName(fullName: string): { firstName: string; lastName: s
 
   const [firstName, ...lastParts] = parts;
   return {
-    firstName,
-    lastName: lastParts.join(' '),
+    firstName: cleanZohoText(firstName, 100) || 'Sourboo',
+    lastName: cleanZohoText(lastParts.join(' '), 100) || 'Customer',
   };
 }
 
 function getZohoContactName(order: OrderRecord): string {
-  return `${order.customer_name} (${order.customer_email})`;
+  const name = cleanZohoText(order.customer_name, 100);
+  const email = cleanZohoEmail(order.customer_email);
+  const orderId = cleanZohoText(order.merchant_order_id, 100);
+  return (
+    cleanZohoText(
+      [name, email ? `(${email})` : ''].filter(Boolean).join(' '),
+      100,
+    ) || `Sourboo Customer ${orderId}`.slice(0, 100)
+  );
 }
 
 function getIndiaStateCode(state: string | undefined): string | undefined {
@@ -201,7 +272,11 @@ function getIndiaStateCode(state: string | undefined): string | undefined {
     return undefined;
   }
 
-  const normalized = state.trim().toLowerCase();
+  const normalized = cleanZohoText(state, 100)
+    .toLowerCase()
+    .replace(/\s*&\s*/g, ' and ')
+    .replace(/[^a-z]+/g, ' ')
+    .trim();
   const stateCodes: Record<string, string> = {
     'andaman and nicobar islands': 'AN',
     'andhra pradesh': 'AP',
@@ -211,12 +286,19 @@ function getIndiaStateCode(state: string | undefined): string | undefined {
     chandigarh: 'CH',
     chhattisgarh: 'CG',
     'dadra and nagar haveli and daman and diu': 'DN',
+    'dadra and nagar haveli': 'DN',
+    'daman and diu': 'DN',
     delhi: 'DL',
+    'delhi ncr': 'DL',
+    'national capital territory of delhi': 'DL',
+    'nct of delhi': 'DL',
+    'new delhi': 'DL',
     goa: 'GA',
     gujarat: 'GJ',
     haryana: 'HR',
     'himachal pradesh': 'HP',
     'jammu and kashmir': 'JK',
+    'jammu kashmir': 'JK',
     jharkhand: 'JH',
     karnataka: 'KA',
     kerala: 'KL',
@@ -229,7 +311,9 @@ function getIndiaStateCode(state: string | undefined): string | undefined {
     mizoram: 'MZ',
     nagaland: 'NL',
     odisha: 'OD',
+    orissa: 'OD',
     puducherry: 'PY',
+    pondicherry: 'PY',
     punjab: 'PB',
     rajasthan: 'RJ',
     sikkim: 'SK',
@@ -241,7 +325,16 @@ function getIndiaStateCode(state: string | undefined): string | undefined {
     'west bengal': 'WB',
   };
 
-  return stateCodes[normalized] || state.trim().toUpperCase();
+  const mappedCode = stateCodes[normalized];
+  if (mappedCode) {
+    return mappedCode;
+  }
+
+  // Checkout data can contain either a full state name or an already-normalized
+  // two-letter code. Never put an unknown full label into Zoho's state_code:
+  // Zoho limits that field to fewer than five characters.
+  const suppliedCode = cleanZohoText(state, 4).toUpperCase();
+  return /^[A-Z]{2}$/.test(suppliedCode) ? suppliedCode : undefined;
 }
 
 function toZohoAddress(address: CheckoutShippingAddress | null) {
@@ -252,12 +345,12 @@ function toZohoAddress(address: CheckoutShippingAddress | null) {
   const stateCode = getIndiaStateCode(address.state);
 
   return {
-    address: address.line1,
-    street2: address.line2 || '',
-    city: address.city,
-    state: address.state,
+    address: cleanZohoText(address.line1, 500),
+    street2: cleanZohoText(address.line2, 255),
+    city: cleanZohoText(address.city, 100),
+    state: cleanZohoText(address.state, 100),
     ...(stateCode ? { state_code: stateCode } : {}),
-    zip: address.postalCode,
+    zip: cleanZohoText(address.postalCode, 50),
     country: 'India',
   };
 }
@@ -285,7 +378,9 @@ async function refreshZohoAccessToken(config: ZohoConfig): Promise<string> {
   };
 
   if (!response.ok || !json.access_token) {
-    throw new Error(`Failed to refresh Zoho access token. ${JSON.stringify(json)}`);
+    throw new Error(
+      `Failed to refresh Zoho access token. ${JSON.stringify(json)}`,
+    );
   }
 
   cachedAccessToken = {
@@ -321,16 +416,30 @@ async function requestZohoJson<T extends ZohoApiResponse>(
     ...options,
     headers,
   });
-  const json = (await response.json()) as T;
+  const responseText = await response.text();
+  let json: T;
+
+  try {
+    json = JSON.parse(responseText) as T;
+  } catch {
+    throw new Error(
+      `Zoho API returned a non-JSON response: ${url.pathname} (HTTP ${response.status}). ${cleanZohoText(responseText, 500)}`,
+    );
+  }
 
   if (!response.ok || (typeof json.code === 'number' && json.code !== 0)) {
-    throw new Error(`Zoho API request failed: ${url.pathname}. ${JSON.stringify(json)}`);
+    throw new Error(
+      `Zoho API request failed: ${url.pathname}. ${JSON.stringify(json)}`,
+    );
   }
 
   return json;
 }
 
-async function requestZohoPdf(path: string, params: Record<string, string>): Promise<Buffer> {
+async function requestZohoPdf(
+  path: string,
+  params: Record<string, string>,
+): Promise<Buffer> {
   const config = getZohoConfig();
   const accessToken = await refreshZohoAccessToken(config);
   const url = new URL(`${config.apiDomain}/books/v3${path}`);
@@ -350,22 +459,44 @@ async function requestZohoPdf(path: string, params: Record<string, string>): Pro
     const body = await response.text();
     throw new Error(`Failed to download Zoho invoice PDF. ${body}`);
   }
+  const content = Buffer.from(await response.arrayBuffer());
+  if (content.length === 0) {
+    throw new Error('Zoho returned an empty invoice PDF.');
+  }
 
-  return Buffer.from(await response.arrayBuffer());
+  return content;
 }
 
-async function findZohoContactByEmail(email: string): Promise<ZohoContact | null> {
-  const response = await requestZohoJson<{ contacts?: ZohoContact[]; code?: number; message?: string }>(
-    `/contacts?email=${encodeURIComponent(email)}`,
-  );
+async function findZohoContactByEmail(
+  email: string,
+): Promise<ZohoContact | null> {
+  const normalizedEmail = cleanZohoEmail(email);
+  if (!normalizedEmail) {
+    return null;
+  }
+
+  const response = await requestZohoJson<{
+    contacts?: ZohoContact[];
+    code?: number;
+    message?: string;
+  }>(`/contacts?email=${encodeURIComponent(normalizedEmail)}`);
 
   return response.contacts?.[0] || null;
 }
 
-async function findZohoContactBySearchText(searchText: string): Promise<ZohoContact | null> {
-  const response = await requestZohoJson<{ contacts?: ZohoContact[]; code?: number; message?: string }>(
-    `/contacts?search_text=${encodeURIComponent(searchText)}`,
-  );
+async function findZohoContactBySearchText(
+  searchText: string,
+): Promise<ZohoContact | null> {
+  const normalizedSearchText = cleanZohoText(searchText, 100);
+  if (!normalizedSearchText) {
+    return null;
+  }
+
+  const response = await requestZohoJson<{
+    contacts?: ZohoContact[];
+    code?: number;
+    message?: string;
+  }>(`/contacts?search_text=${encodeURIComponent(normalizedSearchText)}`);
 
   return response.contacts?.[0] || null;
 }
@@ -373,27 +504,25 @@ async function findZohoContactBySearchText(searchText: string): Promise<ZohoCont
 async function createZohoContact(order: OrderRecord): Promise<ZohoContact> {
   const { firstName, lastName } = getFirstAndLastName(order.customer_name);
   const address = toZohoAddress(order.shipping_address);
+  const email = cleanZohoEmail(order.customer_email);
+  const phone = cleanZohoPhone(order.customer_phone);
+  const placeOfContact = getIndiaStateCode(order.shipping_address?.state);
   const payload = {
     contact_name: getZohoContactName(order),
     contact_type: 'customer',
     customer_sub_type: 'individual',
     gst_treatment: 'consumer',
-    ...(order.shipping_address?.state
-      ? { place_of_contact: getIndiaStateCode(order.shipping_address.state) }
-      : {}),
-    currency_code: order.currency || 'INR',
-    email: order.customer_email,
-    phone: order.customer_phone,
-    mobile: order.customer_phone,
-    billing_address: address,
-    shipping_address: address,
+    ...(placeOfContact ? { place_of_contact: placeOfContact } : {}),
+    currency_code: cleanZohoCurrency(order.currency),
+    ...(email ? { email } : {}),
+    ...(phone ? { phone, mobile: phone } : {}),
+    ...(address ? { billing_address: address, shipping_address: address } : {}),
     contact_persons: [
       {
         first_name: firstName,
         last_name: lastName,
-        email: order.customer_email,
-        phone: order.customer_phone,
-        mobile: order.customer_phone,
+        ...(email ? { email } : {}),
+        ...(phone ? { phone, mobile: phone } : {}),
         is_primary_contact: true,
       },
     ],
@@ -409,18 +538,23 @@ async function createZohoContact(order: OrderRecord): Promise<ZohoContact> {
   });
 
   if (!response.contact?.contact_id) {
-    throw new Error(`Zoho contact create did not return contact_id. ${JSON.stringify(response)}`);
+    throw new Error(
+      `Zoho contact create did not return contact_id. ${JSON.stringify(response)}`,
+    );
   }
 
   return response.contact;
 }
 
 async function findOrCreateZohoContact(order: OrderRecord): Promise<string> {
+  const email = cleanZohoEmail(order.customer_email);
   const existing =
-    (await findZohoContactByEmail(order.customer_email)) ||
-    (await findZohoContactBySearchText(order.customer_email)) ||
+    (email ? await findZohoContactByEmail(email) : null) ||
+    (email ? await findZohoContactBySearchText(email) : null) ||
     (await findZohoContactBySearchText(getZohoContactName(order)));
-  const contact = existing?.contact_id ? existing : await createZohoContact(order);
+  const contact = existing?.contact_id
+    ? existing
+    : await createZohoContact(order);
 
   if (!contact.contact_id) {
     throw new Error('Zoho contact_id missing.');
@@ -429,7 +563,10 @@ async function findOrCreateZohoContact(order: OrderRecord): Promise<string> {
   return String(contact.contact_id);
 }
 
-function getZohoItemId(item: StoredOrderItem, itemIdBySlug: Record<string, string>): string | undefined {
+function getZohoItemId(
+  item: StoredOrderItem,
+  itemIdBySlug: Record<string, string>,
+): string | undefined {
   return (
     itemIdBySlug[item.product_slug] ||
     itemIdBySlug[toLookupKey(item.product_slug)] ||
@@ -438,7 +575,10 @@ function getZohoItemId(item: StoredOrderItem, itemIdBySlug: Record<string, strin
   );
 }
 
-function getInvoiceTaxId(config: ZohoConfig, placeOfSupply: string | undefined): string | undefined {
+function getInvoiceTaxId(
+  config: ZohoConfig,
+  placeOfSupply: string | undefined,
+): string | undefined {
   if (!placeOfSupply || placeOfSupply === config.originStateCode) {
     return config.defaultTaxId;
   }
@@ -452,7 +592,11 @@ function getInvoiceTaxId(config: ZohoConfig, placeOfSupply: string | undefined):
   return config.interStateTaxId;
 }
 
-function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig, taxId: string | undefined) {
+function toZohoLineItem(
+  item: StoredOrderItem,
+  config: ZohoConfig,
+  taxId: string | undefined,
+) {
   const lineItem: {
     item_id?: string;
     name: string;
@@ -462,10 +606,13 @@ function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig, taxId: string
     tax_id?: string;
     tax_exemption_id?: string;
   } = {
-    name: item.product_name,
-    description: item.product_name,
-    quantity: item.quantity,
-    rate: toZohoAmount(item.unit_price_paise),
+    name: cleanZohoText(item.product_name, 100) || 'Sourboo item',
+    description: cleanZohoText(item.product_name, 2000) || 'Sourboo item',
+    quantity:
+      Number.isSafeInteger(item.quantity) && item.quantity > 0
+        ? item.quantity
+        : 1,
+    rate: requireZohoAmount(item.unit_price_paise, 'Line item rate', true),
   };
 
   const itemId = getZohoItemId(item, config.itemIdBySlug);
@@ -474,7 +621,9 @@ function toZohoLineItem(item: StoredOrderItem, config: ZohoConfig, taxId: string
     lineItem.item_id = itemId;
   }
 
-  const lineTaxId = taxId || (item.product_slug === 'shipping' ? config.shippingTaxId : undefined);
+  const lineTaxId =
+    taxId ||
+    (item.product_slug === 'shipping' ? config.shippingTaxId : undefined);
 
   if (lineTaxId) {
     lineItem.tax_id = lineTaxId;
@@ -491,21 +640,51 @@ async function createZohoInvoice(input: {
   contactId: string;
 }): Promise<ZohoInvoice> {
   const config = getZohoConfig();
-  const discountPaise = getCartSnapshotNumber(input.order.cart_snapshot_json, 'discountPaise');
+  const discountPaise = getCartSnapshotNumber(
+    input.order.cart_snapshot_json,
+    'discountPaise',
+  );
   const placeOfSupply = getIndiaStateCode(input.order.shipping_address?.state);
   const taxId = getInvoiceTaxId(config, placeOfSupply);
+  if (input.items.length === 0) {
+    throw new Error(
+      'At least one line item is required for Zoho invoice creation.',
+    );
+  }
+
+  const lineItems = input.items.map((item) =>
+    toZohoLineItem(item, config, taxId),
+  );
+  const subtotalPaise = input.items.reduce((total, item) => {
+    if (!Number.isSafeInteger(item.quantity) || item.quantity <= 0) {
+      return total;
+    }
+    if (
+      !Number.isSafeInteger(item.unit_price_paise) ||
+      item.unit_price_paise < 0
+    ) {
+      return total;
+    }
+    return total + item.unit_price_paise * item.quantity;
+  }, 0);
+  const safeDiscountPaise =
+    Number.isSafeInteger(discountPaise) &&
+    discountPaise > 0 &&
+    discountPaise < subtotalPaise
+      ? discountPaise
+      : 0;
   const payload = {
     customer_id: input.contactId,
     date: toIsoDate(input.order.paid_at || input.order.created_at),
     due_date: toIsoDate(input.order.paid_at || input.order.created_at),
-    reference_number: input.order.merchant_order_id,
+    reference_number: cleanZohoText(input.order.merchant_order_id, 100),
     gst_treatment: 'consumer',
     ...(placeOfSupply ? { place_of_supply: placeOfSupply } : {}),
     is_inclusive_tax: true,
-    line_items: input.items.map((item) => toZohoLineItem(item, config, taxId)),
-    ...(discountPaise > 0
+    line_items: lineItems,
+    ...(safeDiscountPaise > 0
       ? {
-          adjustment: -toZohoAmount(discountPaise),
+          adjustment: -toZohoAmount(safeDiscountPaise),
           adjustment_description: 'Website discount',
         }
       : {}),
@@ -522,18 +701,27 @@ async function createZohoInvoice(input: {
   });
 
   if (!response.invoice?.invoice_id) {
-    throw new Error(`Zoho invoice create did not return invoice_id. ${JSON.stringify(response)}`);
+    throw new Error(
+      `Zoho invoice create did not return invoice_id. ${JSON.stringify(response)}`,
+    );
   }
 
   return response.invoice;
 }
 
-async function findZohoInvoiceByReference(referenceNumber: string): Promise<ZohoInvoice | null> {
+async function findZohoInvoiceByReference(
+  referenceNumber: string,
+): Promise<ZohoInvoice | null> {
+  const normalizedReference = cleanZohoText(referenceNumber, 100);
+  if (!normalizedReference) {
+    return null;
+  }
+
   const response = await requestZohoJson<{
     invoices?: ZohoInvoice[];
     code?: number;
     message?: string;
-  }>(`/invoices?reference_number=${encodeURIComponent(referenceNumber)}`);
+  }>(`/invoices?reference_number=${encodeURIComponent(normalizedReference)}`);
 
   return response.invoices?.find((invoice) => invoice.invoice_id) || null;
 }
@@ -544,9 +732,22 @@ async function createZohoPayment(input: {
   invoice: ZohoInvoice;
 }): Promise<string | null> {
   const config = getZohoConfig();
-  const amount = toZohoAmount(input.order.amount_paise);
+  const orderAmount = requireZohoAmount(
+    input.order.amount_paise,
+    'Payment amount',
+  );
 
   if (typeof input.invoice.balance === 'number' && input.invoice.balance <= 0) {
+    return null;
+  }
+
+  const amount =
+    typeof input.invoice.balance === 'number' &&
+    Number.isFinite(input.invoice.balance)
+      ? Math.min(orderAmount, Number(input.invoice.balance.toFixed(2)))
+      : orderAmount;
+
+  if (amount <= 0) {
     return null;
   }
 
@@ -555,8 +756,14 @@ async function createZohoPayment(input: {
     payment_mode: 'others',
     amount,
     date: toIsoDate(input.order.paid_at || input.order.created_at),
-    reference_number: input.order.phonepe_order_id || input.order.merchant_order_id,
-    description: `PhonePe payment for ${input.order.merchant_order_id}`,
+    reference_number: cleanZohoText(
+      input.order.phonepe_order_id || input.order.merchant_order_id,
+      100,
+    ),
+    description: cleanZohoText(
+      `PhonePe payment for ${input.order.merchant_order_id}`,
+      500,
+    ),
     invoices: [
       {
         invoice_id: String(input.invoice.invoice_id),
@@ -575,7 +782,9 @@ async function createZohoPayment(input: {
     body: JSON.stringify(payload),
   });
 
-  return response.payment?.payment_id ? String(response.payment.payment_id) : null;
+  return response.payment?.payment_id
+    ? String(response.payment.payment_id)
+    : null;
 }
 
 async function downloadZohoInvoicePdf(
@@ -587,7 +796,7 @@ async function downloadZohoInvoicePdf(
   });
 
   return {
-    filename: `Sourboo-Invoice-${invoiceNumber || invoiceId}.pdf`,
+    filename: `Sourboo-Invoice-${cleanZohoText(invoiceNumber || invoiceId, 80).replace(/[^a-zA-Z0-9._-]/g, '-') || 'invoice'}.pdf`,
     content,
   };
 }
@@ -604,6 +813,10 @@ export async function createPaidZohoInvoice(input: {
       items: input.items,
       contactId,
     }));
+  if (!invoice.invoice_id) {
+    throw new Error('Zoho invoice_id missing.');
+  }
+
   const invoiceId = String(invoice.invoice_id);
   const invoiceNumber = invoice.invoice_number || null;
   const paymentId = await createZohoPayment({
