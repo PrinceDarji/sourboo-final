@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { sendOrderConfirmationEmail } from '@/src/lib/email/orderConfirmation';
+import { NextResponse } from "next/server";
+import { sendOrderConfirmationEmail } from "@/src/lib/email/orderConfirmation";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 const REQUIRED_ENV_VARS = [
-  'GOOGLE_WORKSPACE_SMTP_USER',
-  'GOOGLE_WORKSPACE_SMTP_APP_PASSWORD',
-  'ORDER_EMAIL_FROM',
-  'ORDER_EMAIL_REPLY_TO',
+  "ZOHO_SMTP_USER",
+  "ZOHO_SMTP_APP_PASSWORD",
+  "ORDER_EMAIL_FROM",
+  "ORDER_EMAIL_REPLY_TO",
 ] as const;
 
 function getEnvStatus() {
@@ -28,20 +28,21 @@ function isValidEmail(value: string): boolean {
 }
 
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === 'production') {
-    return new Response('Not found', { status: 404 });
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Not found", { status: 404 });
   }
 
   const url = new URL(request.url);
-  const to = url.searchParams.get('to')?.trim();
-  const shouldSend = url.searchParams.get('send') === '1';
+  const to = url.searchParams.get("to")?.trim();
+  const shouldSend = url.searchParams.get("send") === "1";
   const missingEnvVars = getMissingEnvVars();
 
   if (!shouldSend) {
     return NextResponse.json({
       ok: true,
-      mode: 'check_only',
-      usage: 'Add ?send=1&to=sourboosnacks@gmail.com to send a test confirmation email.',
+      mode: "check_only",
+      usage:
+        "Add ?send=1&to=sourboosnacks@gmail.com to send a test confirmation email.",
       env: getEnvStatus(),
     });
   }
@@ -50,7 +51,8 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'A valid to email is required. Use ?send=1&to=sourboosnacks@gmail.com',
+        error:
+          "A valid to email is required. Use ?send=1&to=sourboosnacks@gmail.com",
         env: getEnvStatus(),
       },
       { status: 400 },
@@ -61,7 +63,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Missing email environment variables.',
+        error: "Missing email environment variables.",
         missingEnvVars,
         env: getEnvStatus(),
       },
@@ -75,25 +77,25 @@ export async function GET(request: Request) {
     order: {
       merchant_order_id: merchantOrderId,
       amount_paise: 74500,
-      currency: 'INR',
-      customer_name: 'Test Customer',
+      currency: "INR",
+      customer_name: "Test Customer",
       customer_email: to,
       shipping_address: {
-        line1: '705, Tower 4&5, The Amaryllis - Phase 1',
-        line2: 'Kishanganj',
-        city: 'Delhi',
-        state: 'Delhi',
-        postalCode: '110007',
+        line1: "705, Tower 4&5, The Amaryllis - Phase 1",
+        line2: "Kishanganj",
+        city: "Delhi",
+        state: "Delhi",
+        postalCode: "110007",
       },
     },
     items: [
       {
-        name: 'Side Eye Tamarin Jar',
+        name: "Side Eye Tamarin Jar",
         quantity: 2,
         lineTotalPaise: 69000,
       },
       {
-        name: 'Shipping',
+        name: "Shipping",
         quantity: 1,
         lineTotalPaise: 5500,
       },
@@ -102,7 +104,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    message: 'Test order confirmation email sent.',
+    message: "Test order confirmation email sent.",
     to,
     merchantOrderId,
   });

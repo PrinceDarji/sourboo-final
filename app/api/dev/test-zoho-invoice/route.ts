@@ -1,35 +1,35 @@
-import { NextResponse } from 'next/server';
-import { sendOrderConfirmationEmail } from '@/src/lib/email/orderConfirmation';
-import { createPaidZohoInvoice, listZohoTaxes } from '@/src/lib/invoices/zoho';
-import type { OrderRecord, StoredOrderItem } from '@/src/lib/payments/orders';
+import { NextResponse } from "next/server";
+import { sendOrderConfirmationEmail } from "@/src/lib/email/orderConfirmation";
+import { createPaidZohoInvoice, listZohoTaxes } from "@/src/lib/invoices/zoho";
+import type { OrderRecord, StoredOrderItem } from "@/src/lib/payments/orders";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 const REQUIRED_ENV_VARS = [
-  'ZOHO_CLIENT_ID',
-  'ZOHO_CLIENT_SECRET',
-  'ZOHO_REFRESH_TOKEN',
-  'ZOHO_ORGANIZATION_ID',
+  "ZOHO_CLIENT_ID",
+  "ZOHO_CLIENT_SECRET",
+  "ZOHO_REFRESH_TOKEN",
+  "ZOHO_ORGANIZATION_ID",
 ] as const;
 
 const REQUIRED_EMAIL_ENV_VARS = [
-  'GOOGLE_WORKSPACE_SMTP_USER',
-  'GOOGLE_WORKSPACE_SMTP_APP_PASSWORD',
-  'ORDER_EMAIL_FROM',
-  'ORDER_EMAIL_REPLY_TO',
+  "ZOHO_SMTP_USER",
+  "ZOHO_SMTP_APP_PASSWORD",
+  "ORDER_EMAIL_FROM",
+  "ORDER_EMAIL_REPLY_TO",
 ] as const;
 
 const OPTIONAL_ENV_VARS = [
-  'ZOHO_ACCOUNTS_URL',
-  'ZOHO_API_DOMAIN',
-  'ZOHO_PAYMENT_ACCOUNT_ID',
-  'ZOHO_ITEM_ID_BY_SLUG',
-  'ZOHO_DEFAULT_TAX_ID',
-  'ZOHO_INTER_STATE_TAX_ID',
-  'ZOHO_IGST_TAX_ID',
-  'ZOHO_ORIGIN_STATE_CODE',
-  'ZOHO_SHIPPING_TAX_ID',
-  'ZOHO_TAX_EXEMPTION_ID',
+  "ZOHO_ACCOUNTS_URL",
+  "ZOHO_API_DOMAIN",
+  "ZOHO_PAYMENT_ACCOUNT_ID",
+  "ZOHO_ITEM_ID_BY_SLUG",
+  "ZOHO_DEFAULT_TAX_ID",
+  "ZOHO_INTER_STATE_TAX_ID",
+  "ZOHO_IGST_TAX_ID",
+  "ZOHO_ORIGIN_STATE_CODE",
+  "ZOHO_SHIPPING_TAX_ID",
+  "ZOHO_TAX_EXEMPTION_ID",
 ] as const;
 
 function getEnvStatus(names: readonly string[]) {
@@ -50,24 +50,27 @@ function isValidEmail(value: string): boolean {
 }
 
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === 'production') {
-    return new Response('Not found', { status: 404 });
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Not found", { status: 404 });
   }
 
   const url = new URL(request.url);
-  const shouldCreate = url.searchParams.get('create') === '1';
-  const shouldListTaxes = url.searchParams.get('taxes') === '1';
-  const shouldSendEmail = url.searchParams.get('send') === '1';
-  const email = url.searchParams.get('email')?.trim() || 'sourboosnacks@gmail.com';
+  const shouldCreate = url.searchParams.get("create") === "1";
+  const shouldListTaxes = url.searchParams.get("taxes") === "1";
+  const shouldSendEmail = url.searchParams.get("send") === "1";
+  const email =
+    url.searchParams.get("email")?.trim() || "sourboosnacks@gmail.com";
   const missingZohoEnvVars = getMissingEnvVars(REQUIRED_ENV_VARS);
-  const missingEmailEnvVars = shouldSendEmail ? getMissingEnvVars(REQUIRED_EMAIL_ENV_VARS) : [];
+  const missingEmailEnvVars = shouldSendEmail
+    ? getMissingEnvVars(REQUIRED_EMAIL_ENV_VARS)
+    : [];
 
   if (shouldListTaxes) {
     if (missingZohoEnvVars.length > 0) {
       return NextResponse.json(
         {
           ok: false,
-          error: 'Missing Zoho environment variables.',
+          error: "Missing Zoho environment variables.",
           missingZohoEnvVars,
           requiredEnv: getEnvStatus(REQUIRED_ENV_VARS),
           optionalEnv: getEnvStatus(OPTIONAL_ENV_VARS),
@@ -93,9 +96,9 @@ export async function GET(request: Request) {
   if (!shouldCreate) {
     return NextResponse.json({
       ok: true,
-      mode: 'check_only',
+      mode: "check_only",
       usage:
-        'Add ?taxes=1 to list Zoho tax IDs. Add ?create=1&email=sourboosnacks@gmail.com to create a real Zoho test invoice/payment. Add &send=1 to also email the PDF attachment.',
+        "Add ?taxes=1 to list Zoho tax IDs. Add ?create=1&email=sourboosnacks@gmail.com to create a real Zoho test invoice/payment. Add &send=1 to also email the PDF attachment.",
       requiredEnv: getEnvStatus(REQUIRED_ENV_VARS),
       requiredEmailEnv: getEnvStatus(REQUIRED_EMAIL_ENV_VARS),
       optionalEnv: getEnvStatus(OPTIONAL_ENV_VARS),
@@ -106,7 +109,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'A valid email is required.',
+        error: "A valid email is required.",
       },
       { status: 400 },
     );
@@ -116,7 +119,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'Missing environment variables.',
+        error: "Missing environment variables.",
         missingZohoEnvVars,
         missingEmailEnvVars,
         requiredEnv: getEnvStatus(REQUIRED_ENV_VARS),
@@ -133,18 +136,18 @@ export async function GET(request: Request) {
     id: `dev-${Date.now()}`,
     merchant_order_id: merchantOrderId,
     phonepe_order_id: `DEV-PHONEPE-${Date.now()}`,
-    status: 'SUCCESS',
+    status: "SUCCESS",
     amount_paise: 49900,
-    currency: 'INR',
-    customer_name: 'Test Customer',
+    currency: "INR",
+    customer_name: "Test Customer",
     customer_email: email,
-    customer_phone: '9999999999',
+    customer_phone: "9999999999",
     shipping_address: {
-      line1: '705, Tower 4&5, The Amaryllis - Phase 1',
-      line2: 'Kishanganj',
-      city: 'Delhi',
-      state: 'Delhi',
-      postalCode: '110007',
+      line1: "705, Tower 4&5, The Amaryllis - Phase 1",
+      line2: "Kishanganj",
+      city: "Delhi",
+      state: "Delhi",
+      postalCode: "110007",
     },
     phonepe_redirect_url: null,
     created_at: nowIso,
@@ -153,15 +156,15 @@ export async function GET(request: Request) {
   };
   const items: StoredOrderItem[] = [
     {
-      product_slug: 'side-eye-sour',
-      product_name: 'Side Eye Sour',
+      product_slug: "side-eye-sour",
+      product_name: "Side Eye Sour",
       unit_price_paise: 39900,
       quantity: 1,
       line_total_paise: 39900,
     },
     {
-      product_slug: 'shipping',
-      product_name: 'Shipping',
+      product_slug: "shipping",
+      product_name: "Shipping",
       unit_price_paise: 10000,
       quantity: 1,
       line_total_paise: 10000,
@@ -182,7 +185,7 @@ export async function GET(request: Request) {
         {
           filename: invoice.pdf.filename,
           content: invoice.pdf.content,
-          contentType: 'application/pdf',
+          contentType: "application/pdf",
         },
       ],
     });
@@ -192,7 +195,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     message:
-      'Created a real Zoho test invoice/payment and downloaded its PDF. Void/delete it in Zoho if you do not want to keep it.',
+      "Created a real Zoho test invoice/payment and downloaded its PDF. Void/delete it in Zoho if you do not want to keep it.",
     merchantOrderId,
     contactId: invoice.contactId,
     invoiceId: invoice.invoiceId,

@@ -2,15 +2,15 @@ import {
   sendOrderConfirmationEmail,
   type OrderConfirmationAttachment,
   type OrderConfirmationItem,
-} from '@/src/lib/email/orderConfirmation';
+} from "@/src/lib/email/orderConfirmation";
 import {
   createPaidZohoInvoice,
   downloadExistingZohoInvoicePdf,
   type ZohoInvoicePdf,
-} from '@/src/lib/invoices/zoho';
-import { getSupabaseAdminClient } from '@/src/lib/supabase/admin';
-import type { InternalOrderStatus } from './phonepe/types';
-import type { SupabaseClient } from '@supabase/supabase-js';
+} from "@/src/lib/invoices/zoho";
+import { getSupabaseAdminClient } from "@/src/lib/supabase/admin";
+import type { InternalOrderStatus } from "./phonepe/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type CheckoutCustomer = {
   fullName: string;
@@ -77,16 +77,19 @@ type OrderAmountColumns = {
 let cachedOrderAmountColumns: OrderAmountColumns | null = null;
 
 function toOrderInsertError(message: string, details?: unknown): Error {
-  const context = details ? ` ${JSON.stringify(details)}` : '';
+  const context = details ? ` ${JSON.stringify(details)}` : "";
   return new Error(`${message}${context}`);
 }
 
 function isMissingColumnError(error: unknown): boolean {
-  return (error as { code?: string } | null)?.code === 'PGRST204';
+  return (error as { code?: string } | null)?.code === "PGRST204";
 }
 
-async function hasOrderColumn(supabase: SupabaseClient, column: string): Promise<boolean> {
-  const { error } = await supabase.from('orders').select(column).limit(1);
+async function hasOrderColumn(
+  supabase: SupabaseClient,
+  column: string,
+): Promise<boolean> {
+  const { error } = await supabase.from("orders").select(column).limit(1);
 
   if (!error) {
     return true;
@@ -99,18 +102,22 @@ async function hasOrderColumn(supabase: SupabaseClient, column: string): Promise
   throw toOrderInsertError(`Failed to inspect orders.${column}.`, error);
 }
 
-async function getOrderAmountColumns(supabase: SupabaseClient): Promise<OrderAmountColumns> {
+async function getOrderAmountColumns(
+  supabase: SupabaseClient,
+): Promise<OrderAmountColumns> {
   if (cachedOrderAmountColumns) {
     return cachedOrderAmountColumns;
   }
 
   const [amountPaise, rupees] = await Promise.all([
-    hasOrderColumn(supabase, 'amount_paise'),
-    hasOrderColumn(supabase, 'rupees'),
+    hasOrderColumn(supabase, "amount_paise"),
+    hasOrderColumn(supabase, "rupees"),
   ]);
 
   if (!amountPaise && !rupees) {
-    throw new Error('orders table must include amount_paise or legacy rupees column.');
+    throw new Error(
+      "orders table must include amount_paise or legacy rupees column.",
+    );
   }
 
   cachedOrderAmountColumns = { amountPaise, rupees };
@@ -122,11 +129,11 @@ function toLegacyRupees(amountPaise: number): number {
 }
 
 function normalizeOrderRecord(order: OrderRecord): OrderRecord {
-  if (typeof order.amount_paise === 'number') {
+  if (typeof order.amount_paise === "number") {
     return order;
   }
 
-  if (typeof order.rupees === 'number') {
+  if (typeof order.rupees === "number") {
     return {
       ...order,
       amount_paise: Math.round(order.rupees * 100),
@@ -152,11 +159,13 @@ export async function createOrderWithItems(input: {
   const amountColumns = await getOrderAmountColumns(supabase);
   const amountFields = {
     ...(amountColumns.amountPaise ? { amount_paise: input.amountPaise } : {}),
-    ...(amountColumns.rupees ? { rupees: toLegacyRupees(input.amountPaise) } : {}),
+    ...(amountColumns.rupees
+      ? { rupees: toLegacyRupees(input.amountPaise) }
+      : {}),
   };
 
   const { data: order, error: orderError } = await supabase
-    .from('orders')
+    .from("orders")
     .insert({
       merchant_order_id: input.merchantOrderId,
       status: input.status,
@@ -170,11 +179,11 @@ export async function createOrderWithItems(input: {
       created_at: nowIso,
       updated_at: nowIso,
     })
-    .select('*')
+    .select("*")
     .single();
 
   if (orderError || !order) {
-    throw toOrderInsertError('Failed to create order.', orderError);
+    throw toOrderInsertError("Failed to create order.", orderError);
   }
 
   const orderItemsRows = input.items.map((item) => ({
@@ -187,11 +196,13 @@ export async function createOrderWithItems(input: {
     created_at: nowIso,
   }));
 
-  const { error: itemsError } = await supabase.from('order_items').insert(orderItemsRows);
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(orderItemsRows);
 
   if (itemsError) {
-    await supabase.from('orders').delete().eq('id', order.id);
-    throw toOrderInsertError('Failed to create order items.', itemsError);
+    await supabase.from("orders").delete().eq("id", order.id);
+    throw toOrderInsertError("Failed to create order items.", itemsError);
   }
 
   return normalizeOrderRecord(order as OrderRecord);
@@ -203,13 +214,13 @@ export async function getOrderByMerchantOrderId(
   const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('merchant_order_id', merchantOrderId)
+    .from("orders")
+    .select("*")
+    .eq("merchant_order_id", merchantOrderId)
     .maybeSingle();
 
   if (error) {
-    throw toOrderInsertError('Failed to fetch order.', error);
+    throw toOrderInsertError("Failed to fetch order.", error);
   }
 
   return data ? normalizeOrderRecord(data as OrderRecord) : null;
@@ -225,7 +236,7 @@ export async function updateOrderAfterCreatePayment(input: {
   const supabase = getSupabaseAdminClient();
 
   const { error } = await supabase
-    .from('orders')
+    .from("orders")
     .update({
       phonepe_order_id: input.phonepeOrderId || null,
       phonepe_redirect_url: input.redirectUrl || null,
@@ -233,10 +244,13 @@ export async function updateOrderAfterCreatePayment(input: {
       status: input.status,
       updated_at: new Date().toISOString(),
     })
-    .eq('merchant_order_id', input.merchantOrderId);
+    .eq("merchant_order_id", input.merchantOrderId);
 
   if (error) {
-    throw toOrderInsertError('Failed to update order after PhonePe create call.', error);
+    throw toOrderInsertError(
+      "Failed to update order after PhonePe create call.",
+      error,
+    );
   }
 }
 
@@ -267,24 +281,24 @@ export async function updateOrderFromStatus(input: {
     updates.phonepe_order_id = input.phonepeOrderId;
   }
 
-  if (input.status === 'SUCCESS') {
+  if (input.status === "SUCCESS") {
     updates.paid_at = nowIso;
   }
 
   const { error } = await supabase
-    .from('orders')
+    .from("orders")
     .update(updates)
-    .eq('merchant_order_id', input.merchantOrderId);
+    .eq("merchant_order_id", input.merchantOrderId);
 
   if (error) {
-    throw toOrderInsertError('Failed to update order status.', error);
+    throw toOrderInsertError("Failed to update order status.", error);
   }
 
-  if (input.status === 'SUCCESS') {
+  if (input.status === "SUCCESS") {
     try {
       await sendOrderConfirmationEmailOnce(input.merchantOrderId);
     } catch (emailError) {
-      console.error('Failed to send order confirmation email', emailError);
+      console.error("Failed to send order confirmation email", emailError);
     }
   }
 }
@@ -294,25 +308,29 @@ async function fetchStoredOrderItems(
   orderId: string,
 ): Promise<StoredOrderItem[]> {
   const { data, error } = await supabase
-    .from('order_items')
-    .select('product_slug, product_name, unit_price_paise, quantity, line_total_paise')
-    .eq('order_id', orderId)
-    .order('created_at', { ascending: true });
+    .from("order_items")
+    .select(
+      "product_slug, product_name, unit_price_paise, quantity, line_total_paise",
+    )
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: true });
 
   if (error) {
-    throw toOrderInsertError('Failed to fetch order items.', error);
+    throw toOrderInsertError("Failed to fetch order items.", error);
   }
 
   return (data || []).map((item) => ({
-    product_slug: String(item.product_slug || ''),
-    product_name: String(item.product_name || 'Sourboo item'),
+    product_slug: String(item.product_slug || ""),
+    product_name: String(item.product_name || "Sourboo item"),
     unit_price_paise: Number(item.unit_price_paise || 0),
     quantity: Number(item.quantity || 0),
     line_total_paise: Number(item.line_total_paise || 0),
   }));
 }
 
-function toOrderConfirmationItems(items: StoredOrderItem[]): OrderConfirmationItem[] {
+function toOrderConfirmationItems(
+  items: StoredOrderItem[],
+): OrderConfirmationItem[] {
   return items.map((item) => ({
     name: item.product_name,
     quantity: item.quantity,
@@ -320,25 +338,33 @@ function toOrderConfirmationItems(items: StoredOrderItem[]): OrderConfirmationIt
   }));
 }
 
-function toInvoiceAttachment(invoicePdf: ZohoInvoicePdf): OrderConfirmationAttachment {
+function toInvoiceAttachment(
+  invoicePdf: ZohoInvoicePdf,
+): OrderConfirmationAttachment {
   return {
     filename: invoicePdf.filename,
     content: invoicePdf.content,
-    contentType: 'application/pdf',
+    contentType: "application/pdf",
   };
 }
 
 function getCartSnapshotNumber(snapshot: unknown, key: string): number {
-  if (!snapshot || typeof snapshot !== 'object') {
+  if (!snapshot || typeof snapshot !== "object") {
     return 0;
   }
 
   const value = (snapshot as Record<string, unknown>)[key];
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-function appendOrderChargesFromSnapshot(order: OrderRecord, items: StoredOrderItem[]): StoredOrderItem[] {
-  const shippingPaise = getCartSnapshotNumber(order.cart_snapshot_json, 'shippingPaise');
+function appendOrderChargesFromSnapshot(
+  order: OrderRecord,
+  items: StoredOrderItem[],
+): StoredOrderItem[] {
+  const shippingPaise = getCartSnapshotNumber(
+    order.cart_snapshot_json,
+    "shippingPaise",
+  );
 
   if (shippingPaise <= 0) {
     return items;
@@ -347,8 +373,8 @@ function appendOrderChargesFromSnapshot(order: OrderRecord, items: StoredOrderIt
   return [
     ...items,
     {
-      product_slug: 'shipping',
-      product_name: 'Shipping',
+      product_slug: "shipping",
+      product_name: "Shipping",
       unit_price_paise: shippingPaise,
       quantity: 1,
       line_total_paise: shippingPaise,
@@ -371,13 +397,13 @@ async function ensureZohoInvoiceForOrder(input: {
       });
 
       await input.supabase
-        .from('orders')
+        .from("orders")
         .update({
           zoho_invoice_pdf_fetched_at: nowIso,
           zoho_invoice_error_context: null,
           updated_at: nowIso,
         })
-        .eq('id', input.order.id);
+        .eq("id", input.order.id);
 
       return pdf;
     }
@@ -388,7 +414,7 @@ async function ensureZohoInvoiceForOrder(input: {
     });
 
     await input.supabase
-      .from('orders')
+      .from("orders")
       .update({
         zoho_contact_id: invoice.contactId,
         zoho_invoice_id: invoice.invoiceId,
@@ -399,55 +425,71 @@ async function ensureZohoInvoiceForOrder(input: {
         zoho_invoice_error_context: null,
         updated_at: nowIso,
       })
-      .eq('id', input.order.id);
+      .eq("id", input.order.id);
 
     return invoice.pdf;
   } catch (error) {
     await input.supabase
-      .from('orders')
+      .from("orders")
       .update({
         zoho_invoice_error_context: {
-          source: 'zoho_invoice_creation',
-          message: error instanceof Error ? error.message : 'Unknown Zoho invoice failure',
+          source: "zoho_invoice_creation",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unknown Zoho invoice failure",
         },
         updated_at: new Date().toISOString(),
       })
-      .eq('id', input.order.id);
+      .eq("id", input.order.id);
 
     throw error;
   }
 }
 
-async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<void> {
+async function sendOrderConfirmationEmailOnce(
+  merchantOrderId: string,
+): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const sentAt = new Date().toISOString();
 
   const { data: order, error: claimError } = await supabase
-    .from('orders')
+    .from("orders")
     .update({
       confirmation_email_sent_at: sentAt,
       updated_at: sentAt,
     })
-    .eq('merchant_order_id', merchantOrderId)
-    .is('confirmation_email_sent_at', null)
+    .eq("merchant_order_id", merchantOrderId)
+    .is("confirmation_email_sent_at", null)
     .select(
-      'id, merchant_order_id, phonepe_order_id, amount_paise, rupees, currency, customer_name, customer_email, customer_phone, shipping_address, cart_snapshot_json, phonepe_redirect_url, created_at, updated_at, paid_at, confirmation_email_sent_at, zoho_contact_id, zoho_invoice_id, zoho_invoice_number, zoho_payment_id, zoho_invoice_created_at, zoho_invoice_pdf_fetched_at, zoho_invoice_error_context',
+      "id, merchant_order_id, phonepe_order_id, amount_paise, rupees, currency, customer_name, customer_email, customer_phone, shipping_address, cart_snapshot_json, phonepe_redirect_url, created_at, updated_at, paid_at, confirmation_email_sent_at, zoho_contact_id, zoho_invoice_id, zoho_invoice_number, zoho_payment_id, zoho_invoice_created_at, zoho_invoice_pdf_fetched_at, zoho_invoice_error_context",
     )
     .maybeSingle();
 
   if (claimError) {
-    throw toOrderInsertError('Failed to claim order confirmation email send.', claimError);
+    throw toOrderInsertError(
+      "Failed to claim order confirmation email send.",
+      claimError,
+    );
   }
 
   if (!order) {
-    await ensureMissingZohoInvoiceForPaidOrder(merchantOrderId);
+    // Another request has already claimed or completed this send. Do not
+    // bypass the claim: doing so can create a duplicate invoice/email while
+    // the first request is still running.
     return;
   }
 
   try {
     const normalizedOrder = normalizeOrderRecord(order as OrderRecord);
-    const storedItems = await fetchStoredOrderItems(supabase, normalizedOrder.id);
-    const invoiceItems = appendOrderChargesFromSnapshot(normalizedOrder, storedItems);
+    const storedItems = await fetchStoredOrderItems(
+      supabase,
+      normalizedOrder.id,
+    );
+    const invoiceItems = appendOrderChargesFromSnapshot(
+      normalizedOrder,
+      storedItems,
+    );
     // A confirmation is only complete when its Zoho invoice PDF is attached.
     // Let invoice failures reach the retry path instead of sending a partial email.
     const invoicePdf = await ensureZohoInvoiceForOrder({
@@ -464,32 +506,37 @@ async function sendOrderConfirmationEmailOnce(merchantOrderId: string): Promise<
     });
 
     await supabase
-      .from('orders')
+      .from("orders")
       .update({
         error_context: null,
         updated_at: new Date().toISOString(),
       })
-      .eq('merchant_order_id', merchantOrderId)
-      .eq('confirmation_email_sent_at', sentAt);
+      .eq("merchant_order_id", merchantOrderId)
+      .eq("confirmation_email_sent_at", sentAt);
   } catch (error) {
     await supabase
-      .from('orders')
+      .from("orders")
       .update({
         confirmation_email_sent_at: null,
         error_context: {
-          source: 'order_confirmation_email',
-          message: error instanceof Error ? error.message : 'Unknown email send failure',
+          source: "order_confirmation_email",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unknown email send failure",
         },
         updated_at: new Date().toISOString(),
       })
-      .eq('merchant_order_id', merchantOrderId)
-      .eq('confirmation_email_sent_at', sentAt);
+      .eq("merchant_order_id", merchantOrderId)
+      .eq("confirmation_email_sent_at", sentAt);
 
     throw error;
   }
 }
 
-export async function resendOrderConfirmationEmail(merchantOrderId: string): Promise<void> {
+export async function resendOrderConfirmationEmail(
+  merchantOrderId: string,
+): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const order = await getOrderByMerchantOrderId(merchantOrderId);
 
@@ -497,22 +544,25 @@ export async function resendOrderConfirmationEmail(merchantOrderId: string): Pro
     throw new Error(`Order ${merchantOrderId} was not found.`);
   }
 
-  if (order.status !== 'SUCCESS') {
+  if (order.status !== "SUCCESS") {
     throw new Error(`Order ${merchantOrderId} is not a successful payment.`);
   }
 
   // This is intentionally an explicit operator action. Normal delivery remains idempotent.
   const { error } = await supabase
-    .from('orders')
+    .from("orders")
     .update({
       confirmation_email_sent_at: null,
       error_context: null,
       updated_at: new Date().toISOString(),
     })
-    .eq('merchant_order_id', merchantOrderId);
+    .eq("merchant_order_id", merchantOrderId);
 
   if (error) {
-    throw toOrderInsertError('Failed to queue order confirmation resend.', error);
+    throw toOrderInsertError(
+      "Failed to queue order confirmation resend.",
+      error,
+    );
   }
 
   await sendOrderConfirmationEmailOnce(merchantOrderId);
@@ -533,23 +583,26 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
 }> {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
-    .from('orders')
-    .select('merchant_order_id')
-    .eq('status', 'SUCCESS')
-    .is('confirmation_email_sent_at', null)
-    .eq('error_context->>source', 'order_confirmation_email')
-    .order('paid_at', { ascending: true })
+    .from("orders")
+    .select("merchant_order_id")
+    .eq("status", "SUCCESS")
+    .is("confirmation_email_sent_at", null)
+    .eq("error_context->>source", "order_confirmation_email")
+    .order("paid_at", { ascending: true })
     .limit(limit);
 
   if (error) {
-    throw toOrderInsertError('Failed to find failed order confirmation emails.', error);
+    throw toOrderInsertError(
+      "Failed to find failed order confirmation emails.",
+      error,
+    );
   }
 
   const retried: string[] = [];
   const failed: Array<{ merchantOrderId: string; error: string }> = [];
 
   for (const row of data || []) {
-    const merchantOrderId = String(row.merchant_order_id || '');
+    const merchantOrderId = String(row.merchant_order_id || "");
     if (!merchantOrderId) continue;
 
     try {
@@ -558,7 +611,10 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
     } catch (retryError) {
       failed.push({
         merchantOrderId,
-        error: retryError instanceof Error ? retryError.message : 'Unknown email retry failure',
+        error:
+          retryError instanceof Error
+            ? retryError.message
+            : "Unknown email retry failure",
       });
     }
   }
@@ -566,56 +622,34 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
   return { retried, failed };
 }
 
-async function ensureMissingZohoInvoiceForPaidOrder(merchantOrderId: string): Promise<void> {
-  const supabase = getSupabaseAdminClient();
-  const order = await getOrderByMerchantOrderId(merchantOrderId);
-
-  if (!order || order.status !== 'SUCCESS' || order.zoho_invoice_id) {
-    return;
-  }
-
-  try {
-    const storedItems = await fetchStoredOrderItems(supabase, order.id);
-    const invoiceItems = appendOrderChargesFromSnapshot(order, storedItems);
-    const invoicePdf = await ensureZohoInvoiceForOrder({
-      supabase,
-      order,
-      items: storedItems,
-    });
-
-    await sendOrderConfirmationEmail({
-      order,
-      items: toOrderConfirmationItems(invoiceItems),
-      attachments: [toInvoiceAttachment(invoicePdf)],
-    });
-  } catch (invoiceError) {
-    console.error('Failed to retry missing Zoho invoice', invoiceError);
-  }
-}
-
 export async function tryInsertPaymentEvent(input: {
   merchantOrderId: string;
-  source: 'create' | 'status_poll' | 'return_page' | 'webhook';
+  source: "create" | "status_poll" | "return_page" | "webhook";
   idempotencyKey: string;
   payload: unknown;
 }): Promise<boolean> {
   const supabase = getSupabaseAdminClient();
 
   const { data: order, error: orderError } = await supabase
-    .from('orders')
-    .select('id')
-    .eq('merchant_order_id', input.merchantOrderId)
+    .from("orders")
+    .select("id")
+    .eq("merchant_order_id", input.merchantOrderId)
     .maybeSingle();
 
   if (orderError) {
-    throw toOrderInsertError('Failed to map merchant order id to internal order id.', orderError);
+    throw toOrderInsertError(
+      "Failed to map merchant order id to internal order id.",
+      orderError,
+    );
   }
 
   if (!order?.id) {
-    throw new Error(`Order not found for merchantOrderId: ${input.merchantOrderId}`);
+    throw new Error(
+      `Order not found for merchantOrderId: ${input.merchantOrderId}`,
+    );
   }
 
-  const { error } = await supabase.from('payment_events').insert({
+  const { error } = await supabase.from("payment_events").insert({
     order_id: order.id,
     source: input.source,
     idempotency_key: input.idempotencyKey,
@@ -627,9 +661,9 @@ export async function tryInsertPaymentEvent(input: {
     return true;
   }
 
-  if ((error as { code?: string }).code === '23505') {
+  if ((error as { code?: string }).code === "23505") {
     return false;
   }
 
-  throw toOrderInsertError('Failed to insert payment event.', error);
+  throw toOrderInsertError("Failed to insert payment event.", error);
 }

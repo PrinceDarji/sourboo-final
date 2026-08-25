@@ -50,6 +50,18 @@ PHONEPE_WEBHOOK_PASSWORD=
 # supabase
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
+
+# Zoho Mail SMTP (use the full mailbox address and an app-specific password)
+ZOHO_SMTP_USER=cravings@sourboo.com
+ZOHO_SMTP_APP_PASSWORD=
+ORDER_EMAIL_FROM=Sourboo <cravings@sourboo.com>
+ORDER_EMAIL_REPLY_TO=cravings@sourboo.com
+
+# Defaults for an India-datacenter, paid domain mailbox. Use the exact server
+# shown under Zoho Mail > Settings > Mail Accounts > Server Configuration.
+ZOHO_SMTP_HOST=smtppro.zoho.in
+ZOHO_SMTP_PORT=465
+ZOHO_SMTP_SECURE=true
 ```
 
 Run these SQL files in Supabase SQL editor, in order:
