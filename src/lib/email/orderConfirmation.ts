@@ -35,25 +35,11 @@ type OrderConfirmationInput = {
 let cachedTransporter: Transporter | null = null;
 
 const REQUIRED_EMAIL_ENV_VARS = [
-  "ZOHO_SMTP_USER",
-  "ZOHO_SMTP_APP_PASSWORD",
+  "GOOGLE_WORKSPACE_SMTP_USER",
+  "GOOGLE_WORKSPACE_SMTP_APP_PASSWORD",
   "ORDER_EMAIL_FROM",
   "ORDER_EMAIL_REPLY_TO",
 ] as const;
-
-const TRANSIENT_SMTP_CODES = new Set([
-  "EAI_AGAIN",
-  "ECONNECTION",
-  "ECONNRESET",
-  "ESOCKET",
-  "ETIMEDOUT",
-]);
-
-type SmtpError = Error & {
-  code?: string;
-  command?: string;
-  responseCode?: number;
-};
 
 function getRequiredEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -65,125 +51,22 @@ function getRequiredEnv(name: string): string {
   return value;
 }
 
-function parseIntegerEnv(
-  name: string,
-  fallback: number,
-  minimum: number,
-  maximum: number,
-): number {
-  const raw = process.env[name]?.trim();
-  if (!raw) {
-    return fallback;
-  }
-
-  const value = Number(raw);
-  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
-    throw new Error(
-      `${name} must be an integer between ${minimum} and ${maximum}.`,
-    );
-  }
-
-  return value;
-}
-
-function parseBooleanEnv(name: string, fallback: boolean): boolean {
-  const raw = process.env[name]?.trim().toLowerCase();
-  if (!raw) {
-    return fallback;
-  }
-  if (raw === "true") {
-    return true;
-  }
-  if (raw === "false") {
-    return false;
-  }
-
-  throw new Error(`${name} must be either true or false.`);
-}
-
-function getZohoMailTransporter(): Transporter {
+function getGoogleWorkspaceTransporter(): Transporter {
   if (cachedTransporter) {
     return cachedTransporter;
   }
 
-  // Domain-based Zoho Mail accounts use the Pro SMTP endpoint. Keep this
-  // configurable because Zoho assigns the exact host by account/datacenter.
-  const host = process.env.ZOHO_SMTP_HOST?.trim() || "smtppro.zoho.in";
-  const port = parseIntegerEnv("ZOHO_SMTP_PORT", 465, 1, 65_535);
-  const secure = parseBooleanEnv("ZOHO_SMTP_SECURE", port === 465);
-
   cachedTransporter = nodemailer.createTransport({
-    host,
-    port,
-    secure,
+    host: process.env.GOOGLE_WORKSPACE_SMTP_HOST?.trim() || "smtp.gmail.com",
+    port: Number.parseInt(process.env.GOOGLE_WORKSPACE_SMTP_PORT || "465", 10),
+    secure: (process.env.GOOGLE_WORKSPACE_SMTP_SECURE || "true") !== "false",
     auth: {
-      user: getRequiredEnv("ZOHO_SMTP_USER"),
-      pass: getRequiredEnv("ZOHO_SMTP_APP_PASSWORD"),
-    },
-    pool: true,
-    maxConnections: parseIntegerEnv("ZOHO_SMTP_MAX_CONNECTIONS", 3, 1, 10),
-    maxMessages: parseIntegerEnv("ZOHO_SMTP_MAX_MESSAGES", 50, 1, 1_000),
-    connectionTimeout: parseIntegerEnv(
-      "ZOHO_SMTP_CONNECTION_TIMEOUT_MS",
-      15_000,
-      1_000,
-      120_000,
-    ),
-    greetingTimeout: parseIntegerEnv(
-      "ZOHO_SMTP_GREETING_TIMEOUT_MS",
-      10_000,
-      1_000,
-      120_000,
-    ),
-    socketTimeout: parseIntegerEnv(
-      "ZOHO_SMTP_SOCKET_TIMEOUT_MS",
-      30_000,
-      1_000,
-      300_000,
-    ),
-    tls: {
-      minVersion: "TLSv1.2",
-      rejectUnauthorized: true,
-      servername: host,
+      user: getRequiredEnv("GOOGLE_WORKSPACE_SMTP_USER"),
+      pass: getRequiredEnv("GOOGLE_WORKSPACE_SMTP_APP_PASSWORD"),
     },
   });
 
   return cachedTransporter;
-}
-
-function isTransientSmtpError(error: unknown): boolean {
-  const smtpError = error as SmtpError;
-  return (
-    TRANSIENT_SMTP_CODES.has(String(smtpError?.code || "").toUpperCase()) ||
-    smtpError?.responseCode === 421 ||
-    smtpError?.responseCode === 450 ||
-    smtpError?.responseCode === 451 ||
-    smtpError?.responseCode === 452
-  );
-}
-
-function toSafeSmtpError(error: unknown): Error {
-  const smtpError = error as SmtpError;
-  const responseCode = smtpError?.responseCode;
-  const code = smtpError?.code;
-
-  if (responseCode === 535 || code === "EAUTH") {
-    return new Error(
-      "Zoho SMTP authentication failed. Check ZOHO_SMTP_USER, use a Zoho app-specific password when 2FA is enabled, and confirm the SMTP host for this Zoho datacenter.",
-    );
-  }
-
-  const details = [
-    responseCode ? `SMTP ${responseCode}` : "",
-    code ? String(code) : "",
-  ].filter(Boolean);
-  return new Error(
-    `Zoho SMTP delivery failed${details.length ? ` (${details.join(", ")})` : ""}.`,
-  );
-}
-
-async function wait(milliseconds: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 export function getOrderConfirmationEmailConfiguration() {
@@ -194,11 +77,7 @@ export function getOrderConfirmationEmailConfiguration() {
 }
 
 export async function verifyOrderConfirmationEmailTransport(): Promise<void> {
-  try {
-    await getZohoMailTransporter().verify();
-  } catch (error) {
-    throw toSafeSmtpError(error);
-  }
+  await getGoogleWorkspaceTransporter().verify();
 }
 
 function formatMoney(amountPaise: number, currency: string): string {
@@ -386,32 +265,19 @@ Team Sourboo`;
 export async function sendOrderConfirmationEmail(
   input: OrderConfirmationInput,
 ): Promise<void> {
-  const transporter = getZohoMailTransporter();
-  const from = getRequiredEnv("ORDER_EMAIL_FROM");
-  const replyTo = getRequiredEnv("ORDER_EMAIL_REPLY_TO");
-  const maxAttempts = parseIntegerEnv("ZOHO_SMTP_MAX_ATTEMPTS", 3, 1, 5);
+  const transporter = getGoogleWorkspaceTransporter();
+  const from =
+    process.env.ORDER_EMAIL_FROM?.trim() || "Sourboo <cravings@sourboo.com>";
+  const replyTo =
+    process.env.ORDER_EMAIL_REPLY_TO?.trim() || "cravings@sourboo.com";
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      await transporter.sendMail({
-        from,
-        to: input.order.customer_email,
-        replyTo,
-        subject: "AHHH!! Your Sourboo is on the way 💚",
-        html: renderOrderConfirmationHtml(input),
-        text: renderOrderConfirmationText(input),
-        attachments: input.attachments,
-      });
-      return;
-    } catch (error) {
-      if (attempt === maxAttempts || !isTransientSmtpError(error)) {
-        throw toSafeSmtpError(error);
-      }
-
-      // Short exponential backoff with jitter. Authentication and permanent
-      // recipient errors are deliberately not retried.
-      const delay = 400 * 2 ** (attempt - 1) + Math.floor(Math.random() * 200);
-      await wait(delay);
-    }
-  }
+  await transporter.sendMail({
+    from,
+    to: input.order.customer_email,
+    replyTo,
+    subject: "AHHH!! Your Sourboo is on the way 💚",
+    html: renderOrderConfirmationHtml(input),
+    text: renderOrderConfirmationText(input),
+    attachments: input.attachments,
+  });
 }

@@ -4,8 +4,8 @@ import { sendOrderConfirmationEmail } from "@/src/lib/email/orderConfirmation";
 export const runtime = "nodejs";
 
 const REQUIRED_ENV_VARS = [
-  "ZOHO_SMTP_USER",
-  "ZOHO_SMTP_APP_PASSWORD",
+  "GOOGLE_WORKSPACE_SMTP_USER",
+  "GOOGLE_WORKSPACE_SMTP_APP_PASSWORD",
   "ORDER_EMAIL_FROM",
   "ORDER_EMAIL_REPLY_TO",
 ] as const;

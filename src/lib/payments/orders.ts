@@ -474,9 +474,7 @@ async function sendOrderConfirmationEmailOnce(
   }
 
   if (!order) {
-    // Another request has already claimed or completed this send. Do not
-    // bypass the claim: doing so can create a duplicate invoice/email while
-    // the first request is still running.
+    await ensureMissingZohoInvoiceForPaidOrder(merchantOrderId);
     return;
   }
 
@@ -620,6 +618,35 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
   }
 
   return { retried, failed };
+}
+
+async function ensureMissingZohoInvoiceForPaidOrder(
+  merchantOrderId: string,
+): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  const order = await getOrderByMerchantOrderId(merchantOrderId);
+
+  if (!order || order.status !== "SUCCESS" || order.zoho_invoice_id) {
+    return;
+  }
+
+  try {
+    const storedItems = await fetchStoredOrderItems(supabase, order.id);
+    const invoiceItems = appendOrderChargesFromSnapshot(order, storedItems);
+    const invoicePdf = await ensureZohoInvoiceForOrder({
+      supabase,
+      order,
+      items: storedItems,
+    });
+
+    await sendOrderConfirmationEmail({
+      order,
+      items: toOrderConfirmationItems(invoiceItems),
+      attachments: [toInvoiceAttachment(invoicePdf)],
+    });
+  } catch (invoiceError) {
+    console.error("Failed to retry missing Zoho invoice", invoiceError);
+  }
 }
 
 export async function tryInsertPaymentEvent(input: {

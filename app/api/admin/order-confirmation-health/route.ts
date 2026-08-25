@@ -34,34 +34,30 @@ export async function GET(request: Request) {
     );
   }
 
-  const [smtpResult, zohoResult] = await Promise.allSettled([
-    verifyOrderConfirmationEmailTransport(),
-    verifyZohoBooksConnection(),
-  ]);
-  const smtpVerified = smtpResult.status === "fulfilled";
-  const zohoVerified = zohoResult.status === "fulfilled";
-
-  return NextResponse.json(
-    {
-      ok: smtpVerified && zohoVerified,
+  try {
+    await Promise.all([
+      verifyOrderConfirmationEmailTransport(),
+      verifyZohoBooksConnection(),
+    ]);
+    return NextResponse.json({
+      ok: true,
       environment,
-      smtp: smtpVerified ? "verified" : "unavailable_or_unverified",
-      zoho: zohoVerified ? "verified" : "unavailable_or_unverified",
-      errors: {
-        smtp:
-          smtpResult.status === "rejected"
-            ? smtpResult.reason instanceof Error
-              ? smtpResult.reason.message
-              : "Zoho SMTP verification failed."
-            : null,
-        zoho:
-          zohoResult.status === "rejected"
-            ? zohoResult.reason instanceof Error
-              ? zohoResult.reason.message
-              : "Zoho Books verification failed."
-            : null,
+      smtp: "verified",
+      zoho: "verified",
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        environment,
+        smtp: "unavailable_or_unverified",
+        zoho: "unavailable_or_unverified",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Integration verification failed.",
       },
-    },
-    { status: smtpVerified && zohoVerified ? 200 : 503 },
-  );
+      { status: 503 },
+    );
+  }
 }
