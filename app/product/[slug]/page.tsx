@@ -7,7 +7,7 @@ import ProductDetailCartActions from '@/app/components/cart/ProductDetailCartAct
 import ProductImageCarousel from '@/app/components/product/ProductImageCarousel';
 import ProductDetailSections from '@/app/components/product/ProductDetailSections';
 import ProductShareButton from '@/app/components/product/ProductShareButton';
-import { sanityClient } from '@/src/lib/sanity/client';
+import { CATALOG_PRODUCTS, findCatalogProduct } from '@/src/lib/catalog/products';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 import type { Metadata } from 'next';
@@ -59,36 +59,6 @@ type ProductDetail = {
   detailAfterOpeningTitle: string;
   detailAfterOpeningBody: string;
   detailDispatchNote: string;
-};
-
-const PRODUCT_DETAIL_QUERY = `*[_type == "product" && slug.current == $slug][0]{
-  "slug": slug.current,
-  titleWord,
-  accentWord,
-  suffixWord,
-  price,
-  discountPercent,
-  "jarImage": coalesce(jarImageSvg.asset->url, jarImage),
-  galleryImages,
-  titleColor,
-  accentColor,
-  styleVariant,
-  detailInJarTitle,
-  detailInJarSummary,
-  detailInJarIngredients,
-  detailOnTongueTitle,
-  detailOnTongueBody,
-  detailAfterOpeningTitle,
-  detailAfterOpeningBody,
-  detailDispatchNote
-}`;
-
-const PRODUCT_SLUGS_QUERY = `*[_type == "product" && defined(slug.current)]{
-  "slug": slug.current
-}`;
-
-type ProductSlugRow = {
-  slug?: string;
 };
 
 const PRODUCT_SEO_BY_SLUG: Record<string, { title: string; description: string }> = {
@@ -237,21 +207,18 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
 }
 
 async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
-  try {
-    const decodedSlug = decodeRouteSlug(slug);
-    const doc = await sanityClient.fetch<SanityProductDetail | null>(
-      PRODUCT_DETAIL_QUERY,
-      { slug: decodedSlug },
-      { next: { revalidate } },
-    );
-    if (!doc) return null;
-    return toProductDetail(doc);
-  } catch {
-    return null;
-  }
+  const doc = findCatalogProduct(decodeRouteSlug(slug));
+  return doc ? toProductDetail(doc) : null;
 }
 
 function getProductSeo(slug: string, product?: ProductDetail | null) {
+  const catalogProduct = findCatalogProduct(slug);
+  if (catalogProduct && catalogProduct.jarCount > 1) {
+    return {
+      title: `${catalogProduct.name} | Sourboo`,
+      description: catalogProduct.detailInJarSummary.replace(/\n/g, ' '),
+    };
+  }
   const slugSeo = PRODUCT_SEO_BY_SLUG[slug];
   if (slugSeo) return slugSeo;
 
@@ -289,17 +256,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export async function generateStaticParams() {
-  try {
-    const rows = await sanityClient.fetch<ProductSlugRow[]>(PRODUCT_SLUGS_QUERY, {}, { next: { revalidate } });
-    if (!Array.isArray(rows)) return [];
-
-    return rows
-      .map((row) => (typeof row.slug === 'string' ? row.slug.trim() : ''))
-      .filter((slug) => slug.length > 0)
-      .map((slug) => ({ slug }));
-  } catch {
-    return [];
-  }
+  return CATALOG_PRODUCTS.map(({ slug }) => ({ slug }));
 }
 
 function ProductName({ product }: { product: ProductDetail }) {
@@ -392,6 +349,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               {product.price}
             </p>
           )}
+          <p className="mt-3 text-center text-[#365A17] font-schoolbell">+ ₹100 shipping per order</p>
           <ProductDetailCartActions
             slug={product.slug}
             name={productName}

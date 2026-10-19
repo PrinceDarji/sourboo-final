@@ -1,5 +1,6 @@
 'use client';
 
+import { findCatalogProduct } from '@/src/lib/catalog/products';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   calculateDiscountRupees,
@@ -39,21 +40,16 @@ const STORAGE_KEY = 'sourboo_cart_v2';
 const DISCOUNT_CODE_STORAGE_KEY = 'sourboo_cart_discount_code_v1';
 
 function normalizeCartItem(item: Partial<CartItem>): CartItem | null {
-  const slug = typeof item.slug === 'string' ? item.slug.trim() : '';
-  const name = typeof item.name === 'string' ? item.name.trim() : '';
-  const image = typeof item.image === 'string' ? item.image : '';
-  const price = Math.max(0, Number(item.price) || 0);
-  const quantity = Math.max(1, Number(item.quantity) || 1);
-
-  if (!slug || !name) {
-    return null;
-  }
-
+  if (!item || typeof item.slug !== 'string') return null;
+  const product = findCatalogProduct(item.slug);
+  if (!product) return null;
+  const rawQuantity = Number(item.quantity);
+  const quantity = Number.isFinite(rawQuantity) ? Math.min(99, Math.max(1, Math.floor(rawQuantity))) : 1;
   return {
-    slug,
-    name,
-    image,
-    price,
+    slug: product.slug,
+    name: product.name,
+    image: product.jarImage,
+    price: product.pricePaise / 100,
     quantity,
   };
 }
@@ -116,6 +112,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, 'quantity'>, quantity = 1) => {
     setItems((prev) => {
+      const normalized = normalizeCartItem({ ...item, quantity });
+      if (!normalized) return prev;
+      item = normalized;
+      quantity = normalized.quantity;
       const existing = prev.find((cartItem) => cartItem.slug === item.slug);
       if (existing) {
         return prev.map((cartItem) =>
@@ -125,7 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 name: item.name,
                 image: item.image,
                 price: Math.max(0, Number(item.price) || 0),
-                quantity: cartItem.quantity + Math.max(1, quantity),
+                quantity: Math.min(99, cartItem.quantity + Math.max(1, quantity)),
               }
             : cartItem,
         );
@@ -147,7 +147,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setItems((prev) =>
-      prev.map((item) => (item.slug === slug ? { ...item, quantity: Math.max(1, quantity) } : item)),
+      prev.map((item) => (item.slug === slug ? { ...item, quantity: Math.min(99, Math.max(1, Math.floor(quantity))) } : item)),
     );
   }, []);
 

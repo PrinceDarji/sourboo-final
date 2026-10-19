@@ -1,43 +1,19 @@
 import type { MetadataRoute } from 'next';
-import { sanityClient } from '@/src/lib/sanity/client';
+import { CATALOG_PRODUCTS } from '@/src/lib/catalog/products';
 import { siteUrl } from '@/src/lib/siteUrl';
 
 export const revalidate = 3600;
-
-const PRODUCT_SLUGS_QUERY = `*[_type == "product" && defined(slug.current)]{
-  "slug": slug.current,
-  _updatedAt
-}`;
-
-type ProductSlugRow = {
-  slug?: string;
-  _updatedAt?: string;
-};
 
 function absoluteUrl(path: string) {
   return new URL(path, siteUrl).toString();
 }
 
 async function getProductSitemapEntries(): Promise<MetadataRoute.Sitemap> {
-  try {
-    const rows = await sanityClient.fetch<ProductSlugRow[]>(PRODUCT_SLUGS_QUERY, {}, { next: { revalidate } });
-    if (!Array.isArray(rows)) return [];
-
-    return rows
-      .map((row) => ({
-        slug: typeof row.slug === 'string' ? row.slug.trim() : '',
-        updatedAt: row._updatedAt,
-      }))
-      .filter((row) => row.slug.length > 0)
-      .map((row) => ({
-        url: absoluteUrl(`/product/${row.slug}`),
-        lastModified: row.updatedAt ? new Date(row.updatedAt) : new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      }));
-  } catch {
-    return [];
-  }
+  return CATALOG_PRODUCTS.map(({ slug }) => ({
+    url: absoluteUrl(`/product/${slug}`),
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

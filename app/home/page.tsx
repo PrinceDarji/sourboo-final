@@ -6,6 +6,7 @@ import HomeHorizontalImageScroll from '../components/home/HomeHorizontalImageScr
 import CrybabyVisual from '../components/home/CrybabyVisual';
 import HomePosterPinboard from '../components/home/HomePosterPinboard';
 import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
+import { CATALOG_PRODUCTS } from '@/src/lib/catalog/products';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { CoolRascalText } from '../components/MixedFont';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
@@ -182,13 +183,6 @@ const homeBands: HomeBand[] = [
   },
 ];
 
-const HOME_CTA_PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
-  "slug": slug.current,
-  styleVariant,
-  price,
-  discountPercent
-}`;
-
 const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)[0]{
   "heroImage": coalesce(heroImageSvg.asset->url, heroImage),
   heroImageAlt,
@@ -291,11 +285,7 @@ async function getHomeCtaByVariant(): Promise<{
   priceByVariant: Partial<Record<StyleVariant, HomeVariantPrice>>;
 }> {
   try {
-    const docs = await sanityClientLive.fetch<SanityHomeProduct[]>(
-      HOME_CTA_PRODUCTS_QUERY,
-      {},
-      SANITY_NO_STORE_OPTIONS,
-    );
+    const docs: readonly SanityHomeProduct[] = CATALOG_PRODUCTS.filter((product) => product.jarCount === 1);
 
     if (!Array.isArray(docs) || docs.length === 0) {
       return { hrefByVariant: {}, priceByVariant: {} };

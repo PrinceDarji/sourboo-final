@@ -4,6 +4,7 @@ import Navbar from '../components/about/AboutNavbar';
 import SiteFooter from '../components/SiteFooter';
 import { CoolRascalText } from '../components/MixedFont';
 import QuickBuyButton from '../components/cart/QuickBuyButton';
+import { CATALOG_PRODUCTS } from '@/src/lib/catalog/products';
 import { sanityClient } from '@/src/lib/sanity/client';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
@@ -46,6 +47,7 @@ type ProductCard = {
   cartPrice: string;
   hoverLabel: string;
   alwaysShowLabel?: boolean;
+  jarCount?: number;
   splashImage: string;
   jarImage: string;
   leafImage: string;
@@ -63,6 +65,7 @@ type SanityProduct = {
   discountPercent?: number;
   hoverLabel?: string;
   alwaysShowLabel?: boolean;
+  jarCount?: number;
   styleVariant?: StyleVariant;
   splashImage?: unknown;
   jarImage?: unknown;
@@ -183,23 +186,6 @@ type ProductPageContent = {
   };
   reviewBubbleTexts: string[];
 };
-
-const PRODUCTS_QUERY = `*[_type == "product"] | order(sortOrder asc, _createdAt asc) {
-  "slug": slug.current,
-  titleWord,
-  accentWord,
-  suffixWord,
-  price,
-  discountPercent,
-  hoverLabel,
-  alwaysShowLabel,
-  styleVariant,
-  "splashImage": coalesce(splashImageSvg.asset->url, splashImage),
-  "jarImage": coalesce(jarImageSvg.asset->url, jarImage),
-  "leafImage": coalesce(leafImageSvg.asset->url, leafImage),
-  titleColor,
-  accentColor
-}`;
 
 const PRODUCT_PAGE_CONTENT_QUERY = `*[_type == "productPage"] | order(_updatedAt desc)[0]{
   emptyStateText,
@@ -469,6 +455,7 @@ function toProductCard(doc: SanityProduct, index: number): ProductCard {
     cartPrice,
     hoverLabel: asNonEmptyString(doc.hoverLabel) || (isSecondary ? 'imli' : 'lemon and\nchaat masala'),
     alwaysShowLabel: Boolean(doc.alwaysShowLabel),
+    jarCount: doc.jarCount,
     styleVariant,
     splashImage: imageSrc(doc.splashImage, isSecondary ? '/product/splash-orange.svg' : '/product/splash-green.svg'),
     jarImage: imageSrc(doc.jarImage, isSecondary ? '/product/tamarin-jar.svg' : '/product/side-eye-jar.svg'),
@@ -479,18 +466,7 @@ function toProductCard(doc: SanityProduct, index: number): ProductCard {
 }
 
 async function getProducts(): Promise<ProductCard[]> {
-  try {
-    const docs = await sanityClientLive.fetch<SanityProduct[]>(
-      PRODUCTS_QUERY,
-      {},
-      SANITY_NO_STORE_OPTIONS,
-    );
-
-    if (!Array.isArray(docs) || docs.length === 0) return [];
-    return docs.map((doc, index) => toProductCard(doc, index));
-  } catch {
-    return [];
-  }
+  return CATALOG_PRODUCTS.map((doc, index) => toProductCard(doc, index));
 }
 
 async function getProductPageContent(): Promise<ProductPageContent> {
@@ -668,7 +644,9 @@ function ProductCard({
 
   const cardSizeClass = isDesktop ? 'h-[530px] w-[500px]' : 'h-[420px] w-[360px]';
   const shouldShrinkMobileJar = !isDesktop && index < 2;
-  const jarSizeClass = isDesktop
+  const jarSizeClass = (product.jarCount ?? 1) > 1
+    ? isDesktop ? 'h-[300px] w-[420px]' : 'h-[245px] w-[310px]'
+    : isDesktop
     ? 'h-[300px] w-[231px]'
     : shouldShrinkMobileJar
       ? 'h-[245px] w-[181px]'
@@ -726,7 +704,7 @@ function ProductCard({
               alt={`${product.title} product jar`}
               fill
               loading={isAboveFoldCard ? 'eager' : 'lazy'}
-              sizes={isDesktop ? '231px' : shouldShrinkMobileJar ? '181px' : '226px'}
+              sizes={(product.jarCount ?? 1) > 1 ? '(min-width: 768px) 420px, 310px' : isDesktop ? '231px' : shouldShrinkMobileJar ? '181px' : '226px'}
               quality={82}
               className="object-contain"
             />
@@ -766,6 +744,7 @@ function ProductCard({
         <p className={`mt-2 text-center leading-none text-[#4a4743] font-coolvetica ${priceSizeClass}`}>{product.price}</p>
       )}
 
+      <p className="mt-2 text-center text-[#4a4743] font-schoolbell">+ ₹100 shipping per order</p>
       <div className={`flex justify-center ${isDesktop ? 'mt-6' : 'mt-5'}`}>
         <QuickBuyButton
           slug={product.slug}
