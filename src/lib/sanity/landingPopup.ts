@@ -1,6 +1,5 @@
 import { sanityClient } from '@/src/lib/sanity/client';
 import { POPUP_DISCOUNT_CODE } from '@/src/lib/checkout/discountCodes';
-import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
 export type LandingPopupOption = {
   label: string;
@@ -36,6 +35,7 @@ export type LandingPopupContent = {
     src?: string;
     alt: string;
   };
+  // Keep recovered artwork local so the popup survives Sanity API/CDN outages.
   images: {
     topLeft: { src?: string; alt: string };
     center: { src?: string; alt: string };
@@ -264,27 +264,13 @@ function asValidHref(value: unknown, fallback: string): string {
   }
 }
 
-function imageSrc(
-  source: unknown,
-  options: { width?: number; quality?: number } = {},
-): string | undefined {
-  const width = options.width ?? 1600;
-  const quality = options.quality ?? 80;
-
-  if (!source) return undefined;
-  return sanityImageOrFileUrl(source, '', { width, quality }) || undefined;
-}
-
 function toPopupOptions(source: LandingPopupOptionQuery[] | undefined): LandingPopupOption[] {
   return DEFAULT_OPTIONS.map((fallback, index) => {
     const item = Array.isArray(source) ? source[index] : undefined;
     return {
       label: asNonEmptyString(item?.label) || fallback.label,
       href: asValidHref(item?.href, fallback.href),
-      backgroundImageSrc: imageSrc(item?.backgroundImage, {
-        width: 1200,
-        quality: 80,
-      }),
+      backgroundImageSrc: fallback.backgroundImageSrc,
       textColor: asHexColor(item?.textColor, fallback.textColor),
       textOffsetX: asOffsetPx(item?.textOffsetX, fallback.textOffsetX),
       textOffsetY: asOffsetPx(item?.textOffsetY, fallback.textOffsetY),
@@ -333,46 +319,31 @@ export async function getLandingPopupContent(revalidate = 0): Promise<LandingPop
       },
       images: {
         topLeft: {
-          src: imageSrc(data?.landingPopupTopLeftImage, {
-            width: 1200,
-            quality: 80,
-          }),
+          src: DEFAULT_LANDING_POPUP_CONTENT.images.topLeft.src,
           alt:
             asNonEmptyString(data?.landingPopupTopLeftImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.topLeft.alt,
         },
         center: {
-          src: imageSrc(data?.landingPopupCenterImage, {
-            width: 1400,
-            quality: 80,
-          }),
+          src: DEFAULT_LANDING_POPUP_CONTENT.images.center.src,
           alt:
             asNonEmptyString(data?.landingPopupCenterImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.center.alt,
         },
         topRight: {
-          src: imageSrc(data?.landingPopupTopRightImage, {
-            width: 1200,
-            quality: 80,
-          }),
+          src: DEFAULT_LANDING_POPUP_CONTENT.images.topRight.src,
           alt:
             asNonEmptyString(data?.landingPopupTopRightImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.topRight.alt,
         },
         bottomLeft: {
-          src: imageSrc(data?.landingPopupBottomLeftImage, {
-            width: 1200,
-            quality: 80,
-          }),
+          src: DEFAULT_LANDING_POPUP_CONTENT.images.bottomLeft.src,
           alt:
             asNonEmptyString(data?.landingPopupBottomLeftImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.bottomLeft.alt,
         },
         thirdOilDrip: {
-          src: imageSrc(data?.landingPopupThirdOilDripImage, {
-            width: 1200,
-            quality: 80,
-          }),
+          src: DEFAULT_LANDING_POPUP_CONTENT.images.thirdOilDrip.src,
           alt:
             asNonEmptyString(data?.landingPopupThirdOilDripImageAlt) ||
             DEFAULT_LANDING_POPUP_CONTENT.images.thirdOilDrip.alt,
@@ -405,10 +376,7 @@ export async function getLandingPopupContent(revalidate = 0): Promise<LandingPop
           asNonEmptyString(data?.landingPopupLeadDisclaimer) ||
           DEFAULT_LANDING_POPUP_CONTENT.leadCapture.disclaimer,
         ctaBackgroundImageSrc:
-          imageSrc(data?.landingPopupLeadCtaBackgroundImage, {
-            width: 1200,
-            quality: 80,
-          }) || DEFAULT_LANDING_POPUP_CONTENT.leadCapture.ctaBackgroundImageSrc,
+          DEFAULT_LANDING_POPUP_CONTENT.leadCapture.ctaBackgroundImageSrc,
         successCode:
           asNonEmptyString(data?.landingPopupLeadSuccessCode) ||
           DEFAULT_LANDING_POPUP_CONTENT.leadCapture.successCode,
