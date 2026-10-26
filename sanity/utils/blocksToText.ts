@@ -2,7 +2,7 @@ import type {PortableTextBlock} from '@portabletext/types'
 
 const defaults = {nonTextBehavior: 'remove'}
 
-export default function (blocks: PortableTextBlock[] = [], opts = {}) {
+export default function blocksToText(blocks: PortableTextBlock[] = [], opts = {}) {
   if (typeof blocks === 'string') {
     return blocks
   }

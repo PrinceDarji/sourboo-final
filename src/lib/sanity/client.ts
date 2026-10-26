@@ -22,5 +22,7 @@ export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
+  timeout: 5000,
+  maxRetries: 1,
   useCdn: true, // fast + cheap for content
 });

@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import ReachUsPageTemplate from '@/app/components/legal/ReachUsPageTemplate';
 import { getSocialLinksConfig } from '@/src/lib/sanity/siteSettings';
 
@@ -19,3 +20,5 @@ export default async function JoinPage() {
     />
   );
 }
+
+export const metadata = pageMetadata("Join Sourboo", "Get in touch with Sourboo for collaborations and community enquiries.", "/join");

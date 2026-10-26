@@ -80,7 +80,7 @@ export default async function PopupPage({
 }: {
   searchParams: Promise<{ from?: string | string[] }>;
 }) {
-  const config = await getLandingPopupContent(0);
+  const config = await getLandingPopupContent(300);
   const params = await searchParams;
   const fromPath = asSafeFromPath(params.from);
   const headingText = `${config.headingStart} ${config.headingMain}`.trim();

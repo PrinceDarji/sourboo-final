@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import LegalPageTemplate from '@/app/components/legal/LegalPageTemplate';
 
 const termsSections = [
@@ -95,3 +96,5 @@ const termsSections = [
 export default function TermsAndConditionsPage() {
   return <LegalPageTemplate title="Terms and Conditions" sections={termsSections} />;
 }
+
+export const metadata = pageMetadata("Terms and Conditions", "Read the terms and conditions for shopping with Sourboo.", "/terms-and-conditions");

@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const landingPopup = await getLandingPopupContent(0);
+  const landingPopup = await getLandingPopupContent(300);
 
   return (
     <html

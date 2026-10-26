@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { priceCheckoutItems } from '@/src/lib/checkout/pricing';
+import { CartValidationError, priceCheckoutItems } from '@/src/lib/checkout/pricing';
 import { calculateDiscountPaise } from '@/src/lib/checkout/discountCodes';
 import { calculatePayableTotalPaise, calculateShippingPaiseForItems } from '@/src/lib/checkout/totals';
 
@@ -21,13 +21,16 @@ const quoteRequestSchema = z.object({
         quantity: z.number().int().min(1).max(99),
       }),
     )
-    .min(1),
+    .min(1).max(100),
   discountCode: discountCodeSchema,
 });
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try { json = await request.json(); } catch {
+      return NextResponse.json({ ok: false, error: 'Request must contain valid JSON.' }, { status: 400 });
+    }
     const parsed = quoteRequestSchema.safeParse(json);
 
     if (!parsed.success) {
@@ -64,6 +67,9 @@ export async function POST(request: Request) {
       payableTotalPaise,
     });
   } catch (error) {
+    if (error instanceof CartValidationError) {
+      return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
+    }
     console.error('Checkout quote failed', error);
     return NextResponse.json(
       {

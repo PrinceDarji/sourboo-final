@@ -37,7 +37,7 @@ export default async function PopupCouponPage({
 }: {
   searchParams: Promise<{ choice?: string | string[]; from?: string | string[] }>;
 }) {
-  const config = await getLandingPopupContent(0);
+  const config = await getLandingPopupContent(300);
   const params = await searchParams;
 
   if (!config.enabled) {

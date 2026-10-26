@@ -172,7 +172,7 @@ export default function HomeReviewPhoneSection({ bubbleTexts }: HomeReviewPhoneS
               alt="Phone showing what people say about Sourboo"
               width={3663}
               height={8222}
-              quality={100}
+              quality={82}
 
               className="h-auto w-full -rotate-3 object-contain md:-rotate-4 md:drop-shadow-[0_20px_28px_rgba(52,20,28,0.26)] lg:rotate-4"
               sizes="(max-width: 768px) 40vw, (max-width: 1364px) 22vw, 300px"

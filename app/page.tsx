@@ -6,6 +6,7 @@ const homeDescription =
   'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/' },
   title: {
     absolute: homeTitle,
   },

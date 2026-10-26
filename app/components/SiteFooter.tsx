@@ -137,7 +137,6 @@ export default function SiteFooter() {
       try {
         const response = await fetch('/api/site-settings', {
           method: 'GET',
-          cache: 'no-store',
         });
 
         if (!response.ok) return;

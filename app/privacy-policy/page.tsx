@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import LegalPageTemplate from '@/app/components/legal/LegalPageTemplate';
 
 const privacySections = [
@@ -76,3 +77,5 @@ const privacySections = [
 export default function PrivacyPolicyPage() {
   return <LegalPageTemplate title="Privacy Policy" sections={privacySections} />;
 }
+
+export const metadata = pageMetadata("Privacy Policy", "Learn how Sourboo collects, uses and protects your information.", "/privacy-policy");

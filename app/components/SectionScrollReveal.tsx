@@ -10,7 +10,7 @@ const VISIBLE_CLASS = 'scroll-reveal-visible';
 const DELAY_STEP_MS = 40;
 const MAX_DELAY_MS = 160;
 const INITIAL_VISIBLE_RATIO = 0.45;
-const REVEAL_INTERSECTION_RATIO = 0.2;
+const REVEAL_INTERSECTION_RATIO = 0.01;
 
 function markVisible(section: HTMLElement) {
   section.classList.add(VISIBLE_CLASS);
@@ -58,7 +58,7 @@ export default function SectionScrollReveal() {
       (entries) => {
         entries.forEach((entry) => {
           const section = entry.target as HTMLElement;
-          if (entry.intersectionRatio < REVEAL_INTERSECTION_RATIO) return;
+          if (!entry.isIntersecting) return;
           markVisible(section);
           observer.unobserve(section);
         });
@@ -77,6 +77,7 @@ export default function SectionScrollReveal() {
     return () => {
       observer.disconnect();
       sections.forEach((section) => {
+        section.classList.remove(BASE_CLASS, VISIBLE_CLASS);
         section.style.removeProperty('--scroll-reveal-delay');
       });
     };

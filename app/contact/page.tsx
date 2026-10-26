@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import ReachUsPageTemplate from '@/app/components/legal/ReachUsPageTemplate';
 import { getSocialLinksConfig } from '@/src/lib/sanity/siteSettings';
 
@@ -18,3 +19,5 @@ export default async function ContactPage() {
     />
   );
 }
+
+export const metadata = pageMetadata("Contact Sourboo", "Contact Sourboo for order support, product questions and enquiries.", "/contact");

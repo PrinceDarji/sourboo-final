@@ -119,7 +119,7 @@ export const CATALOG_PRODUCTS: readonly CatalogProduct[] = [
   bundle('sourboo-stash', 'Sourboo Stash', 'sourboo', 'stash', 1299, 2, 2),
 ];
 
-const aliases: Record<string, string> = {
+export const PRODUCT_SLUG_ALIASES: Record<string, string> = {
   'side-eye-sour': 'sideeyesour',
   'side-eye-sour-spicy-pickled-gherkins': 'sideeyesour',
   'tamarin-tease': 'tamarintease',
@@ -131,7 +131,7 @@ const aliases: Record<string, string> = {
 
 export function findCatalogProduct(slug: string): CatalogProduct | undefined {
   const clean = slug.trim().toLowerCase();
-  const canonical = aliases[clean] || clean;
+  const canonical = PRODUCT_SLUG_ALIASES[clean] || clean;
   const key = canonical.replace(/[-_\s]/g, '');
   return CATALOG_PRODUCTS.find((product) => product.slug.replace(/-/g, '') === key);
 }

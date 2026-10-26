@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import Navbar from '../components/about/AboutNavbar';
 import Image from 'next/image';
 import { sanityClient } from '@/src/lib/sanity/client';
@@ -11,7 +12,7 @@ import AboutEnvelopeText from '../components/about/AboutEnvelopeText';
 import SectionThreeEyesSequence from '../components/about/SectionThreeEyesSequence';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 type AboutImageItemQuery = {
   image?: unknown;
@@ -236,8 +237,8 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"] | order(_updatedAt desc)[0]{
   envelopeText
 }`;
 
-const sanityClientLive = sanityClient.withConfig({ useCdn: false });
-const SANITY_NO_STORE_OPTIONS = { cache: 'no-store' as const };
+const sanityClientLive = sanityClient;
+const SANITY_FETCH_OPTIONS = { next: { revalidate: 300 } };
 
 const DEFAULT_ENVELOPE_CONTENT: EnvelopeContent = {
   heading: 'hellooo',
@@ -428,7 +429,7 @@ async function getAboutPageContent(): Promise<AboutPageContent> {
     const data = await sanityClientLive.fetch<AboutPageQueryResult>(
       ABOUT_PAGE_QUERY,
       {},
-      SANITY_NO_STORE_OPTIONS,
+      SANITY_FETCH_OPTIONS,
     );
 
     const legacyEnvelope = asNonEmptyString(data?.envelopeText)
@@ -953,3 +954,5 @@ export default async function Home() {
     </main>
   );
 }
+
+export const metadata = pageMetadata("About Sourboo", "Meet Sourboo: bold, sour and spicy snackable pickled gherkins, made for mouths that misbehave.", "/about");

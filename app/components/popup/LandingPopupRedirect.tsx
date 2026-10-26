@@ -18,7 +18,8 @@ export default function LandingPopupRedirect({
 
   useEffect(() => {
     if (!enabled) return;
-    if (pathname.startsWith('/popup')) return;
+    // Marketing prompts must never interrupt payment or order confirmation.
+    if (pathname !== '/' && pathname !== '/home') return;
     if (isLandingPopupDismissed()) return;
 
     const currentQuery = window.location.search;

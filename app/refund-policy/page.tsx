@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import LegalPageTemplate from '@/app/components/legal/LegalPageTemplate';
 
 const refundSections = [
@@ -46,3 +47,5 @@ const refundSections = [
 export default function RefundPolicyPage() {
   return <LegalPageTemplate title="Refund & Exchange Policy" sections={refundSections} />;
 }
+
+export const metadata = pageMetadata("Refund Policy", "Read Sourboo\u2019s policy for damaged deliveries, refunds and replacements.", "/refund-policy");

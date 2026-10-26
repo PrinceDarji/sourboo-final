@@ -1,3 +1,5 @@
+import { siteUrl } from '@/src/lib/siteUrl';
+import { productStructuredData, serializeJsonLd } from '@/src/lib/seo/structuredData';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -183,7 +185,7 @@ function toProductDetail(doc: SanityProductDetail): ProductDetail {
     slug: asNonEmptyString(doc.slug) || 'product',
     title: asNonEmptyString(doc.titleWord) || (isSecondary ? "tamarin'" : 'side'),
     accent: asNonEmptyString(doc.accentWord) || (isSecondary ? 'tease' : 'eye'),
-    suffix: asNonEmptyString(doc.suffixWord) || (isSecondary ? undefined : 'sour'),
+    suffix: asNonEmptyString(doc.suffixWord),
     price,
     discountedPrice,
     cartPrice,
@@ -243,12 +245,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       absolute: seo.title,
     },
     description: seo.description,
+    alternates: { canonical: `/product/${product?.slug || decodedSlug}` },
     openGraph: {
       title: seo.title,
       description: seo.description,
-      url: `/product/${decodedSlug}`,
+      url: `/product/${product?.slug || decodedSlug}`,
+      images: product ? [{ url: product.jarImage, alt: getProductSeo(decodedSlug, product).title }] : [],
     },
     twitter: {
+      card: 'summary_large_image',
+      images: product ? [product.jarImage] : [],
       title: seo.title,
       description: seo.description,
     },
@@ -262,7 +268,7 @@ export async function generateStaticParams() {
 function ProductName({ product }: { product: ProductDetail }) {
   if (product.suffix) {
     return (
-      <p
+      <h1
         className="text-center text-[clamp(2.6rem,5.5vw,4.9rem)] leading-[0.92] font-coolvetica"
         style={{ color: product.titleColor }}
       >
@@ -271,17 +277,17 @@ function ProductName({ product }: { product: ProductDetail }) {
           {product.accent}
         </span>
         {product.suffix}
-      </p>
+      </h1>
     );
   }
 
   return (
-    <p className="text-center text-[clamp(2.6rem,5.5vw,4.9rem)] leading-[0.92] font-coolvetica">
+    <h1 className="text-center text-[clamp(2.6rem,5.5vw,4.9rem)] leading-[0.92] font-coolvetica">
       <span style={{ color: product.titleColor }}>{product.title}</span>{' '}
       <span className="font-rascal" style={{ color: product.accentColor }}>
         {product.accent}
       </span>
-    </p>
+    </h1>
   );
 }
 
@@ -293,10 +299,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
+  const catalogProduct = findCatalogProduct(product.slug)!;
   const productName = `${product.title} ${product.accent}${product.suffix ? ` ${product.suffix}` : ''}`;
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#ECECEC] pt-24 md:pt-28">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(productStructuredData(catalogProduct, siteUrl)) }} />
       <Navbar />
 
       <section className="mx-auto w-full max-w-[430px] px-4 pb-24 md:max-w-[1100px] md:px-8 md:pb-32">

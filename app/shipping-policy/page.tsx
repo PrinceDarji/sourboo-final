@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/src/lib/seo/metadata';
 import LegalPageTemplate from '@/app/components/legal/LegalPageTemplate';
 
 const shippingSections = [
@@ -49,3 +50,5 @@ const shippingSections = [
 export default function ShippingPolicyPage() {
   return <LegalPageTemplate title="Shipping Policy" sections={shippingSections} />;
 }
+
+export const metadata = pageMetadata("Shipping Policy", "Read Sourboo\u2019s order processing, shipping and delivery policy.", "/shipping-policy");

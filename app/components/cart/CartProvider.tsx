@@ -1,20 +1,13 @@
 'use client';
 
-import { findCatalogProduct } from '@/src/lib/catalog/products';
+import { normalizeCart, normalizeCartItem, type CartItem } from '@/src/lib/cart/normalize';
+export type { CartItem } from '@/src/lib/cart/normalize';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   calculateDiscountRupees,
   POPUP_DISCOUNT_PERCENT,
   resolveDiscountCode,
 } from '@/src/lib/checkout/discountCodes';
-
-export type CartItem = {
-  slug: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-};
 
 type CartContextValue = {
   items: CartItem[];
@@ -39,21 +32,6 @@ type CartContextValue = {
 const STORAGE_KEY = 'sourboo_cart_v2';
 const DISCOUNT_CODE_STORAGE_KEY = 'sourboo_cart_discount_code_v1';
 
-function normalizeCartItem(item: Partial<CartItem>): CartItem | null {
-  if (!item || typeof item.slug !== 'string') return null;
-  const product = findCatalogProduct(item.slug);
-  if (!product) return null;
-  const rawQuantity = Number(item.quantity);
-  const quantity = Number.isFinite(rawQuantity) ? Math.min(99, Math.max(1, Math.floor(rawQuantity))) : 1;
-  return {
-    slug: product.slug,
-    name: product.name,
-    image: product.jarImage,
-    price: product.pricePaise / 100,
-    quantity,
-  };
-}
-
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -68,7 +46,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw) as CartItem[];
         if (Array.isArray(parsed)) {
-          setItems(parsed.map((item) => normalizeCartItem(item)).filter(Boolean) as CartItem[]);
+          setItems(normalizeCart(parsed));
         }
       }
 
@@ -83,18 +61,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch {
+      // Storage may be disabled or full; the in-memory cart still works.
+    }
   }, [items, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
 
-    if (discountCode) {
-      window.localStorage.setItem(DISCOUNT_CODE_STORAGE_KEY, discountCode);
-      return;
+    try {
+      if (discountCode) window.localStorage.setItem(DISCOUNT_CODE_STORAGE_KEY, discountCode);
+      else window.localStorage.removeItem(DISCOUNT_CODE_STORAGE_KEY);
+    } catch {
+      // Keep the active discount in memory when storage is unavailable.
     }
-
-    window.localStorage.removeItem(DISCOUNT_CODE_STORAGE_KEY);
   }, [discountCode, hydrated]);
 
   useEffect(() => {
@@ -142,6 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateQuantity = useCallback((slug: string, quantity: number) => {
+    if (!Number.isFinite(quantity)) return;
     if (quantity <= 0) {
       setItems((prev) => prev.filter((item) => item.slug !== slug));
       return;

@@ -13,13 +13,14 @@ import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 import { calculateDiscountedRupees, formatInr, normalizeDiscountPercent, parsePriceLabel } from '@/src/lib/cart/price';
 import type { Metadata } from 'next';
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 const homeTitle = 'Sourboo | Spicy Sour Gherkin Snacks & Pickled Snacks';
 const homeDescription =
   'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/' },
   title: {
     absolute: homeTitle,
   },
@@ -216,8 +217,8 @@ const HOME_PAGE_CONTENT_QUERY = `*[_type == "homePage"] | order(_updatedAt desc)
   }
 }`;
 
-const sanityClientLive = sanityClient.withConfig({ useCdn: false });
-const SANITY_NO_STORE_OPTIONS = { cache: 'no-store' as const };
+const sanityClientLive = sanityClient;
+const SANITY_FETCH_OPTIONS = { next: { revalidate: 300 } };
 
 const DEFAULT_HOME_CONTENT: HomeCmsContent = {
   hero: {
@@ -331,7 +332,7 @@ async function getHomeCmsContent(): Promise<HomeCmsContent> {
     const data = await sanityClientLive.fetch<HomePageQueryResult>(
       HOME_PAGE_CONTENT_QUERY,
       {},
-      SANITY_NO_STORE_OPTIONS,
+      SANITY_FETCH_OPTIONS,
     );
 
     const bandByVariant: HomeCmsContent['bandByVariant'] = {};

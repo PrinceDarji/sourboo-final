@@ -13,13 +13,14 @@ import ProductWordByWordReveal from '../components/product/ProductWordByWordReve
 import HomeReviewPhoneSection from '../components/home/HomeReviewPhoneSection';
 import type { Metadata } from 'next';
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 const productPageTitle = 'Sourboo | Spicy Sour Gherkin Snacks & Pickled Snacks';
 const productPageDescription =
   'Sourboo makes spicy-sour gherkin snacks and snackable pickles for people obsessed with tangy munchies, cocktails and bold snacking. Perfect for burgers, sandwiches and cocktail garnishes.';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/product' },
   title: {
     absolute: productPageTitle,
   },
@@ -358,8 +359,8 @@ const DEFAULT_PRODUCT_PAGE_CONTENT: ProductPageContent = {
   reviewBubbleTexts: ['', '', '', ''],
 };
 
-const sanityClientLive = sanityClient.withConfig({ useCdn: false });
-const SANITY_NO_STORE_OPTIONS = { cache: 'no-store' as const };
+const sanityClientLive = sanityClient;
+const SANITY_FETCH_OPTIONS = { next: { revalidate: 300 } };
 
 function asNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
@@ -474,7 +475,7 @@ async function getProductPageContent(): Promise<ProductPageContent> {
     const data = await sanityClientLive.fetch<ProductPageQueryResult>(
       PRODUCT_PAGE_CONTENT_QUERY,
       {},
-      SANITY_NO_STORE_OPTIONS,
+      SANITY_FETCH_OPTIONS,
     );
 
     return {
@@ -786,6 +787,7 @@ export default async function ProductPage() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9] pt-24 md:pt-28">
+      <h1 className="sr-only">Shop Sourboo pickled gherkins and bundles</h1>
       <Navbar />
       <ProductWordByWordReveal />
 
