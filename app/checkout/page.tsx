@@ -1,5 +1,7 @@
 'use client';
 
+import { INDIA_STATES, getIndiaStateCode } from '@/src/lib/address/indiaStates';
+
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../components/about/AboutNavbar';
@@ -90,7 +92,7 @@ function getCheckoutValidationError(
   if (formState.phone.length < 8) return 'Please enter a valid phone number.';
   if (formState.line1.length < 3) return 'Please enter your address.';
   if (formState.city.length < 2) return 'Please enter your city.';
-  if (formState.state.length < 2) return 'Please enter your state.';
+  if (!getIndiaStateCode(formState.state)) return 'Please select a valid Indian state or union territory.';
   if (formState.postalCode.length < 3) return 'Please enter your postal code.';
   return null;
 }
@@ -397,16 +399,17 @@ export default function CheckoutPage() {
 
               <label className="flex flex-col gap-1">
                 <span className="text-[1.1rem] text-[#2E2A2A] font-schoolbell">State</span>
-                <input
+                <select
                   required
-                  minLength={2}
-                  maxLength={80}
                   value={formState.state}
                   onChange={(event) =>
                     setFormState((prev) => ({ ...prev, state: event.target.value }))
                   }
                   className="rounded-xl border border-[#C6C6B9] bg-white px-3 py-2 text-[#1D1D1D]"
-                />
+                >
+                  <option value="">Select state / union territory</option>
+                  {INDIA_STATES.map(state => <option key={state.code} value={state.name}>{state.name}</option>)}
+                </select>
               </label>
 
               <label className="flex flex-col gap-1 md:col-span-2">

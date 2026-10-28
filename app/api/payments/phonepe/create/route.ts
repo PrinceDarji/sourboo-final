@@ -1,3 +1,4 @@
+import { getIndiaStateCode, INDIA_STATES } from '@/src/lib/address/indiaStates';
 import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -42,7 +43,9 @@ const checkoutRequestSchema = z.object({
     line1: z.string().trim().min(3).max(200),
     line2: z.string().trim().max(200).optional().default(''),
     city: z.string().trim().min(2).max(80),
-    state: z.string().trim().min(2).max(80),
+    state: z.string().trim().min(1).max(80)
+      .refine(value => Boolean(getIndiaStateCode(value)), 'Please select a valid Indian state or union territory.')
+      .transform(value => INDIA_STATES.find(state => state.code === getIndiaStateCode(value))!.name),
     postalCode: z.string().trim().min(3).max(12),
   }),
 });

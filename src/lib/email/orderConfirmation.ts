@@ -57,6 +57,9 @@ function getGoogleWorkspaceTransporter(): Transporter {
   }
 
   cachedTransporter = nodemailer.createTransport({
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
     host: process.env.GOOGLE_WORKSPACE_SMTP_HOST?.trim() || "smtp.gmail.com",
     port: Number.parseInt(process.env.GOOGLE_WORKSPACE_SMTP_PORT || "465", 10),
     secure: (process.env.GOOGLE_WORKSPACE_SMTP_SECURE || "true") !== "false",

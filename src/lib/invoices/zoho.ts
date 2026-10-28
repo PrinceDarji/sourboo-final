@@ -1,3 +1,4 @@
+import { requireIndiaStateCode } from '@/src/lib/address/indiaStates';
 import type {
   CheckoutShippingAddress,
   OrderRecord,
@@ -215,7 +216,7 @@ function getZohoConfig(): ZohoConfig {
     taxExemptionId: toZohoNumericId(process.env.ZOHO_TAX_EXEMPTION_ID),
     itemIdBySlug: parseItemMap(),
     originStateCode:
-      getIndiaStateCode(process.env.ZOHO_ORIGIN_STATE_CODE) || 'DL',
+      requireIndiaStateCode(process.env.ZOHO_ORIGIN_STATE_CODE?.trim() || 'DL'),
   };
 }
 
@@ -267,82 +268,12 @@ function getZohoContactName(order: OrderRecord): string {
   );
 }
 
-function getIndiaStateCode(state: string | undefined): string | undefined {
-  if (!state) {
-    return undefined;
-  }
-
-  const normalized = cleanZohoText(state, 100)
-    .toLowerCase()
-    .replace(/\s*&\s*/g, ' and ')
-    .replace(/[^a-z]+/g, ' ')
-    .trim();
-  const stateCodes: Record<string, string> = {
-    'andaman and nicobar islands': 'AN',
-    'andhra pradesh': 'AP',
-    'arunachal pradesh': 'AR',
-    assam: 'AS',
-    bihar: 'BR',
-    chandigarh: 'CH',
-    chhattisgarh: 'CG',
-    'dadra and nagar haveli and daman and diu': 'DN',
-    'dadra and nagar haveli': 'DN',
-    'daman and diu': 'DN',
-    delhi: 'DL',
-    'delhi ncr': 'DL',
-    'national capital territory of delhi': 'DL',
-    'nct of delhi': 'DL',
-    'new delhi': 'DL',
-    goa: 'GA',
-    gujarat: 'GJ',
-    haryana: 'HR',
-    'himachal pradesh': 'HP',
-    'jammu and kashmir': 'JK',
-    'jammu kashmir': 'JK',
-    jharkhand: 'JH',
-    karnataka: 'KA',
-    kerala: 'KL',
-    ladakh: 'LA',
-    lakshadweep: 'LD',
-    'madhya pradesh': 'MP',
-    maharashtra: 'MH',
-    manipur: 'MN',
-    meghalaya: 'ML',
-    mizoram: 'MZ',
-    nagaland: 'NL',
-    odisha: 'OD',
-    orissa: 'OD',
-    puducherry: 'PY',
-    pondicherry: 'PY',
-    punjab: 'PB',
-    rajasthan: 'RJ',
-    sikkim: 'SK',
-    'tamil nadu': 'TN',
-    telangana: 'TS',
-    tripura: 'TR',
-    'uttar pradesh': 'UP',
-    uttarakhand: 'UK',
-    'west bengal': 'WB',
-  };
-
-  const mappedCode = stateCodes[normalized];
-  if (mappedCode) {
-    return mappedCode;
-  }
-
-  // Checkout data can contain either a full state name or an already-normalized
-  // two-letter code. Never put an unknown full label into Zoho's state_code:
-  // Zoho limits that field to fewer than five characters.
-  const suppliedCode = cleanZohoText(state, 4).toUpperCase();
-  return /^[A-Z]{2}$/.test(suppliedCode) ? suppliedCode : undefined;
-}
-
 function toZohoAddress(address: CheckoutShippingAddress | null) {
   if (!address) {
     return undefined;
   }
 
-  const stateCode = getIndiaStateCode(address.state);
+  const stateCode = requireIndiaStateCode(address.state);
 
   return {
     address: cleanZohoText(address.line1, 500),
@@ -368,6 +299,7 @@ async function refreshZohoAccessToken(config: ZohoConfig): Promise<string> {
   });
 
   const response = await fetch(`${config.accountsUrl}/oauth/v2/token`, {
+    signal: AbortSignal.timeout(15000),
     method: 'POST',
     body: params,
   });
@@ -399,6 +331,7 @@ export async function verifyZohoBooksConnection(): Promise<void> {
 async function requestZohoJson<T extends ZohoApiResponse>(
   path: string,
   options: RequestInit = {},
+  refreshed = false,
 ): Promise<T> {
   const config = getZohoConfig();
   const accessToken = await refreshZohoAccessToken(config);
@@ -414,8 +347,16 @@ async function requestZohoJson<T extends ZohoApiResponse>(
 
   const response = await fetch(url, {
     ...options,
+    signal: AbortSignal.timeout(20000),
     headers,
   });
+  // An explicit authentication rejection is safe to retry once, even for POST.
+  // Do not blindly retry writes after timeouts/5xx: Zoho may have created them.
+  if (response.status === 401 && !refreshed) {
+    await response.body?.cancel();
+    cachedAccessToken = null;
+    return requestZohoJson<T>(path, options, true);
+  }
   const responseText = await response.text();
   let json: T;
 
@@ -439,6 +380,7 @@ async function requestZohoJson<T extends ZohoApiResponse>(
 async function requestZohoPdf(
   path: string,
   params: Record<string, string>,
+  refreshed = false,
 ): Promise<Buffer> {
   const config = getZohoConfig();
   const accessToken = await refreshZohoAccessToken(config);
@@ -450,18 +392,24 @@ async function requestZohoPdf(
   }
 
   const response = await fetch(url, {
+    signal: AbortSignal.timeout(20000),
     headers: {
       Authorization: `Zoho-oauthtoken ${accessToken}`,
     },
   });
 
+  if (response.status === 401 && !refreshed) {
+    await response.body?.cancel();
+    cachedAccessToken = null;
+    return requestZohoPdf(path, params, true);
+  }
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`Failed to download Zoho invoice PDF. ${body}`);
   }
   const content = Buffer.from(await response.arrayBuffer());
-  if (content.length === 0) {
-    throw new Error('Zoho returned an empty invoice PDF.');
+  if (!content.subarray(0, 1024).includes(Buffer.from('%PDF-'))) {
+    throw new Error('Zoho did not return a valid invoice PDF; confirmation will be retried.');
   }
 
   return content;
@@ -506,7 +454,7 @@ async function createZohoContact(order: OrderRecord): Promise<ZohoContact> {
   const address = toZohoAddress(order.shipping_address);
   const email = cleanZohoEmail(order.customer_email);
   const phone = cleanZohoPhone(order.customer_phone);
-  const placeOfContact = getIndiaStateCode(order.shipping_address?.state);
+  const placeOfContact = requireIndiaStateCode(order.shipping_address?.state);
   const payload = {
     contact_name: getZohoContactName(order),
     contact_type: 'customer',
@@ -644,7 +592,7 @@ async function createZohoInvoice(input: {
     input.order.cart_snapshot_json,
     'discountPaise',
   );
-  const placeOfSupply = getIndiaStateCode(input.order.shipping_address?.state);
+  const placeOfSupply = requireIndiaStateCode(input.order.shipping_address?.state);
   const taxId = getInvoiceTaxId(config, placeOfSupply);
   if (input.items.length === 0) {
     throw new Error(
@@ -805,6 +753,8 @@ export async function createPaidZohoInvoice(input: {
   order: OrderRecord;
   items: StoredOrderItem[];
 }): Promise<ZohoInvoiceResult> {
+  // Validate before creating any external record, including when reusing contacts.
+  requireIndiaStateCode(input.order.shipping_address?.state);
   const contactId = await findOrCreateZohoContact(input.order);
   const invoice =
     (await findZohoInvoiceByReference(input.order.merchant_order_id)) ||
