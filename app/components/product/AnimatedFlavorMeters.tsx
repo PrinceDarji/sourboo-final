@@ -26,7 +26,7 @@ function AnimatedPixelMeter({
 
   return (
     <div>
-      <p className="mb-1 text-center text-[clamp(1.65rem,2.4vw,2.6rem)] leading-none text-[#E61E6E] font-rascal">
+      <p className="mb-1 text-center text-[clamp(1rem,4.4vw,1.65rem)] [overflow-wrap:anywhere] md:text-[clamp(1.65rem,2.4vw,2.6rem)] leading-none text-[#E61E6E] font-rascal">
         {label}
       </p>
       <div className="relative h-4 overflow-hidden border border-[#E61E6E]/40 bg-[#FFE6F2] shadow-[inset_0_0_0_1px_#FFC7DE] md:h-5">

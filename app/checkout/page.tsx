@@ -292,7 +292,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
+    <main className="checkout-page min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
       <Navbar />
 
       <section className="mx-auto w-full max-w-[1200px] px-6 pb-28 pt-36 md:px-10 md:pt-44">
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
           please fill your details carefully
         </p>
 
-        <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
+        <div className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
           <form
             onSubmit={handleSubmit}
             className="rounded-3xl bg-[#FCF4FD] p-5 md:p-7"

@@ -20,7 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { openCart, totalItems } = useCart();
   const navItemClass =
-    'group relative inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-1 text-[clamp(0.72rem,1.1vw,1.22rem)] leading-none text-[#E9E6B8] transition-colors duration-200 hover:bg-[#E9E6B8]/16 hover:text-[#FFFBD8] focus-visible:bg-[#E9E6B8]/22 focus-visible:text-[#FFFBD8] focus-visible:outline-none font-schoolbell';
+    'group relative inline-flex items-center justify-center whitespace-nowrap rounded-full px-1 py-1 sm:px-2.5 text-[clamp(0.72rem,1.1vw,1.22rem)] leading-none text-[#E9E6B8] transition-colors duration-200 hover:bg-[#E9E6B8]/16 hover:text-[#FFFBD8] focus-visible:bg-[#E9E6B8]/22 focus-visible:text-[#FFFBD8] focus-visible:outline-none font-schoolbell';
   const navItemActiveClass = 'bg-[#E9E6B8]/16 text-[#FFFBD8]';
   const navItemBlobClass =
     'pointer-events-none absolute inset-x-[-0.4rem] inset-y-[-0.3rem] -z-10 scale-75 rounded-[48%_52%_53%_47%/60%_44%_56%_40%] bg-[#E9E6B8]/24 opacity-0 blur-[0.6px] transition-all duration-250 ease-out group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100';
@@ -127,7 +127,7 @@ export default function Navbar() {
             alt="Navigation background"
             fill
             sizes="(max-width: 1023px) 100vw, 0px"
-            className="pointer-events-none select-none object-cover object-center"
+            className="pointer-events-none select-none scale-x-[1.07] scale-y-[1.12] object-cover object-center sm:scale-100"
           />
 
           <div className="pointer-events-auto absolute left-1/2 top-[16%] z-20 -translate-x-1/2">
@@ -145,8 +145,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="absolute inset-x-[7%] top-[50%] z-20 flex items-center justify-between sm:inset-x-[8%] sm:top-[67%] md:inset-x-[9%] md:top-[69%]">
-            <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 md:gap-7">
+          <div className="absolute inset-x-[5%] top-[50%] z-20 grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr] items-center sm:flex sm:justify-between sm:inset-x-[8%] sm:top-[67%] md:inset-x-[9%] md:top-[69%]">
+            <div className="pointer-events-auto contents sm:flex sm:items-center sm:gap-4 md:gap-7">
               {leftLinks.map((item) => (
                 <Link
                   key={item.label}
@@ -162,7 +162,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 md:gap-7">
+            <div className="pointer-events-auto contents sm:flex sm:items-center sm:gap-4 md:gap-7">
               {rightLinks.map((item) => (
                 <Link
                   key={item.label}

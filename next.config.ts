@@ -3,6 +3,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   turbopack: { root: process.cwd() },
+  experimental: {
+    // Keep local builds from launching seven page workers on an 8 GB Mac.
+    // Hosting/CI retains its default concurrency unless low-memory mode is requested.
+    ...(!process.env.CI && !process.env.VERCEL ? { cpus: 2 } : {}),
+    ...(process.env.SOURBOO_LOW_MEMORY === '1'
+      ? { cpus: 1, webpackMemoryOptimizations: true }
+      : {}),
+  },
   async redirects() {
     return [
       { source: "/home", destination: "/", permanent: true },

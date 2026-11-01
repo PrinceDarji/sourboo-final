@@ -35,23 +35,6 @@ export default function CrybabyVisual({
       return;
     }
 
-    const parentSection = node.closest('section');
-    if (parentSection) {
-      if (parentSection.classList.contains('scroll-reveal-visible')) {
-        reveal();
-        return;
-      }
-
-      const classObserver = new MutationObserver(() => {
-        if (!parentSection.classList.contains('scroll-reveal-visible')) return;
-        reveal();
-        classObserver.disconnect();
-      });
-
-      classObserver.observe(parentSection, { attributes: true, attributeFilter: ['class'] });
-      return () => classObserver.disconnect();
-    }
-
     if (!('IntersectionObserver' in window)) {
       reveal();
       return;

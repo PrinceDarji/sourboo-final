@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "node scripts/test.mjs",
     "typecheck": "tsc --noEmit",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "build:low-memory": "SOURBOO_LOW_MEMORY=1 node --max-old-space-size=2048 node_modules/next/dist/bin/next build --webpack",
+    "dev:low-memory": "SOURBOO_LOW_MEMORY=1 node --max-old-space-size=2048 node_modules/next/dist/bin/next dev --webpack"
   },
   "dependencies": {
     "@sanity/client": "^7.14.1",

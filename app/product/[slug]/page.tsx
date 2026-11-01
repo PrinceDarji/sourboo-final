@@ -303,7 +303,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const productName = `${product.title} ${product.accent}${product.suffix ? ` ${product.suffix}` : ''}`;
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#ECECEC] pt-24 md:pt-28">
+    <main className="product-detail-page min-h-screen w-full overflow-x-hidden bg-[#ECECEC] pt-24 md:pt-28">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(productStructuredData(catalogProduct, siteUrl)) }} />
       <Navbar />
 
@@ -311,10 +311,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="mt-2 flex md:mt-4">
           <Link
             href="/product"
-            className="inline-flex h-[56px] w-[220px] items-center justify-center gap-2 whitespace-nowrap bg-[url('/product/button1.svg')] bg-contain bg-center bg-no-repeat px-4 text-[clamp(1.1rem,2vw,1.55rem)] leading-none text-[#FFF8F8] font-schoolbell transition-transform hover:scale-[1.02] md:h-[64px] md:w-[260px]"
+            className="inline-flex h-[68px] w-[240px] max-w-full items-center justify-center gap-2 whitespace-nowrap bg-[url('/product/button1.svg')] bg-[length:100%_100%] bg-center bg-no-repeat px-4 text-[clamp(1.1rem,2vw,1.55rem)] leading-none text-[#FFF8F8] font-schoolbell transition-transform hover:scale-[1.02] md:h-[64px] md:w-[260px]"
           >
-            <span aria-hidden>←</span>
-            back to products
+            <span className="inline-flex -translate-y-[9px] items-center gap-2 md:translate-y-0"><span aria-hidden>←</span>back to products</span>
           </Link>
         </div>
 
@@ -381,7 +380,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </p>
       </section>
 
-      <SiteFooter />
+      <div id="product-footer"><SiteFooter /></div>
     </main>
   );
 }

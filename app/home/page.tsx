@@ -499,7 +499,7 @@ function ProductBand({
           >
             <Link
               href={href}
-              className={`inline-flex min-h-[54px] items-center rounded-full bg-cover bg-center bg-no-repeat px-8 py-3 text-[clamp(1.7rem,3.1vw,2.9rem)] leading-[1] font-schoolbell transition md:min-h-[70px] md:px-12 ${ctaClassName}`}
+              className={`home-product-shop-button inline-flex min-h-[54px] items-center rounded-full bg-cover bg-center bg-no-repeat px-8 py-3 text-[clamp(1.7rem,3.1vw,2.9rem)] leading-[1] font-schoolbell transition md:min-h-[70px] md:px-12 ${ctaClassName}`}
               style={{ backgroundImage: `url(${ctaBackgroundImage})` }}
             >
               <span className="text-[0.88em] sm:text-[0.92em] md:text-[0.95em] lg:text-[1em]">{ctaLabel}</span>
@@ -537,7 +537,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
+    <main className="home-page min-h-screen w-full overflow-x-hidden bg-[#E9ECD9]">
       <Navbar />
 
       <section className="relative mx-auto w-full max-w-[1600px]">

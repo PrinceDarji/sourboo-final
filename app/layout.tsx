@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { rascal, coolvetica, schoolbell } from "./fonts";
 import "./globals.css";
 import CartRoot from './components/cart/CartRoot';
@@ -40,8 +41,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+async function PopupSettings() {
   const landingPopup = await getLandingPopupContent(300);
+  return <LandingPopupRedirect enabled={landingPopup.enabled} delaySeconds={landingPopup.delaySeconds} />;
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html
@@ -49,10 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${rascal.variable} ${coolvetica.variable} ${schoolbell.variable}`}
     >
       <body>
-        <LandingPopupRedirect
-          enabled={landingPopup.enabled}
-          delaySeconds={landingPopup.delaySeconds}
-        />
+        <Suspense fallback={null}><PopupSettings /></Suspense>
         <SectionScrollReveal />
         <CartRoot>{children}</CartRoot>
       </body>

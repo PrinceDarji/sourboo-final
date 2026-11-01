@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '../components/about/AboutNavbar';
@@ -643,7 +644,7 @@ function ProductCard({
     ? 'opacity-100'
     : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100';
 
-  const cardSizeClass = isDesktop ? 'h-[530px] w-[500px]' : 'h-[420px] w-[360px]';
+  const cardSizeClass = isDesktop ? 'h-[530px] w-[500px]' : 'h-[420px] w-full max-w-[360px]';
   const shouldShrinkMobileJar = !isDesktop && index < 2;
   const jarSizeClass = (product.jarCount ?? 1) > 1
     ? isDesktop ? 'h-[300px] w-[420px]' : 'h-[245px] w-[310px]'
@@ -675,7 +676,7 @@ function ProductCard({
       : product.hoverLabel;
 
   return (
-    <article className={`group relative ${cardMarginClass}`}>
+    <article id={`${mode}-${product.slug}`} className={`group relative ${cardMarginClass}`}>
       <p
         className={`pointer-events-none absolute z-20 whitespace-pre-line leading-[1.02] text-[#9f1c74] font-rascal transition-opacity duration-200 ${labelBaseClass} ${labelStateClass}`}
       >
@@ -777,13 +778,8 @@ function ProductCard({
 }
 
 export default async function ProductPage() {
-  const [products, pageContent] = await Promise.all([getProducts(), getProductPageContent()]);
+  const products = await getProducts();
   const hasProducts = products.length > 0;
-  const primaryMatchProduct = products.find((product) => product.styleVariant === 'primary') ?? products[0];
-  const secondaryMatchProduct =
-    products.find((product) => product.styleVariant === 'secondary') ?? products[1] ?? products[0];
-  const primaryMatchHref = primaryMatchProduct ? `/product/${primaryMatchProduct.slug}` : '/product';
-  const secondaryMatchHref = secondaryMatchProduct ? `/product/${secondaryMatchProduct.slug}` : '/product';
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#E9ECD9] pt-24 md:pt-28">
@@ -791,9 +787,10 @@ export default async function ProductPage() {
       <Navbar />
       <ProductWordByWordReveal />
 
-      <section className="mx-auto w-full max-w-[430px] px-4 pb-12 md:hidden">
+
+      <section className="mx-auto w-full max-w-[900px] px-4 pb-12 xl:hidden">
         {hasProducts ? (
-          <div className="mt-4 grid grid-cols-1 gap-12">
+          <div className="mt-4 grid grid-cols-1 gap-12 sm:grid-cols-2">
             {products.map((product, index) => (
               <ProductCard
                 key={product.slug}
@@ -806,12 +803,12 @@ export default async function ProductPage() {
           </div>
         ) : (
           <p className="mt-10 text-center text-[44px] leading-[1.1] text-[#4a4743] font-coolvetica">
-            {pageContent.emptyStateText}
+            No products yet.
           </p>
         )}
       </section>
 
-      <section className="hidden md:block">
+      <section className="hidden xl:block">
         <div className="mx-auto w-full max-w-[1440px] px-14 pb-24">
           {hasProducts ? (
             <div className="grid grid-cols-2 items-start gap-8 pt-4">
@@ -827,12 +824,28 @@ export default async function ProductPage() {
             </div>
           ) : (
             <p className="pt-16 text-center text-[42px] leading-[1.1] text-[#4a4743] font-coolvetica">
-              {pageContent.emptyStateText}
+              No products yet.
             </p>
           )}
         </div>
       </section>
 
+      <Suspense fallback={null}><ProductMarketing /></Suspense>
+
+      <SiteFooter />
+    </main>
+  );
+}
+
+async function ProductMarketing() {
+  const [products, pageContent] = await Promise.all([getProducts(), getProductPageContent()]);
+  const primaryMatchProduct = products.find((product) => product.styleVariant === 'primary') ?? products[0];
+  const secondaryMatchProduct =
+    products.find((product) => product.styleVariant === 'secondary') ?? products[1] ?? products[0];
+  const primaryMatchHref = primaryMatchProduct ? `/product/${primaryMatchProduct.slug}` : '/product';
+  const secondaryMatchHref = secondaryMatchProduct ? `/product/${secondaryMatchProduct.slug}` : '/product';
+
+  return <>
       {pageContent.showFlavorMatchSection ? (
         <>
           <section className="w-full pb-10 pt-14 md:pb-14 md:pt-24">
@@ -875,8 +888,8 @@ export default async function ProductPage() {
 
           <section className="w-full pb-10 pt-2 md:pb-14 md:pt-4">
             <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
-              <div className="flex items-end gap-2 md:items-center md:gap-12">
-                <div className="relative h-[300px] w-[211px] shrink-0 md:h-[380px] md:w-[276px]">
+              <div className="grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-center gap-3 md:flex md:gap-12">
+                <div className="relative aspect-[211/300] w-full min-w-0 md:aspect-auto md:h-[380px] md:w-[276px] md:shrink-0">
                   <Image
                     src={pageContent.primaryMatch.playerImage.src}
                     alt={pageContent.primaryMatch.playerImage.alt}
@@ -888,7 +901,7 @@ export default async function ProductPage() {
 
                 <AnimatedFlavorMeters
                   meters={pageContent.primaryMatch.meters}
-                  className="flex-1 space-y-4 md:space-y-5"
+                  className="min-w-0 flex-1 space-y-4 md:space-y-5"
                 />
               </div>
             </div>
@@ -967,8 +980,8 @@ export default async function ProductPage() {
 
           <section className="w-full pb-10 pt-2 md:pb-14 md:pt-4">
             <div className="mx-auto w-full max-w-[430px] px-4 md:max-w-[1360px] md:px-12">
-              <div className="relative mx-auto w-full max-w-[920px]">
-                <div className="pointer-events-none absolute right-[-25%] -top-8 z-20 h-[285px] w-[254px] md:-right-16 md:-top-10 md:h-[390px] md:w-[343px] ">
+              <div className="relative mx-auto grid w-full max-w-[920px] grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] items-center gap-3 md:block">
+                <div className="pointer-events-none relative order-2 aspect-[254/285] w-full min-w-0 md:absolute md:-right-16 md:-top-10 md:z-20 md:h-[390px] md:w-[343px]">
                   <Image
                     src={pageContent.secondaryMatch.playerImage.src}
                     alt={pageContent.secondaryMatch.playerImage.alt}
@@ -980,7 +993,7 @@ export default async function ProductPage() {
 
                 <AnimatedFlavorMeters
                   meters={pageContent.secondaryMatch.meters}
-                  className="w-[205px] space-y-3 [&>div>div]:h-3 [&>div>p]:mb-0.5 [&>div>p]:text-[1.45rem] md:w-auto md:space-y-5 md:pr-[210px] md:[&>div>div]:h-5 md:[&>div>p]:mb-1 md:[&>div>p]:text-[clamp(1.65rem,2.4vw,2.6rem)]"
+                  className="order-1 min-w-0 w-full space-y-3 [&>div>div]:h-3 [&>div>p]:mb-0.5 md:w-auto md:space-y-5 md:pr-[210px] md:[&>div>div]:h-5 md:[&>div>p]:mb-1 md:[&>div>p]:text-[clamp(1.65rem,2.4vw,2.6rem)]"
                 />
               </div>
             </div>
@@ -1104,7 +1117,5 @@ export default async function ProductPage() {
 
       <HomeReviewPhoneSection bubbleTexts={pageContent.reviewBubbleTexts} />
 
-      <SiteFooter />
-    </main>
-  );
+  </>;
 }

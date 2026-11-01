@@ -126,25 +126,25 @@ export default function ProductDetailSections({
   };
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-[960px] md:mt-12">
-      <div className="flex w-full flex-nowrap items-start justify-between gap-2 md:gap-6">
+    <div className="mx-auto mt-8 w-full min-w-0 max-w-[960px] [overflow-wrap:anywhere] md:mt-12">
+      <div className="grid w-full grid-cols-[1.15fr_1fr_1fr] items-center gap-1 md:flex md:items-start md:justify-between md:gap-6">
           <button
             type="button"
             onClick={() => togglePanel('inJar')}
             aria-expanded={openPanel === 'inJar'}
             aria-controls={PANEL_IDS.inJar}
-            className="shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E9A19]"
+            className="min-w-0 w-full md:w-auto md:shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E9A19]"
           >
-          <span className="relative inline-flex h-[44px] w-[132px] items-center justify-center md:h-[66px] md:w-[300px]">
+          <span className="relative inline-flex h-[56px] w-full items-center justify-center md:h-[66px] md:w-[300px]">
             <Image
               src="/product/inthejarbg.svg"
               alt=""
               fill
               aria-hidden
               sizes="(max-width: 768px) 132px, 300px"
-              className="object-contain"
+              className="object-fill md:object-contain"
             />
-            <span className="relative z-10 text-[clamp(1.45rem,4.6vw,2.05rem)] leading-none text-[#171717] font-schoolbell md:text-[clamp(2.3rem,3vw,3.6rem)]">
+            <span className="relative z-10 text-center text-[clamp(1rem,4.3vw,2.05rem)] leading-none text-[#171717] font-schoolbell md:text-[clamp(2.3rem,3vw,3.6rem)]">
               {detailInJarTitle}
             </span>
           </span>
@@ -155,18 +155,18 @@ export default function ProductDetailSections({
             onClick={() => togglePanel('onTongue')}
             aria-expanded={openPanel === 'onTongue'}
             aria-controls={PANEL_IDS.onTongue}
-            className="shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BBB123]"
+            className="min-w-0 w-full md:w-auto md:shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BBB123]"
           >
-          <span className="relative inline-flex h-[50px] w-[102px] items-center justify-center md:h-[84px] md:w-[158px]">
+          <span className="relative inline-flex h-[56px] w-full items-center justify-center md:h-[84px] md:w-[158px]">
             <Image
               src="/product/onthetonguebg.svg"
               alt=""
               fill
               aria-hidden
               sizes="(max-width: 768px) 102px, 158px"
-              className="object-contain"
+              className="object-fill md:object-contain"
             />
-            <span className="relative z-10 max-w-[84px] text-center text-[clamp(1.15rem,3.6vw,1.6rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[130px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
+            <span className="relative z-10 max-w-[90%] text-center text-[clamp(1rem,3.6vw,1.6rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[130px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
               {detailOnTongueTitle}
             </span>
           </span>
@@ -177,18 +177,18 @@ export default function ProductDetailSections({
             onClick={() => togglePanel('afterOpening')}
             aria-expanded={openPanel === 'afterOpening'}
             aria-controls={PANEL_IDS.afterOpening}
-            className="shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A35A0A]"
+            className="min-w-0 w-full md:w-auto md:shrink-0 cursor-pointer border-0 bg-transparent p-0 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A35A0A]"
           >
-          <span className="relative inline-flex h-[50px] w-[102px] items-center justify-center md:h-[80px] md:w-[154px]">
+          <span className="relative inline-flex h-[56px] w-full items-center justify-center md:h-[80px] md:w-[154px]">
             <Image
               src="/product/afteropeningbg.svg"
               alt=""
               fill
               aria-hidden
               sizes="(max-width: 768px) 102px, 154px"
-              className="object-contain"
+              className="object-fill md:object-contain"
             />
-            <span className="relative z-10 max-w-[84px] text-center text-[clamp(1.1rem,3.5vw,1.55rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[122px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
+            <span className="relative z-10 max-w-[90%] text-center text-[clamp(1rem,3.5vw,1.55rem)] leading-[0.95] text-[#171717] font-schoolbell md:max-w-[122px] md:text-[clamp(1.9rem,2.6vw,3rem)]">
               {detailAfterOpeningTitle}
             </span>
           </span>

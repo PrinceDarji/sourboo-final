@@ -1,6 +1,6 @@
 'use client';
 
-export const MOBILE_PERFORMANCE_MEDIA_QUERY = '(pointer: coarse), (max-width: 767px)';
+export const MOBILE_PERFORMANCE_MEDIA_QUERY = '(pointer: coarse), (max-width: 1279px)';
 
 const REDUCED_MOTION_MEDIA_QUERY = '(prefers-reduced-motion: reduce)';
 

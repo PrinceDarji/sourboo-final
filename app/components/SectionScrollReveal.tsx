@@ -5,81 +5,36 @@ import { useEffect } from 'react';
 import { shouldSimplifyMotion } from './clientMotionPreferences';
 
 const SECTION_SELECTOR = 'main > section:not([data-scroll-reveal="off"])';
-const BASE_CLASS = 'scroll-reveal';
-const VISIBLE_CLASS = 'scroll-reveal-visible';
-const DELAY_STEP_MS = 40;
-const MAX_DELAY_MS = 160;
-const INITIAL_VISIBLE_RATIO = 0.45;
-const REVEAL_INTERSECTION_RATIO = 0.01;
-
-function markVisible(section: HTMLElement) {
-  section.classList.add(VISIBLE_CLASS);
-}
 
 export default function SectionScrollReveal() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>(SECTION_SELECTOR));
-    if (sections.length === 0) return;
+    if (shouldSimplifyMotion() || !('IntersectionObserver' in window)) return;
 
-    if (shouldSimplifyMotion()) {
-      sections.forEach((section) => {
-        section.classList.remove(BASE_CLASS, VISIBLE_CLASS);
-        section.style.removeProperty('--scroll-reveal-delay');
-      });
-      return;
-    }
-
-    sections.forEach((section, index) => {
-      section.classList.add(BASE_CLASS);
-      section.classList.remove(VISIBLE_CLASS);
-      section.style.setProperty('--scroll-reveal-delay', `${Math.min(index * DELAY_STEP_MS, MAX_DELAY_MS)}ms`);
-    });
-
-    const viewportHeight = window.innerHeight || 0;
-    sections.forEach((section) => {
-      const rect = section.getBoundingClientRect();
-      if (rect.top <= viewportHeight * INITIAL_VISIBLE_RATIO) {
-        markVisible(section);
+    const animations: Animation[] = [];
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        if (shouldSimplifyMotion() || typeof entry.target.animate !== 'function') continue;
+        // Web Animations do not alter React-owned class/style attributes.
+        // Never hide content while a streamed boundary is still hydrating.
+        animations.push(entry.target.animate([
+          { opacity: 0, transform: 'translate3d(0, 48px, 0)' },
+          { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 650, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }));
       }
-    });
+    }, { threshold: 0.01 });
 
-    if (!('IntersectionObserver' in window)) {
-      sections.forEach((section) => markVisible(section));
-      return () => {
-        sections.forEach((section) => {
-          section.style.removeProperty('--scroll-reveal-delay');
-        });
-      };
+    for (const section of document.querySelectorAll<HTMLElement>(SECTION_SELECTOR)) {
+      // Above-the-fold content stays immediately visible.
+      if (section.getBoundingClientRect().top >= window.innerHeight) observer.observe(section);
     }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const section = entry.target as HTMLElement;
-          if (!entry.isIntersecting) return;
-          markVisible(section);
-          observer.unobserve(section);
-        });
-      },
-      {
-        threshold: [0, REVEAL_INTERSECTION_RATIO],
-        rootMargin: '0px 0px -18% 0px',
-      },
-    );
-
-    sections.forEach((section) => {
-      if (section.classList.contains(VISIBLE_CLASS)) return;
-      observer.observe(section);
-    });
 
     return () => {
       observer.disconnect();
-      sections.forEach((section) => {
-        section.classList.remove(BASE_CLASS, VISIBLE_CLASS);
-        section.style.removeProperty('--scroll-reveal-delay');
-      });
+      animations.forEach((animation) => animation.cancel());
     };
   }, [pathname]);
 

@@ -34,8 +34,9 @@ export default function QuickBuyButton({
         });
         openCart();
       }}
-      className={className}
+      className={`mobile-quick-buy ${className}`} aria-label={`Buy ${name}`}
     >
+      <span className="mobile-buy-label">Buy now · {priceLabel}</span>
       {children}
     </button>
   );

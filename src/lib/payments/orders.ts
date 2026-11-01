@@ -267,13 +267,13 @@ export async function updateOrderFromStatus(input: {
     phonepe_order_id?: string;
     status: InternalOrderStatus;
     phonepe_raw_status_response: unknown;
-    error_context: unknown;
+    error_context?: unknown;
     updated_at: string;
     paid_at?: string;
   } = {
     status: input.status,
     phonepe_raw_status_response: input.rawStatusResponse,
-    error_context: input.errorContext || null,
+    ...(input.errorContext ? { error_context: input.errorContext } : {}),
     updated_at: nowIso,
   };
 
@@ -457,9 +457,11 @@ async function sendOrderConfirmationEmailOnce(
     .from("orders")
     .update({
       confirmation_email_sent_at: sentAt,
+      error_context: { source: "order_confirmation_in_progress" },
       updated_at: sentAt,
     })
     .eq("merchant_order_id", merchantOrderId)
+    .eq("status", "SUCCESS")
     .is("confirmation_email_sent_at", null)
     .select(
       "id, merchant_order_id, phonepe_order_id, amount_paise, rupees, currency, customer_name, customer_email, customer_phone, shipping_address, cart_snapshot_json, phonepe_redirect_url, created_at, updated_at, paid_at, confirmation_email_sent_at, zoho_contact_id, zoho_invoice_id, zoho_invoice_number, zoho_payment_id, zoho_invoice_created_at, zoho_invoice_pdf_fetched_at, zoho_invoice_error_context",
@@ -474,7 +476,6 @@ async function sendOrderConfirmationEmailOnce(
   }
 
   if (!order) {
-    await ensureMissingZohoInvoiceForPaidOrder(merchantOrderId);
     return;
   }
 
@@ -580,13 +581,22 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
   failed: Array<{ merchantOrderId: string; error: string }>;
 }> {
   const supabase = getSupabaseAdminClient();
+  // Recover workers interrupted before delivery finished. The source marker
+  // distinguishes a lease from a completed delivery; ordinary sent orders stay sent.
+  const staleBefore = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { error: recoveryError } = await supabase.from("orders")
+    .update({ confirmation_email_sent_at: null,
+      error_context: { source: "order_confirmation_email", message: "Interrupted delivery; queued for retry." } })
+    .eq("status", "SUCCESS")
+    .eq("error_context->>source", "order_confirmation_in_progress")
+    .lt("confirmation_email_sent_at", staleBefore);
+  if (recoveryError) throw toOrderInsertError("Failed to recover interrupted confirmations.", recoveryError);
   const { data, error } = await supabase
     .from("orders")
     .select("merchant_order_id")
     .eq("status", "SUCCESS")
     .is("confirmation_email_sent_at", null)
-    .eq("error_context->>source", "order_confirmation_email")
-    .order("paid_at", { ascending: true })
+    .order("updated_at", { ascending: true })
     .limit(limit);
 
   if (error) {
@@ -618,35 +628,6 @@ export async function retryRecentFailedOrderConfirmations(limit = 25): Promise<{
   }
 
   return { retried, failed };
-}
-
-async function ensureMissingZohoInvoiceForPaidOrder(
-  merchantOrderId: string,
-): Promise<void> {
-  const supabase = getSupabaseAdminClient();
-  const order = await getOrderByMerchantOrderId(merchantOrderId);
-
-  if (!order || order.status !== "SUCCESS" || order.zoho_invoice_id) {
-    return;
-  }
-
-  try {
-    const storedItems = await fetchStoredOrderItems(supabase, order.id);
-    const invoiceItems = appendOrderChargesFromSnapshot(order, storedItems);
-    const invoicePdf = await ensureZohoInvoiceForOrder({
-      supabase,
-      order,
-      items: storedItems,
-    });
-
-    await sendOrderConfirmationEmail({
-      order,
-      items: toOrderConfirmationItems(invoiceItems),
-      attachments: [toInvoiceAttachment(invoicePdf)],
-    });
-  } catch (invoiceError) {
-    console.error("Failed to retry missing Zoho invoice", invoiceError);
-  }
 }
 
 export async function tryInsertPaymentEvent(input: {
