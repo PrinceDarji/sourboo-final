@@ -8,7 +8,6 @@ import AboutTopStrip from '../components/about/AboutTopStrip';
 import IndiaLovesLines from '../components/about/IndiaLovesLines';
 import AboutFlavorWords from '../components/about/AboutFlavorWords';
 import AboutWordByWordReveal from '../components/about/AboutWordByWordReveal';
-import AboutEnvelopeText from '../components/about/AboutEnvelopeText';
 import SectionThreeEyesSequence from '../components/about/SectionThreeEyesSequence';
 import { sanityImageOrFileUrl } from '@/src/lib/sanity/image';
 
@@ -914,27 +913,7 @@ export default async function Home() {
             {aboutContent.section6.headingLine2}
           </p>
 
-          <div className="mx-auto mt-14 w-[92%] md:mt-20 md:w-[82%]">
-            <p className="ml-auto w-fit translate-y-1 text-right text-[32px] leading-none text-[#4f4956] font-coolvetica md:translate-y-12 md:text-[64px]">
-              {aboutContent.section6.joinMoreText}
-            </p>
-          </div>
 
-          <div className="relative mx-auto mt-2 h-[300px] w-[88%] md:mt-4 md:h-[680px] md:w-[76%]">
-            <Image
-              src={aboutContent.section6.envelopeImage.src}
-              alt={aboutContent.section6.envelopeImage.alt}
-              fill
-              sizes="(max-width: 768px) 88vw, 76vw"
-              className="object-contain"
-            />
-
-            <AboutEnvelopeText
-              heading={aboutContent.section6.envelope.heading}
-              body={aboutContent.section6.envelope.body}
-              signoff={aboutContent.section6.envelope.signoff}
-            />
-          </div>
         </div>
 
         <div

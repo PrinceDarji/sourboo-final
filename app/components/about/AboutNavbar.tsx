@@ -145,8 +145,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="absolute inset-x-[5%] top-[50%] z-20 grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr] items-center sm:flex sm:justify-between sm:inset-x-[8%] sm:top-[67%] md:inset-x-[9%] md:top-[69%]">
-            <div className="pointer-events-auto contents sm:flex sm:items-center sm:gap-4 md:gap-7">
+          <div className="absolute inset-x-[5%] top-[50%] z-20 grid grid-cols-5 items-center sm:inset-x-[8%] sm:top-[67%] md:inset-x-[9%] md:top-[69%]">
+            <div className="pointer-events-auto contents">
               {leftLinks.map((item) => (
                 <Link
                   key={item.label}
@@ -162,7 +162,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            <div className="pointer-events-auto contents sm:flex sm:items-center sm:gap-4 md:gap-7">
+            <div className="pointer-events-auto contents">
               {rightLinks.map((item) => (
                 <Link
                   key={item.label}

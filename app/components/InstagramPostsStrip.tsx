@@ -36,7 +36,15 @@ export default function InstagramPostsStrip({
         <p className="mx-auto max-w-[900px] text-center text-[clamp(2.1rem,4.5vw,5.1rem)] leading-[0.96] text-[#E61E6E] font-coolvetica">
           {headingPrefix}
           <br />
-          {handle}
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Visit ${handle} on Instagram (opens in a new tab)`}
+            className="inline-block rounded-lg hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+          >
+            {handle}
+          </a>
         </p>
 
         <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [touch-action:pan-x] md:mx-0 md:mt-10 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 md:[touch-action:auto]">
