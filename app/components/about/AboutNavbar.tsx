@@ -66,7 +66,7 @@ export default function Navbar() {
         <div className="relative aspect-[1440/260] w-full overflow-hidden">
           <div className="absolute inset-0 -translate-y-[8%] scale-[1.06] origin-top">
             <Image
-              src="/navbar.svg"
+              src="/navbar.webp"
               alt="Navigation"
               fill
               sizes="(min-width: 1024px) min(100vw, 1320px), 0px"
@@ -134,7 +134,7 @@ export default function Navbar() {
             <Link href="/" onClick={handleHomeLogoClick} className="block" aria-label="Go to home page">
               <div className="relative h-[36px] w-[160px] sm:h-[60px] sm:w-[210px] md:h-[72px] md:w-[252px]">
                 <Image
-                  src="/navlogo.svg"
+                  src="/navlogo.webp"
                   alt="Sourboo logo"
                   fill
                   sizes="(max-width: 640px) 160px, (max-width: 768px) 210px, 252px"

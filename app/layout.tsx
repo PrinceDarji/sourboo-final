@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Script from 'next/script';
 import { rascal, coolvetica, schoolbell } from "./fonts";
 import "./globals.css";
 import CartRoot from './components/cart/CartRoot';
@@ -41,6 +42,9 @@ export const metadata: Metadata = {
   },
 };
 
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+
 async function PopupSettings() {
   const landingPopup = await getLandingPopupContent(300);
   return <LandingPopupRedirect enabled={landingPopup.enabled} delaySeconds={landingPopup.delaySeconds} />;
@@ -54,6 +58,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${rascal.variable} ${coolvetica.variable} ${schoolbell.variable}`}
     >
       <body>
+        {gaMeasurementId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaMeasurementId)}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', ${JSON.stringify(gaMeasurementId)});`}
+            </Script>
+          </>
+        ) : null}
+        {metaPixelId ? (
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {`!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', ${JSON.stringify(metaPixelId)});
+fbq('track', 'PageView');`}
+          </Script>
+        ) : null}
         <Suspense fallback={null}><PopupSettings /></Suspense>
         <SectionScrollReveal />
         <CartRoot>{children}</CartRoot>
