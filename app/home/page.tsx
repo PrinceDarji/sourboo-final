@@ -225,7 +225,7 @@ const DEFAULT_HOME_CONTENT: HomeCmsContent = {
     src: '/home/hero-placeholder.webp',
     alt: 'hero placeholder',
     titleLine1: 'the sourboo way,',
-    titleLine2: 'cravings comes first',
+    titleLine2: 'cravings come first',
   },
   intro: {
     headlineLine1: 'sourboo made for people who eat',

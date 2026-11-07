@@ -1,36 +1,20 @@
-'use client';
-
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { isLandingPopupDismissed } from './landingPopupStorage';
-
 type LandingPopupRedirectProps = {
   enabled: boolean;
   delaySeconds: number;
 };
 
+/**
+ * Homepage forced redirect is disabled.
+ * Stays mounted from the root layout and renders nothing, so no timer is
+ * scheduled and router.push('/popup') never runs.
+ */
 export default function LandingPopupRedirect({
   enabled,
   delaySeconds,
 }: LandingPopupRedirectProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!enabled) return;
-    // Marketing prompts must never interrupt payment or order confirmation.
-    if (pathname !== '/' && pathname !== '/home') return;
-    if (isLandingPopupDismissed()) return;
-
-    const currentQuery = window.location.search;
-    const fromPath = `${pathname}${currentQuery}`;
-
-    const timer = window.setTimeout(() => {
-      router.push(`/popup?from=${encodeURIComponent(fromPath)}`);
-    }, Math.max(0, delaySeconds) * 1000);
-
-    return () => window.clearTimeout(timer);
-  }, [delaySeconds, enabled, pathname, router]);
-
+  // Props remain for the root-layout caller. They are intentionally unused:
+  // no timer is scheduled and the popup route is never pushed.
+  void enabled;
+  void delaySeconds;
   return null;
 }
